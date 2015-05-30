@@ -1,16 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from nose.tools import *
+from unittest import TestCase
 import myanimelist.session
 import myanimelist.media_list
 
 
-class testMediaListClass(object):
+class testMediaListClass(TestCase):
     @classmethod
     def setUpClass(self):
         self.session = myanimelist.session.Session()
 
-    @raises(TypeError)
     def testCannotInstantiateMediaList(self):
-        myanimelist.media_list.MediaList(self.session, "test_username")
+        with self.assertRaises(TypeError):
+            myanimelist.media_list.MediaList(self.session, "test_username")
