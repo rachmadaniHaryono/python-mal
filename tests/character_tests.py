@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from nose.tools import *
+from unittest import TestCase
 import myanimelist.session
 import myanimelist.character
 import myanimelist.user
 
 
-class testCharacterClass(object):
+class testCharacterClass(TestCase):
     @classmethod
     def setUpClass(self):
         self.session = myanimelist.session.Session()
@@ -16,89 +16,117 @@ class testCharacterClass(object):
         self.maria = self.session.character(112693)
         self.invalid_character = self.session.character(457384754)
 
-    @raises(TypeError)
     def testNoIDInvalidCharacter(self):
-        self.session.character()
+        with self.assertRaises(TypeError):
+            self.session.character()
 
-    @raises(myanimelist.character.InvalidCharacterError)
     def testNegativeInvalidCharacter(self):
-        self.session.character(-1)
+        with self.assertRaises(myanimelist.character.InvalidCharacterError):
+            self.session.character(-1)
 
-    @raises(myanimelist.character.InvalidCharacterError)
     def testFloatInvalidCharacter(self):
-        self.session.character(1.5)
+        with self.assertRaises(myanimelist.character.InvalidCharacterError):
+            self.session.character(1.5)
 
-    @raises(myanimelist.character.InvalidCharacterError)
     def testNonExistentCharacter(self):
-        self.invalid_character.load()
+        with self.assertRaises(myanimelist.character.InvalidCharacterError):
+            self.invalid_character.load()
 
     def testCharacterValid(self):
-        assert isinstance(self.spike, myanimelist.character.Character)
-        assert isinstance(self.maria, myanimelist.character.Character)
+        self.assertIsInstance(self.spike, myanimelist.character.Character)
+        self.assertIsInstance(self.maria, myanimelist.character.Character)
 
     def testName(self):
-        assert self.spike.name == u'Spike Spiegel'
-        assert self.ed.name == u'Edward Elric'
-        assert self.maria.name == u'Maria'
+        self.assertEqual(self.spike.name, u'Spike Spiegel')
+        self.assertEqual(self.ed.name, u'Edward Elric')
+        self.assertEqual(self.maria.name, u'Maria')
 
     def testFullName(self):
-        assert self.spike.full_name == u'Spike  Spiegel'
-        assert self.ed.full_name == u'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric'
-        assert self.maria.full_name == u'Maria'
+        self.assertEqual(self.spike.full_name, u'Spike  Spiegel')
+        self.assertEqual(self.ed.full_name, u'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
+        self.assertEqual(self.maria.full_name, u'Maria')
 
     def testJapaneseName(self):
-        assert self.spike.name_jpn == u'スパイク・スピーゲル'
-        assert self.ed.name_jpn == u'エドワード・エルリック'
-        assert self.maria.name_jpn == u'マリア'
+        self.assertEqual(self.spike.name_jpn, u'スパイク・スピーゲル')
+        self.assertEqual(self.ed.name_jpn, u'エドワード・エルリック')
+        self.assertEqual(self.maria.name_jpn, u'マリア')
 
     def testDescription(self):
-        assert isinstance(self.spike.description, unicode) and len(self.spike.description) > 0
-        assert isinstance(self.ed.description, unicode) and len(self.ed.description) > 0
-        assert isinstance(self.maria.description, unicode) and len(self.maria.description) > 0
+        self.assertIsInstance(self.spike.description, unicode)
+        self.assertGreater(len(self.spike.description), 0)
+        self.assertIsInstance(self.ed.description, unicode)
+        self.assertGreater(len(self.ed.description), 0)
+        self.assertIsInstance(self.maria.description, unicode)
+        self.assertGreater(len(self.maria.description), 0)
 
     def testPicture(self):
-        assert isinstance(self.spike.picture, unicode) and len(self.spike.picture) > 0
-        assert isinstance(self.ed.picture, unicode) and len(self.ed.picture) > 0
-        assert isinstance(self.maria.picture, unicode) and len(self.maria.picture) > 0
+        self.assertIsInstance(self.spike.picture, unicode)
+        self.assertGreater(len(self.spike.picture), 0)
+        self.assertIsInstance(self.ed.picture, unicode)
+        self.assertGreater(len(self.ed.picture), 0)
+        self.assertIsInstance(self.maria.picture, unicode)
+        self.assertGreater(len(self.maria.picture), 0)
 
     def testPictures(self):
-        assert isinstance(self.spike.pictures, list) and len(self.spike.pictures) > 0 and all(
-            map(lambda p: isinstance(p, unicode) and p.startswith(u'http://'), self.spike.pictures))
-        assert isinstance(self.ed.pictures, list) and len(self.ed.pictures) > 0 and all(
-            map(lambda p: isinstance(p, unicode) and p.startswith(u'http://'), self.ed.pictures))
-        assert isinstance(self.maria.pictures, list)
+        self.assertIsInstance(self.spike.pictures, list)
+        self.assertGreater(len(self.spike.pictures), 0)
+        for p in self.spike.pictures:
+            self.assertIsInstance(p, unicode)
+            self.assertTrue(p.startswith(u'http://'))
+        self.assertIsInstance(self.ed.pictures, list)
+        self.assertGreater(len(self.ed.pictures), 0)
+        for p in self.spike.pictures:
+            self.assertIsInstance(p, unicode)
+            self.assertTrue(p.startswith(u'http://'))
+        self.assertIsInstance(self.maria.pictures, list)
 
     def testAnimeography(self):
-        assert isinstance(self.spike.animeography, dict) and len(self.spike.animeography) > 0 and self.session.anime(
-            1) in self.spike.animeography
-        assert isinstance(self.ed.animeography, dict) and len(self.ed.animeography) > 0 and self.session.anime(
-            5114) in self.ed.animeography
-        assert isinstance(self.maria.animeography, dict) and len(self.maria.animeography) > 0 and self.session.anime(
-            26441) in self.maria.animeography
+        self.assertIsInstance(self.spike.animeography, dict)
+        self.assertGreater(len(self.spike.animeography), 0)
+        self.assertIn(self.session.anime(1), self.spike.animeography)
+        self.assertIsInstance(self.ed.animeography, dict)
+        self.assertGreater(len(self.ed.animeography), 0)
+        self.assertIn(self.session.anime(5114), self.ed.animeography)
+        self.assertIsInstance(self.maria.animeography, dict)
+        self.assertGreater(len(self.maria.animeography), 0)
+        self.assertIn(self.session.anime(26441), self.maria.animeography)
 
     def testMangaography(self):
-        assert isinstance(self.spike.mangaography, dict) and len(self.spike.mangaography) > 0 and self.session.manga(
-            173) in self.spike.mangaography
-        assert isinstance(self.ed.mangaography, dict) and len(self.ed.mangaography) > 0 and self.session.manga(
-            4658) in self.ed.mangaography
-        assert isinstance(self.maria.mangaography, dict) and len(self.maria.mangaography) > 0 and self.session.manga(
-            12336) in self.maria.mangaography
+        self.assertIsInstance(self.spike.mangaography, dict)
+        self.assertGreater(len(self.spike.mangaography), 0)
+        self.assertIn(self.session.manga(173), self.spike.mangaography)
+        self.assertIsInstance(self.ed.mangaography, dict)
+        self.assertGreater(len(self.ed.mangaography), 0)
+        self.assertIn(self.session.manga(4658), self.ed.mangaography)
+        self.assertIsInstance(self.maria.mangaography, dict)
+        self.assertGreater(len(self.maria.mangaography), 0)
+        self.assertIn(self.session.manga(12336), self.maria.mangaography)
 
     def testNumFavorites(self):
-        assert isinstance(self.spike.num_favorites, int) and self.spike.num_favorites > 12000
-        assert isinstance(self.ed.num_favorites, int) and self.ed.num_favorites > 19000
-        assert isinstance(self.maria.num_favorites, int)
+        self.assertIsInstance(self.spike.num_favorites, int)
+        self.assertGreater(self.spike.num_favorites, 12000)
+        self.assertIsInstance(self.ed.num_favorites, int)
+        self.assertGreater(self.ed.num_favorites, 19000)
+        self.assertIsInstance(self.maria.num_favorites, int)
 
     def testFavorites(self):
-        assert isinstance(self.spike.favorites, list) and len(self.spike.favorites) > 12000 and all(
-            map(lambda u: isinstance(u, myanimelist.user.User), self.spike.favorites))
-        assert isinstance(self.ed.favorites, list) and len(self.ed.favorites) > 19000 and all(
-            map(lambda u: isinstance(u, myanimelist.user.User), self.ed.favorites))
-        assert isinstance(self.maria.favorites, list)
+        self.assertIsInstance(self.spike.favorites, list)
+        self.assertGreater(len(self.spike.favorites), 12000)
+        for u in self.spike.favorites:
+            self.assertIsInstance(u, myanimelist.user.User)
+        self.assertIsInstance(self.ed.favorites, list)
+        self.assertGreater(len(self.ed.favorites), 19000)
+        for u in self.ed.favorites:
+            self.assertIsInstance(u, myanimelist.user.User)
+        self.assertIsInstance(self.maria.favorites, list)
 
     def testClubs(self):
-        assert isinstance(self.spike.clubs, list) and len(self.spike.clubs) > 50 and all(
-            map(lambda u: isinstance(u, myanimelist.club.Club), self.spike.clubs))
-        assert isinstance(self.ed.clubs, list) and len(self.ed.clubs) > 200 and all(
-            map(lambda u: isinstance(u, myanimelist.club.Club), self.ed.clubs))
-        assert isinstance(self.maria.clubs, list)
+        self.assertIsInstance(self.spike.clubs, list)
+        self.assertGreater(len(self.spike.clubs), 50)
+        for u in self.spike.clubs:
+            self.assertIsInstance(u, myanimelist.club.Club)
+        self.assertIsInstance(self.ed.clubs, list)
+        self.assertGreater(len(self.ed.clubs), 200)
+        for u in self.spike.clubs:
+            self.assertIsInstance(u, myanimelist.club.Club)
+        self.assertIsInstance(self.maria.clubs, list)
