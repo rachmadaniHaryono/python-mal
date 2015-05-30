@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
+
 import myanimelist.session
 import myanimelist.media_list
 

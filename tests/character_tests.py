@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
+
 import myanimelist.session
 import myanimelist.character
 import myanimelist.user
@@ -43,7 +44,8 @@ class testCharacterClass(TestCase):
 
     def testFullName(self):
         self.assertEqual(self.spike.full_name, u'Spike  Spiegel')
-        self.assertEqual(self.ed.full_name, u'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
+        self.assertEqual(self.ed.full_name,
+                         u'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
         self.assertEqual(self.maria.full_name, u'Maria')
 
     def testJapaneseName(self):

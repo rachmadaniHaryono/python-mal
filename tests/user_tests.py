@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 import datetime
+
 import myanimelist.session
 import myanimelist.user
 
@@ -173,14 +174,16 @@ class testUserClass(TestCase):
         self.assertEqual(self.shal.last_list_updates[self.fate_zero][u'episodes'], 6)
         self.assertEqual(self.shal.last_list_updates[self.fate_zero][u'total_episodes'], 13)
         self.assertIsInstance(self.shal.last_list_updates[self.fate_zero][u'time'], datetime.datetime)
-        self.assertEqual(self.shal.last_list_updates[self.fate_zero][u'time'], datetime.datetime(year=2014, month=9, day=5, hour=14, minute=1, second=0))
+        self.assertEqual(self.shal.last_list_updates[self.fate_zero][u'time'],
+                         datetime.datetime(year=2014, month=9, day=5, hour=14, minute=1, second=0))
         self.assertIn(self.bebop, self.shal.last_list_updates)
         self.assertIn(self.bebop, self.shal.last_list_updates)
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'status'], u'Completed')
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'episodes'], 26)
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'total_episodes'], 26)
         self.assertIsInstance(self.shal.last_list_updates[self.bebop][u'time'], datetime.datetime)
-        self.assertEqual(self.shal.last_list_updates[self.bebop][u'time'], datetime.datetime(year=2012, month=8, day=20, hour=11, minute=56, second=0))
+        self.assertEqual(self.shal.last_list_updates[self.bebop][u'time'],
+                         datetime.datetime(year=2012, month=8, day=20, hour=11, minute=56, second=0))
         self.assertIsInstance(self.mona.last_list_updates, dict)
         self.assertGreater(len(self.mona.last_list_updates), 0)
 
@@ -268,8 +271,9 @@ class testUserClass(TestCase):
         self.assertIn(self.ziron, self.shal.friends)
         self.assertIsInstance(self.shal.friends[self.ziron][u'last_active'], datetime.datetime)
         self.assertIn(self.seraph, self.shal.friends)
-        self.assertIsInstance(self.shal.friends[self.seraph][u'last_active'],datetime.datetime)
-        self.assertEqual(self.shal.friends[self.seraph][u'since'], datetime.datetime(year=2012, month=10, day=13, hour=19, minute=31, second=0))
+        self.assertIsInstance(self.shal.friends[self.seraph][u'last_active'], datetime.datetime)
+        self.assertEqual(self.shal.friends[self.seraph][u'since'],
+                         datetime.datetime(year=2012, month=10, day=13, hour=19, minute=31, second=0))
         self.assertIsInstance(self.mona.friends, dict)
         self.assertGreaterEqual(len(self.mona.friends), 0)
         self.assertIsInstance(self.threger.friends, dict)

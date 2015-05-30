@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import bs4
 import re
 import urllib
+
+import bs4
 
 import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
@@ -429,7 +430,8 @@ class User(Base):
         """
         user_info = self.parse_sidebar(reviews_page)
         second_col = \
-        reviews_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            reviews_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[
+                1]
 
         try:
             user_info[u'reviews'] = {}
@@ -535,7 +537,7 @@ class User(Base):
         """
         user_info = self.parse_sidebar(clubs_page)
         second_col = \
-        clubs_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            clubs_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
 
         try:
             user_info[u'clubs'] = []
@@ -565,7 +567,8 @@ class User(Base):
         """
         user_info = self.parse_sidebar(friends_page)
         second_col = \
-        friends_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            friends_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[
+                1]
 
         try:
             user_info[u'friends'] = {}

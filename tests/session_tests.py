@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
+import os
+
 import myanimelist.session
 import myanimelist.anime
-import os
 
 
 class testSessionClass(TestCase):

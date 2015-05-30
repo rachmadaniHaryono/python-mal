@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 import datetime
+
 import myanimelist.session
 import myanimelist.manga
 
@@ -133,10 +134,14 @@ class testMangaClass(TestCase):
         self.assertEqual(self.naruto.status, u'Finished')
 
     def testPublished(self):
-        self.assertEqual(self.holic.published, datetime.date(month=2, day=24, year=2003), datetime.date(month=2, day=9, year=2011))
-        self.assertEqual(self.monster.published, datetime.date(month=12, day=5, year=1994), datetime.date(month=12, day=20, year=2001))
-        self.assertEqual(self.naruto.published, datetime.date(month=9, day=21, year=1999), datetime.date(month=11, day=10, year=2014))
-        self.assertEqual(self.tomoyo_after.published, datetime.date(month=4, day=20, year=2007), datetime.date(month=10, day=20, year=2007))
+        self.assertEqual(self.holic.published, datetime.date(month=2, day=24, year=2003),
+                         datetime.date(month=2, day=9, year=2011))
+        self.assertEqual(self.monster.published, datetime.date(month=12, day=5, year=1994),
+                         datetime.date(month=12, day=20, year=2001))
+        self.assertEqual(self.naruto.published, datetime.date(month=9, day=21, year=1999),
+                         datetime.date(month=11, day=10, year=2014))
+        self.assertEqual(self.tomoyo_after.published, datetime.date(month=4, day=20, year=2007),
+                         datetime.date(month=10, day=20, year=2007))
 
     def testGenres(self):
         self.assertIsInstance(self.holic.genres, list)

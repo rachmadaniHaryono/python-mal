@@ -3,10 +3,11 @@
 
 import abc
 import collections
-import bs4
 import decimal
 import datetime
 import urllib
+
+import bs4
 
 import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable

@@ -5,21 +5,16 @@ import requests
 
 import anime
 import manga
-
 import character
 import person
-
 import user
-
 import club
 import genre
 import tag
 import publication
 import producer
-
 import anime_list
 import manga_list
-
 from base import Error
 
 

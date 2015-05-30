@@ -73,7 +73,7 @@ class testMangaListClass(TestCase):
         self.assertIn(self.sao, self.pl)
         self.assertEqual(self.pl[self.to_love_ru][u'status'], u'Completed')
         assert self.pl[self.amnesia][
-                                                                           u'status'] == u'On-Hold'
+                   u'status'] == u'On-Hold'
         self.assertEqual(self.pl[self.sao][u'status'], u'Plan to Read')
         self.assertEqual(self.pl[self.to_love_ru][u'score'], 6)
         self.assertIsNone(self.pl[self.amnesia][u'score'])
@@ -124,7 +124,7 @@ class testMangaListClass(TestCase):
         self.assertEqual(self.shal.stats[u'reading'], 0)
         self.assertEqual(self.shal.stats[u'completed'], 1)
         assert self.shal.stats[
-                                                                                               u'on_hold'] == 0
+                   u'on_hold'] == 0
         self.assertEqual(self.shal.stats[u'dropped'], 1)
         self.assertEqual(self.shal.stats[u'plan_to_read'], 0)
         self.assertEqual(float(self.shal.stats[u'days_spent']), 0.95)
@@ -134,7 +134,7 @@ class testMangaListClass(TestCase):
         self.assertGreaterEqual(self.pl.stats[u'reading'], 0)
         self.assertGreaterEqual(self.pl.stats[u'completed'], 16)
         assert self.pl.stats[
-                                                                                            u'on_hold'] >= 0
+                   u'on_hold'] >= 0
         self.assertGreaterEqual(self.pl.stats[u'dropped'], 0)
         self.assertGreaterEqual(self.pl.stats[u'plan_to_read'], 0)
         self.assertGreaterEqual(float(self.pl.stats[u'days_spent']), 10.28)

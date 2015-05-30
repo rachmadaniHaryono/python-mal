@@ -1,11 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import bs4
-import re
-
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+from base import Base, MalformedPageError, InvalidBaseError
 
 
 class MalformedTagPageError(MalformedPageError):

@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import bs4
 import re
+
+import bs4
 
 import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
@@ -149,7 +150,8 @@ class Character(Base):
         character_info = self.parse_sidebar(character_page)
 
         second_col = \
-        character_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            character_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[
+                1]
         name_elt = second_col.find(u'div', {'class': 'normal_header'})
 
         try:
@@ -215,7 +217,8 @@ class Character(Base):
         """
         character_info = self.parse_sidebar(favorites_page)
         second_col = \
-        favorites_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            favorites_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[
+                1]
 
         try:
             character_info[u'favorites'] = []
@@ -241,7 +244,7 @@ class Character(Base):
         """
         character_info = self.parse_sidebar(picture_page)
         second_col = \
-        picture_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            picture_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
 
         try:
             picture_table = second_col.find(u'table', recursive=False)
@@ -267,7 +270,7 @@ class Character(Base):
         """
         character_info = self.parse_sidebar(clubs_page)
         second_col = \
-        clubs_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+            clubs_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
 
         try:
             clubs_header = second_col.find(u'div', text=u'Related Clubs')

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
-
 import datetime
+
 import myanimelist.session
 import myanimelist.anime
 
@@ -129,10 +129,13 @@ class testAnimeClass(TestCase):
         self.assertEqual(self.prisma.status, u'Finished Airing')
 
     def testAired(self):
-        self.assertEqual(self.spicy_wolf.aired == (datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30, year=2008)))
+        self.assertEqual(self.spicy_wolf.aired == (
+        datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30, year=2008)))
 
-        self.assertEqual(self.bebop.aired, (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24, year=1999)))
-        self.assertEqual(self.space_dandy.aired, (datetime.date(month=1, day=5, year=2014), datetime.date(month=3, day=27, year=2014)))
+        self.assertEqual(self.bebop.aired,
+                         (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24, year=1999)))
+        self.assertEqual(self.space_dandy.aired,
+                         (datetime.date(month=1, day=5, year=2014), datetime.date(month=3, day=27, year=2014)))
         self.assertEqual(self.totoro.aired, (datetime.date(month=4, day=16, year=1988),))
         self.assertEqual(self.prisma.aired, (datetime.date(month=3, day=10, year=2014),))
 
@@ -294,10 +297,10 @@ class testAnimeClass(TestCase):
         self.assertIn(self.holo, self.spicy_wolf.characters)
         self.assertEqual(self.spicy_wolf.characters[self.holo][u'role'], 'Main')
         self.assertIn(self.holo_va, self.spicy_wolf.characters[self.holo][u'voice_actors'])
-        
+
         self.assertIsInstance(self.bebop.characters, dict)
         self.assertGreater(len(self.bebop.characters), 0)
-        
+
         self.assertIn(self.hex, self.bebop.characters)
         self.assertEqual(self.bebop.characters[self.hex][u'role'], 'Supporting')
         self.assertIn(self.hex_va, self.bebop.characters[self.hex][u'voice_actors'])
@@ -356,7 +359,7 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.space_dandy.staff, dict)
         self.assertGreater(len(self.space_dandy.staff), 0)
         self.assertIn(self.session.person(10127), self.space_dandy.staff)
-        
+
         for x in [u'Theme Song Composition', u'Theme Song Lyrics', u'Theme Song Performance']:
             self.assertIn(x, self.space_dandy.staff[self.session.person(10127)])
         self.assertIsInstance(self.totoro.staff, dict)

@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import bs4
 import datetime
 import re
 import urllib
+
+import bs4
 
 
 def fix_bad_html(html):

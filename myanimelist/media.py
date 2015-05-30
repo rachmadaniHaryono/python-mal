@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import abc
-import bs4
 import decimal
 import re
+
+import bs4
 
 import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
