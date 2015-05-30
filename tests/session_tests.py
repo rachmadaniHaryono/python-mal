@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from nose.tools import *
+from unittest import TestCase
 import myanimelist.session
 import myanimelist.anime
 import os
 
 
-class testSessionClass(object):
+class testSessionClass(TestCase):
     @classmethod
     def setUpClass(self):
         # see if our environment has credentials.
@@ -25,16 +25,16 @@ class testSessionClass(object):
         self.fake_session = myanimelist.session.Session(u'no-username', 'no-password')
 
     def testLoggedIn(self):
-        assert not self.fake_session.logged_in()
+        self.assertFalse(self.fake_session.logged_in())
         self.fake_session.login()
-        assert not self.fake_session.logged_in()
-        assert not self.session.logged_in()
-        assert self.logged_in_session.logged_in()
+        self.assertFalse(self.fake_session.logged_in())
+        self.assertFalse(self.session.logged_in())
+        self.assertTrue(self.logged_in_session.logged_in())
 
     def testLogin(self):
-        assert not self.session.logged_in()
+        self.assertFalse(self.session.logged_in())
         self.session.login()
-        assert self.session.logged_in()
+        self.assertTrue(self.session.logged_in())
 
     def testAnime(self):
-        assert isinstance(self.session.anime(1), myanimelist.anime.Anime)
+        self.assertIsInstance(self.session.anime(1), myanimelist.anime.Anime)
