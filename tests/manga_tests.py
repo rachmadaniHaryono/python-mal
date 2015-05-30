@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from nose.tools import *
+from unittest import TestCase
 import datetime
 import myanimelist.session
 import myanimelist.manga
 
 
-class testMangaClass(object):
+class testMangaClass(TestCase):
     @classmethod
     def setUpClass(self):
         self.session = myanimelist.session.Session()
@@ -49,231 +49,284 @@ class testMangaClass(object):
         self.invalid_anime = self.session.manga(457384754)
         self.latest_manga = myanimelist.manga.Manga.newest(self.session)
 
-    @raises(TypeError)
     def testNoIDInvalidManga(self):
-        self.session.manga()
+        with self.assertRaises(TypeError):
+            self.session.manga()
 
-    @raises(TypeError)
     def testNoSessionInvalidLatestManga(self):
-        myanimelist.manga.Manga.newest()
+        with self.assertRaises(TypeError):
+            myanimelist.manga.Manga.newest()
 
-    @raises(myanimelist.manga.InvalidMangaError)
     def testNegativeInvalidManga(self):
-        self.session.manga(-1)
+        with self.assertRaises(myanimelist.manga.InvalidMangaError):
+            self.session.manga(-1)
 
-    @raises(myanimelist.manga.InvalidMangaError)
     def testFloatInvalidManga(self):
-        self.session.manga(1.5)
+        with self.assertRaises(myanimelist.manga.InvalidMangaError):
+            self.session.manga(1.5)
 
-    @raises(myanimelist.manga.InvalidMangaError)
     def testNonExistentManga(self):
-        self.invalid_anime.load()
+        with self.assertRaises(myanimelist.manga.InvalidMangaError):
+            self.invalid_anime.load()
 
     def testLatestManga(self):
-        assert isinstance(self.latest_manga, myanimelist.manga.Manga)
-        assert self.latest_manga.id > 79818
+        self.assertIsInstance(self.latest_manga, myanimelist.manga.Manga)
+        self.assertGreater(self.latest_manga.id, 79818)
 
     def testMangaValid(self):
-        assert isinstance(self.monster, myanimelist.manga.Manga)
+        self.assertIsInstance(self.monster, myanimelist.manga.Manga)
 
     def testTitle(self):
-        assert self.monster.title == u'Monster'
-        assert self.holic.title == u'xxxHOLiC'
-        assert self.naruto.title == u'Naruto'
-        assert self.tomoyo_after.title == u'Clannad: Tomoyo After'
-        assert self.judos.title == u'Judos'
+        self.assertEqual(self.monster.title, u'Monster')
+        self.assertEqual(self.holic.title, u'xxxHOLiC')
+        self.assertEqual(self.naruto.title, u'Naruto')
+        self.assertEqual(self.tomoyo_after.title, u'Clannad: Tomoyo After')
+        self.assertEqual(self.judos.title, u'Judos')
 
     def testPicture(self):
-        assert isinstance(self.holic.picture, unicode)
-        assert isinstance(self.naruto.picture, unicode)
-        assert isinstance(self.monster.picture, unicode)
-        assert isinstance(self.tomoyo_after.picture, unicode)
-        assert isinstance(self.judos.picture, unicode)
+        self.assertIsInstance(self.holic.picture, unicode)
+        self.assertIsInstance(self.naruto.picture, unicode)
+        self.assertIsInstance(self.monster.picture, unicode)
+        self.assertIsInstance(self.tomoyo_after.picture, unicode)
+        self.assertIsInstance(self.judos.picture, unicode)
 
-    def testAlternativeTitles(self):
-        assert u'Japanese' in self.monster.alternative_titles and isinstance(
-            self.monster.alternative_titles[u'Japanese'], list) and u'MONSTER モンスター' in self.monster.alternative_titles[
-            u'Japanese']
-        assert u'Synonyms' in self.holic.alternative_titles and isinstance(self.holic.alternative_titles[u'Synonyms'],
-                                                                           list) and u'xxxHolic Cage' in \
-                                                                                     self.holic.alternative_titles[
-                                                                                         u'Synonyms']
-        assert u'Japanese' in self.naruto.alternative_titles and isinstance(self.naruto.alternative_titles[u'Japanese'],
-                                                                            list) and u'NARUTO -ナルト-' in \
-                                                                                      self.naruto.alternative_titles[
-                                                                                          u'Japanese']
-        assert u'English' in self.tomoyo_after.alternative_titles and isinstance(
-            self.tomoyo_after.alternative_titles[u'English'], list) and u'Tomoyo After ~Dear Shining Memories~' in \
-                                                                        self.tomoyo_after.alternative_titles[u'English']
-        assert u'Synonyms' in self.judos.alternative_titles and isinstance(self.judos.alternative_titles[u'Synonyms'],
-                                                                           list) and u'Juudouzu' in \
-                                                                                     self.judos.alternative_titles[
-                                                                                         u'Synonyms']
+    def testAlternativeTitGreater(self):
+        self.assertIn(u'Japanese', self.monster.alternative_titles)
+        self.assertIsInstance(self.monster.alternative_titles[u'Japanese'], list)
+        self.assertIn(u'MONSTER モンスター', self.monster.alternative_titles[u'Japanese'])
+        self.assertIn(u'Synonyms', self.holic.alternative_titles)
+        self.assertIsInstance(self.holic.alternative_titles[u'Synonyms'], list)
+        self.assertIn(u'xxxHolic Cage', self.holic.alternative_titles[u'Synonyms'])
+        self.assertIn(u'Japanese', self.naruto.alternative_titles)
+        self.assertIsInstance(self.naruto.alternative_titles[u'Japanese'], list)
+        self.assertIn(u'NARUTO -ナルト-', self.naruto.alternative_titles[u'Japanese'])
+        self.assertIn(u'English', self.tomoyo_after.alternative_titles)
+        self.assertIsInstance(self.tomoyo_after.alternative_titles[u'English'], list)
+        self.assertIn(u'Tomoyo After ~Dear Shining Memories~', self.tomoyo_after.alternative_titles[u'English'])
+        self.assertIn(u'Synonyms', self.judos.alternative_titles)
+        self.assertIsInstance(self.judos.alternative_titles[u'Synonyms'], list)
+        self.assertIn(u'Juudouzu', self.judos.alternative_titles[u'Synonyms'])
 
     def testTypes(self):
-        assert self.monster.type == u'Manga'
-        assert self.tomoyo_after.type == u'Manga'
-        assert self.judos.type == u'Manga'
+        self.assertEqual(self.monster.type, u'Manga')
+        self.assertEqual(self.tomoyo_after.type, u'Manga')
+        self.assertEqual(self.judos.type, u'Manga')
 
     def testVolumes(self):
-        assert self.holic.volumes == 19
-        assert self.monster.volumes == 18
-        assert self.tomoyo_after.volumes == 1
-        assert self.naruto.volumes == 72
-        assert self.judos.volumes == 3
+        self.assertEqual(self.holic.volumes, 19)
+        self.assertEqual(self.monster.volumes, 18)
+        self.assertEqual(self.tomoyo_after.volumes, 1)
+        self.assertEqual(self.naruto.volumes, 72)
+        self.assertEqual(self.judos.volumes, 3)
 
     def testChapters(self):
-        assert self.holic.chapters == 213
-        assert self.monster.chapters == 162
-        assert self.tomoyo_after.chapters == 4
-        assert self.naruto.chapters == 700
-        assert self.judos.chapters == None
+        self.assertEqual(self.holic.chapters, 213)
+        self.assertEqual(self.monster.chapters, 162)
+        self.assertEqual(self.tomoyo_after.chapters, 4)
+        self.assertEqual(self.naruto.chapters, 700)
+        self.assertEqual(self.judos.chapters, None)
 
     def testStatus(self):
-        assert self.holic.status == u'Finished'
-        assert self.tomoyo_after.status == u'Finished'
-        assert self.monster.status == u'Finished'
-        assert self.naruto.status == u'Finished'
+        self.assertEqual(self.holic.status, u'Finished')
+        self.assertEqual(self.tomoyo_after.status, u'Finished')
+        self.assertEqual(self.monster.status, u'Finished')
+        self.assertEqual(self.naruto.status, u'Finished')
 
     def testPublished(self):
-        assert self.holic.published == (
-        datetime.date(month=2, day=24, year=2003), datetime.date(month=2, day=9, year=2011))
-        assert self.monster.published == (
-        datetime.date(month=12, day=5, year=1994), datetime.date(month=12, day=20, year=2001))
-        assert self.naruto.published == (
-        datetime.date(month=9, day=21, year=1999), datetime.date(month=11, day=10, year=2014))
-        assert self.tomoyo_after.published == (
-        datetime.date(month=4, day=20, year=2007), datetime.date(month=10, day=20, year=2007))
+        self.assertEqual(self.holic.published, datetime.date(month=2, day=24, year=2003), datetime.date(month=2, day=9, year=2011))
+        self.assertEqual(self.monster.published, datetime.date(month=12, day=5, year=1994), datetime.date(month=12, day=20, year=2001))
+        self.assertEqual(self.naruto.published, datetime.date(month=9, day=21, year=1999), datetime.date(month=11, day=10, year=2014))
+        self.assertEqual(self.tomoyo_after.published, datetime.date(month=4, day=20, year=2007), datetime.date(month=10, day=20, year=2007))
 
     def testGenres(self):
-        assert isinstance(self.holic.genres, list) and len(
-            self.holic.genres) > 0 and self.mystery in self.holic.genres and self.supernatural in self.holic.genres
-        assert isinstance(self.tomoyo_after.genres, list) and len(
-            self.tomoyo_after.genres) > 0 and self.drama in self.tomoyo_after.genres
-        assert isinstance(self.naruto.genres, list) and len(
-            self.naruto.genres) > 0 and self.shounen in self.naruto.genres
-        assert isinstance(self.monster.genres, list) and len(
-            self.monster.genres) > 0 and self.mystery in self.monster.genres
-        assert isinstance(self.judos.genres, list) and len(
-            self.judos.genres) > 0 and self.shounen in self.judos.genres and self.action in self.judos.genres
+        self.assertIsInstance(self.holic.genres, list)
+        self.assertGreater(self.holic.genres, 0)
+        self.assertIn(self.mystery, self.holic.genres)
+        self.assertIn(self.supernatural, self.holic.genres)
+        self.assertIsInstance(self.tomoyo_after.genres, list)
+        self.assertGreater(self.tomoyo_after.genres, 0)
+        self.assertIn(self.drama, self.tomoyo_after.genres)
+        self.assertIsInstance(self.naruto.genres, list)
+        self.assertGreater(self.naruto.genres, 0)
+        self.assertIn(self.shounen, self.naruto.genres)
+        self.assertIsInstance(self.monster.genres, list)
+        self.assertGreater(self.monster.genres, 0)
+        self.assertIn(self.mystery, self.monster.genres)
+        self.assertIsInstance(self.judos.genres, list)
+        self.assertGreater(self.judos.genres, 0)
+        self.assertIn(self.shounen, self.judos.genres)
+        self.assertIn(self.action, self.judos.genres)
 
     def testAuthors(self):
-        assert isinstance(self.holic.authors, dict) and len(
-            self.holic.authors) > 0 and self.clamp in self.holic.authors and self.holic.authors[
-                                                                                 self.clamp] == u'Story & Art'
-        assert isinstance(self.tomoyo_after.authors, dict) and len(
-            self.tomoyo_after.authors) > 0 and self.sumiyoshi in self.tomoyo_after.authors and \
-               self.tomoyo_after.authors[self.sumiyoshi] == u'Art'
-        assert isinstance(self.naruto.authors, dict) and len(
-            self.naruto.authors) > 0 and self.kishimoto in self.naruto.authors and self.naruto.authors[
-                                                                                       self.kishimoto] == u'Story & Art'
-        assert isinstance(self.monster.authors, dict) and len(
-            self.monster.authors) > 0 and self.urasawa in self.monster.authors and self.monster.authors[
-                                                                                       self.urasawa] == u'Story & Art'
-        assert isinstance(self.judos.authors, dict) and len(
-            self.judos.authors) > 0 and self.kondou in self.judos.authors and self.judos.authors[
-                                                                                  self.kondou] == u'Story & Art'
+        self.assertIsInstance(self.holic.authors, dict)
+        self.assertGreater(self.holic.authors, 0)
+        self.assertIn(self.clamp, self.holic.authors)
+        self.assertEqual(self.holic.authors[self.clamp], u'Story & Art')
+        self.assertIsInstance(self.tomoyo_after.authors, dict)
+        self.assertGreater(self.tomoyo_after.authors, 0)
+        self.assertIn(self.sumiyoshi, self.tomoyo_after.authors)
+        self.assertEqual(self.tomoyo_after.authors[self.sumiyoshi], u'Art')
+        self.assertIsInstance(self.naruto.authors, dict)
+        self.assertGreater(self.naruto.authors, 0)
+        self.assertIn(self.kishimoto, self.naruto.authors)
+        self.assertEqual(self.naruto.authors[self.kishimoto], u'Story & Art')
+        self.assertIsInstance(self.monster.authors, dict)
+        self.assertGreater(self.monster.authors, 0)
+        self.assertIn(self.urasawa, self.monster.authors)
+        self.assertEqual(self.monster.authors[self.urasawa], u'Story & Art')
+        self.assertIsInstance(self.judos.authors, dict)
+        self.assertGreater(self.judos.authors, 0)
+        self.assertIn(self.kondou, self.judos.authors)
+        self.assertEqual(self.judos.authors[self.kondou], u'Story & Art')
 
     def testSerialization(self):
-        assert isinstance(self.holic.serialization,
-                          myanimelist.publication.Publication) and self.bessatsu == self.holic.serialization
-        assert isinstance(self.tomoyo_after.serialization,
-                          myanimelist.publication.Publication) and self.dragon_age == self.tomoyo_after.serialization
-        assert isinstance(self.naruto.serialization,
-                          myanimelist.publication.Publication) and self.shonen_jump_weekly == self.naruto.serialization
-        assert isinstance(self.monster.serialization,
-                          myanimelist.publication.Publication) and self.original == self.monster.serialization
-        assert isinstance(self.judos.serialization,
-                          myanimelist.publication.Publication) and self.shonen_jump_weekly == self.judos.serialization
+        self.assertIsInstance(self.holic.serialization, myanimelist.publication.Publication)
+        self.assertEqual(self.bessatsu, self.holic.serialization)
+        self.assertIsInstance(self.tomoyo_after.serialization, myanimelist.publication.Publication)
+        self.assertEqual(self.dragon_age, self.tomoyo_after.serialization)
+        self.assertIsInstance(self.naruto.serialization, myanimelist.publication.Publication)
+        self.assertEqual(self.shonen_jump_weekly, self.naruto.serialization)
+        self.assertIsInstance(self.monster.serialization, myanimelist.publication.Publication)
+        self.assertEqual(self.original, self.monster.serialization)
+        self.assertIsInstance(self.judos.serialization, myanimelist.publication.Publication)
+        self.assertEqual(self.shonen_jump_weekly, self.judos.serialization)
 
     def testScore(self):
-        assert isinstance(self.holic.score, tuple)
-        assert self.holic.score[0] > 0 and self.holic.score[0] < 10
-        assert isinstance(self.holic.score[1], int) and self.holic.score[1] >= 0
-        assert isinstance(self.monster.score, tuple)
-        assert self.monster.score[0] > 0 and self.monster.score[0] < 10
-        assert isinstance(self.monster.score[1], int) and self.monster.score[1] >= 0
-        assert isinstance(self.naruto.score, tuple)
-        assert self.naruto.score[0] > 0 and self.naruto.score[0] < 10
-        assert isinstance(self.naruto.score[1], int) and self.naruto.score[1] >= 0
-        assert isinstance(self.tomoyo_after.score, tuple)
-        assert self.tomoyo_after.score[0] > 0 and self.tomoyo_after.score[0] < 10
-        assert isinstance(self.tomoyo_after.score[1], int) and self.tomoyo_after.score[1] >= 0
-        assert self.judos.score[0] >= 0 and self.judos.score[0] <= 10
-        assert isinstance(self.judos.score[1], int) and self.judos.score[1] >= 0
+        self.assertIsInstance(self.holic.score, tuple)
+        self.assertGreater(self.holic.score[0], 0)
+        self.assertGreater(self.holic.score[0], 10)
+        self.assertIsInstance(self.holic.score[1], int)
+        self.assertGreater(self.holic.score[1], 0)
+        self.assertIsInstance(self.monster.score, tuple)
+        self.assertGreater(self.monster.score[0], 0)
+        self.assertGreater(self.monster.score[0], 10)
+        self.assertIsInstance(self.monster.score[1], int)
+        self.assertGreater(self.monster.score[1], 0)
+        self.assertIsInstance(self.naruto.score, tuple)
+        self.assertGreater(self.naruto.score[0], 0)
+        self.assertGreater(self.naruto.score[0], 10)
+        self.assertIsInstance(self.naruto.score[1], int)
+        self.assertGreater(self.naruto.score[1], 0)
+        self.assertIsInstance(self.tomoyo_after.score, tuple)
+        self.assertGreater(self.tomoyo_after.score[0], 0)
+        self.assertGreater(self.tomoyo_after.score[0], 10)
+        self.assertIsInstance(self.tomoyo_after.score[1], int)
+        self.assertGreater(self.tomoyo_after.score[1], 0)
+        self.assertGreater(self.judos.score[0], 0)
+        assert self.judos.score[0] <= 10
+        self.assertIsInstance(self.judos.score[1], int)
+        self.assertGreater(self.judos.score[1], 0)
 
     def testRank(self):
-        assert isinstance(self.holic.rank, int) and self.holic.rank > 0
-        assert isinstance(self.monster.rank, int) and self.monster.rank > 0
-        assert isinstance(self.naruto.rank, int) and self.naruto.rank > 0
-        assert isinstance(self.tomoyo_after.rank, int) and self.tomoyo_after.rank > 0
-        assert isinstance(self.judos.rank, int) and self.judos.rank > 0
+        self.assertIsInstance(self.holic.rank, int)
+        self.assertGreater(self.holic.rank, 0)
+        self.assertIsInstance(self.monster.rank, int)
+        self.assertGreater(self.monster.rank, 0)
+        self.assertIsInstance(self.naruto.rank, int)
+        self.assertGreater(self.naruto.rank, 0)
+        self.assertIsInstance(self.tomoyo_after.rank, int)
+        self.assertGreater(self.tomoyo_after.rank, 0)
+        self.assertIsInstance(self.judos.rank, int)
+        self.assertGreater(self.judos.rank, 0)
 
     def testPopularity(self):
-        assert isinstance(self.holic.popularity, int) and self.holic.popularity > 0
-        assert isinstance(self.monster.popularity, int) and self.monster.popularity > 0
-        assert isinstance(self.naruto.popularity, int) and self.naruto.popularity > 0
-        assert isinstance(self.tomoyo_after.popularity, int) and self.tomoyo_after.popularity > 0
-        assert isinstance(self.judos.popularity, int) and self.judos.popularity > 0
+        self.assertIsInstance(self.holic.popularity, int)
+        self.assertGreater(self.holic.popularity, 0)
+        self.assertIsInstance(self.monster.popularity, int)
+        self.assertGreater(self.monster.popularity, 0)
+        self.assertIsInstance(self.naruto.popularity, int)
+        self.assertGreater(self.naruto.popularity, 0)
+        self.assertIsInstance(self.tomoyo_after.popularity, int)
+        self.assertGreater(self.tomoyo_after.popularity, 0)
+        self.assertIsInstance(self.judos.popularity, int)
+        self.assertGreater(self.judos.popularity, 0)
 
     def testMembers(self):
-        assert isinstance(self.holic.members, int) and self.holic.members > 0
-        assert isinstance(self.monster.members, int) and self.monster.members > 0
-        assert isinstance(self.naruto.members, int) and self.naruto.members > 0
-        assert isinstance(self.tomoyo_after.members, int) and self.tomoyo_after.members > 0
-        assert isinstance(self.judos.members, int) and self.judos.members > 0
+        self.assertIsInstance(self.holic.members, int)
+        self.assertGreater(self.holic.members, 0)
+        self.assertIsInstance(self.monster.members, int)
+        self.assertGreater(self.monster.members, 0)
+        self.assertIsInstance(self.naruto.members, int)
+        self.assertGreater(self.naruto.members, 0)
+        self.assertIsInstance(self.tomoyo_after.members, int)
+        self.assertGreater(self.tomoyo_after.members, 0)
+        self.assertIsInstance(self.judos.members, int)
+        self.assertGreater(self.judos.members, 0)
 
     def testFavorites(self):
-        assert isinstance(self.holic.favorites, int) and self.holic.favorites > 0
-        assert isinstance(self.monster.favorites, int) and self.monster.favorites > 0
-        assert isinstance(self.naruto.favorites, int) and self.naruto.favorites > 0
-        assert isinstance(self.tomoyo_after.favorites, int) and self.tomoyo_after.favorites > 0
-        assert isinstance(self.judos.favorites, int) and self.judos.favorites >= 0
+        self.assertIsInstance(self.holic.favorites, int)
+        self.assertGreater(self.holic.favorites, 0)
+        self.assertIsInstance(self.monster.favorites, int)
+        self.assertGreater(self.monster.favorites, 0)
+        self.assertIsInstance(self.naruto.favorites, int)
+        self.assertGreater(self.naruto.favorites, 0)
+        self.assertIsInstance(self.tomoyo_after.favorites, int)
+        self.assertGreater(self.tomoyo_after.favorites, 0)
+        self.assertIsInstance(self.judos.favorites, int)
+        self.assertGreater(self.judos.favorites, 0)
 
     def testPopularTags(self):
-        assert isinstance(self.holic.popular_tags, dict) and len(
-            self.holic.popular_tags) > 0 and self.supernatural_tag in self.holic.popular_tags and \
-               self.holic.popular_tags[self.supernatural_tag] >= 269
-        assert isinstance(self.tomoyo_after.popular_tags, dict) and len(
-            self.tomoyo_after.popular_tags) > 0 and self.romance_tag in self.tomoyo_after.popular_tags and \
-               self.tomoyo_after.popular_tags[self.romance_tag] >= 57
-        assert isinstance(self.naruto.popular_tags, dict) and len(
-            self.naruto.popular_tags) > 0 and self.action_tag in self.naruto.popular_tags and self.naruto.popular_tags[
-                                                                                                  self.action_tag] >= 561
-        assert isinstance(self.monster.popular_tags, dict) and len(
-            self.monster.popular_tags) > 0 and self.mystery_tag in self.monster.popular_tags and \
-               self.monster.popular_tags[self.mystery_tag] >= 105
-        assert isinstance(self.judos.popular_tags, dict) and len(self.judos.popular_tags) == 0
+        self.assertIsInstance(self.holic.popular_tags, dict)
+        self.assertGreater(self.holic.popular_tags, 0)
+        self.assertIn(self.supernatural_tag, self.holic.popular_tags)
+        self.assertGreater(self.holic.popular_tags[self.supernatural_tag], 269)
+        self.assertIsInstance(self.tomoyo_after.popular_tags, dict)
+        self.assertGreater(self.tomoyo_after.popular_tags, 0)
+        self.assertIn(self.romance_tag, self.tomoyo_after.popular_tags)
+        self.assertGreater(self.tomoyo_after.popular_tags[self.romance_tag], 57)
+        self.assertIsInstance(self.naruto.popular_tags, dict)
+        self.assertGreater(self.naruto.popular_tags, 0)
+        self.assertIn(self.action_tag, self.naruto.popular_tags)
+        self.assertGreater(self.naruto.popular_tags[self.action_tag], 561)
+        self.assertIsInstance(self.monster.popular_tags, dict)
+        self.assertGreater(self.monster.popular_tags, 0)
+        self.assertIn(self.mystery_tag, self.monster.popular_tags)
+        self.assertGreater(self.monster.popular_tags[self.mystery_tag], 105)
+        self.assertIsInstance(self.judos.popular_tags, dict)
+        self.assertEqual(len(self.judos.popular_tags), 0)
 
     def testSynopsis(self):
-        assert isinstance(self.holic.synopsis, unicode) and len(
-            self.holic.synopsis) > 0 and u'Watanuki' in self.holic.synopsis
-        assert isinstance(self.monster.synopsis, unicode) and len(
-            self.monster.synopsis) > 0 and u'Tenma' in self.monster.synopsis
-        assert isinstance(self.naruto.synopsis, unicode) and len(
-            self.naruto.synopsis) > 0 and u'Hokage' in self.naruto.synopsis
-        assert isinstance(self.tomoyo_after.synopsis, unicode) and len(
-            self.tomoyo_after.synopsis) > 0 and u'Clannad' in self.tomoyo_after.synopsis
-        assert isinstance(self.judos.synopsis, unicode) and len(
-            self.judos.synopsis) > 0 and u'hardcore' in self.judos.synopsis
+        self.assertIsInstance(self.holic.synopsis, unicode)
+        self.assertGreater(self.holic.synopsis, 0)
+        self.assertIn(u'Watanuki', self.holic.synopsis)
+        self.assertIsInstance(self.monster.synopsis, unicode)
+        self.assertGreater(self.monster.synopsis, 0)
+        self.assertIn(u'Tenma', self.monster.synopsis)
+        self.assertIsInstance(self.naruto.synopsis, unicode)
+        self.assertGreater(self.naruto.synopsis, 0)
+        self.assertIn(u'Hokage', self.naruto.synopsis)
+        self.assertIsInstance(self.tomoyo_after.synopsis, unicode)
+        self.assertGreater(self.tomoyo_after.synopsis, 0)
+        self.assertIn(u'Clannad', self.tomoyo_after.synopsis)
+        self.assertIsInstance(self.judos.synopsis, unicode)
+        self.assertGreater(self.judos.synopsis, 0)
+        self.assertIn(u'hardcore', self.judos.synopsis)
 
     def testRelated(self):
-        assert isinstance(self.holic.related, dict) and 'Sequel' in self.holic.related and self.holic_sequel in \
-                                                                                           self.holic.related[u'Sequel']
-        assert isinstance(self.monster.related,
-                          dict) and 'Side story' in self.monster.related and self.monster_side_story in \
-                                                                             self.monster.related[u'Side story']
+        self.assertIsInstance(self.holic.related, dict)
+        self.assertIn('Sequel', self.holic.related)
+        self.assertIn(self.holic_sequel, self.holic.related[u'Sequel'])
+        self.assertIsInstance(self.monster.related, dict)
+        self.assertIn('Side story', self.monster.related)
+        self.assertIn(self.monster_side_story, self.monster.related[u'Side story'])
 
     def testCharacters(self):
-        assert isinstance(self.holic.characters, dict) and len(self.holic.characters) > 0
-        assert self.doumeki in self.holic.characters and self.holic.characters[self.doumeki]['role'] == 'Main'
+        self.assertIsInstance(self.holic.characters, dict)
+        self.assertGreater(self.holic.characters, 0)
+        self.assertIn(self.doumeki, self.holic.characters)
+        self.assertEqual(self.holic.characters[self.doumeki]['role'], 'Main')
 
-        assert isinstance(self.monster.characters, dict) and len(self.monster.characters) > 0
-        assert self.heinemann in self.monster.characters and self.monster.characters[self.heinemann]['role'] == 'Main'
+        self.assertIsInstance(self.monster.characters, dict)
+        self.assertGreater(self.monster.characters, 0)
+        self.assertIn(self.heinemann, self.monster.characters)
+        self.assertEqual(self.monster.characters[self.heinemann]['role'], 'Main')
 
-        assert isinstance(self.naruto.characters, dict) and len(self.naruto.characters) > 0
-        assert self.ebizou in self.naruto.characters and self.naruto.characters[self.ebizou]['role'] == 'Supporting'
+        self.assertIsInstance(self.naruto.characters, dict)
+        self.assertGreater(self.naruto.characters, 0)
+        self.assertIn(self.ebizou, self.naruto.characters)
+        self.assertEqual(self.naruto.characters[self.ebizou]['role'], 'Supporting')
 
-        assert isinstance(self.tomoyo_after.characters, dict) and len(self.tomoyo_after.characters) > 0
-        assert self.kanako in self.tomoyo_after.characters and self.tomoyo_after.characters[self.kanako][
-                                                                   'role'] == 'Supporting'
+        self.assertIsInstance(self.tomoyo_after.characters, dict)
+        self.assertGreater(self.tomoyo_after.characters, 0)
+        self.assertIn(self.kanako, self.tomoyo_after.characters)
+        self.assertEqual(self.tomoyo_after.characters[self.kanako]['role'], 'Supporting')
