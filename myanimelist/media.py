@@ -8,6 +8,7 @@ import bs4
 
 import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
+from decimal import InvalidOperation
 
 
 class MalformedMediaPageError(MalformedPageError):
@@ -135,6 +136,8 @@ class Media(Base):
         try:
             utilities.extract_tags(title_tag.find_all())
             media_info[u'title'] = title_tag.text.strip()
+            if media_info[u'title'] == '':
+                media_info[u'title'] = self.media_page_original_soup.find('span',{'itemprop':'name'}).text 
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -204,7 +207,11 @@ class Media(Base):
             users_node = [x for x in score_tag.find_all(u'small') if u'scored by' in x.text][0]
             num_users = int(users_node.text.split(u'scored by ')[-1].split(u' users')[0])
             utilities.extract_tags(score_tag.find_all())
-            media_info[u'score'] = (decimal.Decimal(score_tag.text.strip()), num_users)
+            try :
+                media_info[u'score'] = (decimal.Decimal(score_tag.text.strip()), num_users)
+            except InvalidOperation :
+                score_tag = self.media_page_original_soup.find('span',{'itemprop':'ratingValue'})
+                media_info[u'score'] = (decimal.Decimal(score_tag.text), num_users)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -244,12 +251,24 @@ class Media(Base):
         try:
             # get popular tags.
             tags_header = media_page.find(u'h2', text=u'Popular Tags')
-            tags_tag = tags_header.find_next_sibling(u'span')
-            media_info[u'popular_tags'] = {}
-            for tag_link in tags_tag.find_all('a'):
-                tag = self.session.tag(tag_link.text)
-                num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
-                media_info[u'popular_tags'][tag] = num_people
+            try:
+                tags_tag = tags_header.find_next_sibling(u'span')
+                media_info[u'popular_tags'] = {}
+                for tag_link in tags_tag.find_all('a'):
+                    tag = self.session.tag(tag_link.text)
+                    num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
+                    media_info[u'popular_tags'][tag] = num_people
+            except AttributeError:
+                tags_tag = self.media_page_original_soup.find('span',text='Genres:').parent
+                media_info[u'popular_tags'] = {}
+                for tag_link in tags_tag.find_all('a'):
+                    tag = self.session.tag(tag_link.text)
+                    try: 
+                        num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
+                        media_info[u'popular_tags'][tag] = num_people
+                    except TypeError: 
+                        media_info[u'popular_tags'][tag] = 1
+                
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -269,7 +288,12 @@ class Media(Base):
         media_info = self.parse_sidebar(media_page)
 
         try:
-            synopsis_elt = media_page.find(u'h2', text=u'Synopsis').parent
+            if media_page.find(u'h2', text=u'Synopsis') is not None :
+                synopsis_elt = media_page.find(u'h2', text=u'Synopsis').parent
+            else :
+                # find Synopsis elt not directly
+                synopsis_elt = [x for x in self.media_page_original_soup.find_all(u'h2') if "Synopsis" in x.text][0].parent
+
             utilities.extract_tags(synopsis_elt.find_all(u'h2'))
             media_info[u'synopsis'] = synopsis_elt.text.strip()
         except:
@@ -428,7 +452,7 @@ class Media(Base):
 
         """
         media_info = self.parse_sidebar(character_page)
-
+        
         try:
             character_title = filter(lambda x: u'Characters' in x.text, character_page.find_all(u'h2'))
             media_info[u'characters'] = {}
@@ -462,6 +486,7 @@ class Media(Base):
         """
         media_page = self.session.session.get(
             u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(self.id)).text
+        self.media_page_original_soup = bs4.BeautifulSoup(media_page)
         self.set(self.parse(utilities.get_clean_dom(media_page)))
         return self
 
@@ -484,9 +509,10 @@ class Media(Base):
         :return: current media object.
 
         """
-        characters_page = self.session.session.get(
-            u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(
-                self.id) + u'/' + utilities.urlencode(self.title) + u'/characters').text
+        character_page_url = u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(
+                self.id) + u'/' + utilities.urlencode(self.title) + u'/characters'
+        characters_page = self.session.session.get(character_page_url).text
+        self.characters_page_original_soup = bs4.BeautifulSoup(characters_page) 
         self.set(self.parse_characters(utilities.get_clean_dom(characters_page)))
         return self
 

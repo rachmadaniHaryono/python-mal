@@ -225,11 +225,14 @@ class Anime(media.Media):
                 raise
 
         try:
-            staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))
+            # this contain list with 'staff' as text
+            staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))                
             anime_info[u'staff'] = {}
             if staff_title:
                 staff_title = staff_title[0]
                 staff_table = staff_title.nextSibling.nextSibling
+                if staff_table.name != 'table' : #only change if staff_table dont have table tag
+                    staff_table = staff_title.nextSibling
                 for row in staff_table.find_all(u'tr'):
                     # staff info in second col.
                     info = row.find_all(u'td')[1]

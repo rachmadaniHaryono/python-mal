@@ -129,9 +129,8 @@ class testAnimeClass(TestCase):
         self.assertEqual(self.prisma.status, u'Finished Airing')
 
     def testAired(self):
-        self.assertEqual(self.spicy_wolf.aired == (
-        datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30, year=2008)))
-
+        self.assertEqual(self.spicy_wolf.aired, 
+                         (datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30, year=2008)))
         self.assertEqual(self.bebop.aired,
                          (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24, year=1999)))
         self.assertEqual(self.space_dandy.aired,
