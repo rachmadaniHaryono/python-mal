@@ -98,7 +98,7 @@ class testAnimeClass(TestCase):
 
         self.assertIn(u'English', self.spicy_wolf.alternative_titles)
         self.assertIsInstance(self.spicy_wolf.alternative_titles[u'English'], list)
-        self.assertIn(u'Spice Wolf', self.spicy_wolf.alternative_titles[u'English'])
+        self.assertIn(u'Spice and Wolf', self.spicy_wolf.alternative_titles[u'English'])
 
         self.assertIn(u'Japanese', self.space_dandy.alternative_titles)
         self.assertIsInstance(self.space_dandy.alternative_titles[u'Japanese'], list)
