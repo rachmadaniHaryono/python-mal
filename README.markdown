@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/shaldengeki/python-mal.svg)](https://travis-ci.org/shaldengeki/python-mal)
+[![Build Status](https://travis-ci.org/rachmadaniHaryono/python-mal.svg)](https://travis-ci.org/rachmadaniHaryono/python-mal)
 
 python-mal
 ==========
