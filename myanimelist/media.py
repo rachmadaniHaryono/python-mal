@@ -262,12 +262,13 @@ class Media(Base):
                 tags_tag = self.media_page_original_soup.find('span',text='Genres:').parent
                 media_info[u'popular_tags'] = {}
                 for tag_link in tags_tag.find_all('a'):
-                    tag = self.session.tag(tag_link.text)
+                    tag = self.session.tag(tag_link.text.lower())
                     try: 
                         num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
                         media_info[u'popular_tags'][tag] = num_people
                     except TypeError: 
-                        media_info[u'popular_tags'][tag] = 1
+                        tag_num = tag_link.get('href').split('=')[-1]
+                        media_info[u'popular_tags'][tag] = tag_num
                 
         except:
             if not self.session.suppress_parse_exceptions:
