@@ -3,11 +3,12 @@
 
 from unittest import TestCase
 import os
+from nose.plugins.attrib import attr
 
 import myanimelist.session
 import myanimelist.anime
 
-
+@attr('credentials')
 class testSessionClass(TestCase):
     @classmethod
     def setUpClass(self):
