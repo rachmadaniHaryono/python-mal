@@ -209,7 +209,7 @@ class Media(Base):
             utilities.extract_tags(score_tag.find_all())
             try :
                 media_info[u'score'] = (decimal.Decimal(score_tag.text.strip()), num_users)
-            except InvalidOperation :
+            except ( InvalidOperation, AttributeError) :
                 score_tag = self.media_page_original_soup.find('span',{'itemprop':'ratingValue'})
                 media_info[u'score'] = (decimal.Decimal(score_tag.text), num_users)
         except:
