@@ -179,7 +179,8 @@ class Anime(media.Media):
         anime_info = self.parse_sidebar(character_page)
 
         try:
-            character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, character_page.find_all(u'h2'))
+            # character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, character_page.find_all(u'h2'))
+            character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, self.characters_page_original_soup.find_all(u'h2'))
             anime_info[u'characters'] = {}
             anime_info[u'voice_actors'] = {}
             if character_title:
