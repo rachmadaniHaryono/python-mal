@@ -223,7 +223,7 @@ class Media(Base):
                 media_info[u'rank'] = int(rank_tag.text.strip()[1:].replace(u',', ''))
             except AttributeError:
                 rank_tag = filter(lambda x: 'Ranked:' in x.text, self.media_page_original_soup.find_all('div', {'class':'spaceit'}))
-                media_info[u'rank'] = rank_tag[0].text.split('#')[-1].strip()
+                media_info[u'rank'] = int(rank_tag[0].text.split('#')[-1].strip())
                              
         except:
             if not self.session.suppress_parse_exceptions:
