@@ -250,7 +250,7 @@ class Media(Base):
             except AttributeError :
                 members_tag = filter(lambda x: 'Members' in x.text,
                                   self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
-                media_info[u'popularity'] = int(members_tag.text.split(':')[-1].strip().replace(u',', ''))
+                media_info[u'members'] = int(members_tag.text.split(':')[-1].strip().replace(u',', ''))
 
         except:
             if not self.session.suppress_parse_exceptions:
