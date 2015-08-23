@@ -237,7 +237,7 @@ class Media(Base):
             except AttributeError :
                 rank_tag = filter(lambda x: 'Popularity' in x.text,
                                   self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
-                media_info[u'popularity'] = rank_tag.text.split('#')[-1].strip()
+                media_info[u'popularity'] = int(rank_tag.text.split('#')[-1].strip())
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -262,7 +262,7 @@ class Media(Base):
                 utilities.extract_tags(favorites_tag.find_all())
                 media_info[u'favorites'] = int(favorites_tag.text.strip().replace(u',', ''))
             except AttributeError :
-                favorites_tag_tag = filter(lambda x: 'Favorites' in x.text,
+                favorites_tag = filter(lambda x: 'Favorites' in x.text,
                                   self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
                 media_info[u'favorites'] = int(favorites_tag.text.split(':')[-1].strip().replace(u',', ''))                
         except:
