@@ -217,17 +217,27 @@ class Media(Base):
                 raise
 
         try:
-            rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
-            utilities.extract_tags(rank_tag.find_all())
-            media_info[u'rank'] = int(rank_tag.text.strip()[1:].replace(u',', ''))
+            try:
+                rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
+                utilities.extract_tags(rank_tag.find_all())
+                media_info[u'rank'] = int(rank_tag.text.strip()[1:].replace(u',', ''))
+            except AttributeError:
+                rank_tag = filter(lambda x: 'Ranked:' in x.text, self.media_page_original_soup.find_all('div', {'class':'spaceit'}))
+                media_info[u'rank'] = rank_tag[0].text.split('#')[-1].strip()
+                             
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            popularity_tag = info_panel_first.find(text=u'Popularity:').parent.parent
-            utilities.extract_tags(popularity_tag.find_all())
-            media_info[u'popularity'] = int(popularity_tag.text.strip()[1:].replace(u',', ''))
+            try :
+                popularity_tag = info_panel_first.find(text=u'Popularity:').parent.parent
+                utilities.extract_tags(popularity_tag.find_all())
+                media_info[u'popularity'] = int(popularity_tag.text.strip()[1:].replace(u',', ''))
+            except AttributeError :
+                rank_tag = filter(lambda x: 'Popularity' in x.text,
+                                  self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
+                media_info[u'popularity'] = rank_tag.text.split('#')[-1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

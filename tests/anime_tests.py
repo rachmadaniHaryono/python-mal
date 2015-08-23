@@ -378,3 +378,4 @@ class testAnimeClass(TestCase):
         self.assertGreater(len(self.spicy_wolf.popular_tags), 0)
         self.assertIn(self.adventure_tag, self.spicy_wolf.popular_tags)
         self.assertEquals(len(self.non_tagged_anime.popular_tags), 1)
+
