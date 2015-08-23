@@ -243,17 +243,28 @@ class Media(Base):
                 raise
 
         try:
-            members_tag = info_panel_first.find(text=u'Members:').parent.parent
-            utilities.extract_tags(members_tag.find_all())
-            media_info[u'members'] = int(members_tag.text.strip().replace(u',', ''))
+            try :
+                members_tag = info_panel_first.find(text=u'Members:').parent.parent
+                utilities.extract_tags(members_tag.find_all())
+                media_info[u'members'] = int(members_tag.text.strip().replace(u',', ''))
+            except AttributeError :
+                members_tag = filter(lambda x: 'Members' in x.text,
+                                  self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
+                media_info[u'popularity'] = int(members_tag.text.split(':')[-1].strip().replace(u',', ''))
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
-            utilities.extract_tags(favorites_tag.find_all())
-            media_info[u'favorites'] = int(favorites_tag.text.strip().replace(u',', ''))
+            try :
+                favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
+                utilities.extract_tags(favorites_tag.find_all())
+                media_info[u'favorites'] = int(favorites_tag.text.strip().replace(u',', ''))
+            except AttributeError :
+                favorites_tag_tag = filter(lambda x: 'Favorites' in x.text,
+                                  self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
+                media_info[u'favorites'] = int(favorites_tag.text.split(':')[-1].strip().replace(u',', ''))                
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
