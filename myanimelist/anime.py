@@ -226,7 +226,8 @@ class Anime(media.Media):
 
         try:
             # this contain list with 'staff' as text
-            staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))                
+            # staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))
+            staff_title = filter(lambda x: 'Staff' in x.text, self.characters_page_original_soup.find_all(u'h2'))                
             anime_info[u'staff'] = {}
             if staff_title:
                 staff_title = staff_title[0]
