@@ -297,6 +297,49 @@ class Media(Base):
 
         return media_info
 
+    def parse_related_media(self, media_page):
+        """Parses the DOM and returns related media.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: dict
+        :return: related media attributes.
+
+        """
+        result_dict = {}
+        # find table with related media
+        table = media_page.find('table', {'class': 'anime_detail_related_anime'})
+        # return None if table is not found
+        if table is None: 
+            return None
+        # if table is not None process the table
+        for row in table.find_all('tr'):
+            # TODO check if one category contain more than one media
+            # find all cell in a row
+            cells = row.find_all('td')
+            # first cell containt category of related media like 'Adaptation' or 'Sequel'
+            related_category = str(cells[0].text.split(':')[0])
+            # second cell contain the media and it can contain multiple media
+            # ie:<a href="/manga/9115/Ookami_to_Koushinryou">Ookami to Koushinryou</a>
+            # temporarily containt the in list
+            related_category_media_list = []
+            for related_media_tag in cells[1].find_all('a'):
+                # parsing the tag
+                href_parts = related_media_tag.get('href').split('/')
+                obj_id = int(href_parts[2])
+                title = related_media_tag.text
+                # create new object
+                new_obj = getattr(self.session, href_parts[1].lower())(obj_id).set({'title': title})
+                related_category_media_list.append(new_obj)
+            # return found all related media in a dict
+            result_dict[related_category] = related_category_media_list
+        # return None if nothing found instead empty dict
+        if result_dict == {}:
+            return None
+        else:
+            return result_dict
+
     def parse(self, media_page):
         """Parses the DOM and returns media attributes in the main-content area.
 
@@ -363,6 +406,10 @@ class Media(Base):
                 media_info[u'related'] = related
             else:
                 media_info[u'related'] = None
+
+            # check once again using a single function if the first method found none
+            if media_info[u'related'] is None:
+                media_info[u'related'] = self.parse_related_media(self.media_page_original_soup)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

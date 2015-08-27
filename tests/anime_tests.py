@@ -285,7 +285,7 @@ class testAnimeClass(TestCase):
 
     def testRelated(self):
         self.assertIsInstance(self.spicy_wolf.related, dict)
-        self.assertIn('Sequel', self.spicy_wolf.related)
+        self.assertIn(u'Sequel', self.spicy_wolf.related)
         self.assertIn(self.spicy_wolf_sequel, self.spicy_wolf.related[u'Sequel'])
         self.assertIsInstance(self.bebop.related, dict)
         self.assertIn('Side story', self.bebop.related)
