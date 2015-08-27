@@ -94,7 +94,9 @@ class testMangaClass(TestCase):
     def testAlternativeTitGreater(self):
         self.assertIn(u'Japanese', self.monster.alternative_titles)
         self.assertIsInstance(self.monster.alternative_titles[u'Japanese'], list)
-        self.assertIn(u'MONSTER モンスター', self.monster.alternative_titles[u'Japanese'])
+        # http://myanimelist.net/manga/1/Monster
+        # japanese alternative title for monster manga is 'MONSTER'
+        self.assertIn(u'MONSTER', self.monster.alternative_titles[u'Japanese'])
         self.assertIn(u'Synonyms', self.holic.alternative_titles)
         self.assertIsInstance(self.holic.alternative_titles[u'Synonyms'], list)
         self.assertIn(u'xxxHolic Cage', self.holic.alternative_titles[u'Synonyms'])
