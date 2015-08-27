@@ -521,7 +521,7 @@ class Media(Base):
 
         """
         media_info = self.parse_sidebar(character_page)
-        
+
         try:
             character_title = filter(lambda x: u'Characters' in x.text, character_page.find_all(u'h2'))
             media_info[u'characters'] = {}
@@ -540,6 +540,25 @@ class Media(Base):
                     role = character_col.find(u'small').text
                     media_info[u'characters'][character] = {'role': role}
                     curr_elt = curr_elt.find_next_sibling(u'table')
+            if media_info[u'characters'] == {}:
+                character_title = filter(lambda x: u'Characters' in x.text, self.characters_page_original_soup.find_all(u'h2'))
+                tables = character_title[0].findNextSiblings(u'table')
+                for table in tables:
+                    # one table only contain one row which contain 2 cell, which are photo , text
+                    # get second cell
+                    character_col = table.find_all('td')[1]
+                    # find link in that cell
+                    character_link = character_col.find(u'a')
+                    # find char name and reverse it
+                    character_name = ' '.join(reversed(character_link.text.split(u', ')))
+                    # get role which written in small-tag
+                    role = character_col.find('small').text
+                    # get link and split with splash
+                    # of the form /character/7373/Holo
+                    link_parts = character_link.get(u'href').split(u'/')
+                    # create object
+                    character = self.session.character(int(link_parts[2])).set({'name': character_name})
+                    media_info[u'characters'][character] = {'role': role}
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
