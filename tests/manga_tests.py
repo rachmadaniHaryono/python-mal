@@ -127,7 +127,8 @@ class testMangaClass(TestCase):
         self.assertEqual(self.monster.chapters, 162)
         self.assertEqual(self.tomoyo_after.chapters, 4)
         self.assertEqual(self.naruto.chapters, 700)
-        self.assertEqual(self.judos.chapters, None)
+        # update from 27-8-2015 judos is finished with 21 chapter
+        self.assertEqual(self.judos.chapters, 21)
 
     def testStatus(self):
         self.assertEqual(self.holic.status, u'Finished')
@@ -270,7 +271,7 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.tomoyo_after.favorites, int)
         self.assertGreater(self.tomoyo_after.favorites, 0)
         self.assertIsInstance(self.judos.favorites, int)
-        self.assertGreater(self.judos.favorites, 0)
+        self.assertGreaterEqual(self.judos.favorites, 0)
 
     def testPopularTags(self):
         self.assertIsInstance(self.holic.popular_tags, dict)
