@@ -291,7 +291,7 @@ class testMangaClass(TestCase):
         self.assertIn(self.mystery_tag, self.monster.popular_tags)
         self.assertGreater(self.monster.popular_tags[self.mystery_tag], 105)
         self.assertIsInstance(self.judos.popular_tags, dict)
-        self.assertEqual(len(self.judos.popular_tags), 0)
+        self.assertGreater(len(self.judos.popular_tags), 0)
 
     def testSynopsis(self):
         self.assertIsInstance(self.holic.synopsis, unicode)
