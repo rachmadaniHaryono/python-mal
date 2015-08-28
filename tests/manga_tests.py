@@ -47,7 +47,7 @@ class testMangaClass(TestCase):
         self.action = self.session.genre(1)
         self.kondou = self.session.person(18765)
 
-        self.invalid_anime = self.session.manga(457384754)
+        self.invalid_manga = self.session.manga(457384754)
         self.latest_manga = myanimelist.manga.Manga.newest(self.session)
 
     def testNoIDInvalidManga(self):
@@ -67,8 +67,8 @@ class testMangaClass(TestCase):
             self.session.manga(1.5)
 
     def testNonExistentManga(self):
-        with self.assertRaises(myanimelist.manga.InvalidMangaError):
-            self.invalid_anime.load()
+        with self.assertRaises(myanimelist.manga.MalformedMangaPageError):
+            self.invalid_manga.load()
 
     def testLatestManga(self):
         self.assertIsInstance(self.latest_manga, myanimelist.manga.Manga)
