@@ -69,7 +69,7 @@ class testAnimeClass(TestCase):
             self.session.anime(1.5)
 
     def testNonExistentAnime(self):
-        with self.assertRaises(myanimelist.anime.InvalidAnimeError):
+        with self.assertRaises(myanimelist.anime.MalformedAnimePageError):
             self.invalid_anime.load()
 
     def testLatestAnime(self):
