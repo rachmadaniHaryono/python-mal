@@ -265,6 +265,7 @@ class Media(Base):
                 favorites_tag = filter(lambda x: 'Favorites' in x.text,
                                   self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
                 media_info[u'favorites'] = int(favorites_tag.text.split(':')[-1].strip().replace(u',', ''))                
+            
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
