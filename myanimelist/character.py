@@ -304,18 +304,23 @@ class Character(Base):
         return self
 
     def load_favorites(self):
-        """Fetches the MAL character favorites page and sets the current character's favorites attributes.
+        """(Deprecated)Fetches the MAL character favorites page and sets the current character's favorites attributes.
 
         :rtype: :class:`.Character`
         :return: Current character object.
 
         """
+        import warnings
+        warnings.warn('Character favorites page is no longer exists.',DeprecationWarning)
+        '''
         character = self.session.session.get(
             u'http://myanimelist.net/character/' + str(self.id) + u'/' + utilities.urlencode(
                 self.name) + u'/favorites').text
         self.set(self.parse_favorites(utilities.get_clean_dom(character)))
         return self
-
+        '''
+        pass
+    
     def load_pictures(self):
         """Fetches the MAL character pictures page and sets the current character's pictures attributes.
 
