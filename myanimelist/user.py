@@ -45,7 +45,7 @@ class User(Base):
         """
         comments_page = session.session.get(
             u'http://myanimelist.net/comments.php?' + urllib.urlencode({'id': int(user_id)})).text
-        comments_page = bs4.BeautifulSoup(comments_page)
+        comments_page = bs4.BeautifulSoup(comments_page, 'lxml')
         username_elt = comments_page.find('h1')
         if "'s Comments" not in username_elt.text:
             raise InvalidUserError(user_id, message="Invalid user ID given when looking up username")

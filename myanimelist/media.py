@@ -593,7 +593,7 @@ class Media(Base):
         """
         media_page = self.session.session.get(
             u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(self.id)).text
-        media_page_original = bs4.BeautifulSoup(media_page)
+        media_page_original = bs4.BeautifulSoup(media_page,'lxml')
         self.set(self.parse(utilities.get_clean_dom(media_page), media_page_original))
         return self
 
@@ -619,7 +619,7 @@ class Media(Base):
         character_page_url = u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(
                 self.id) + u'/' + utilities.urlencode(self.title) + u'/characters'
         characters_page = self.session.session.get(character_page_url).text
-        characters_page_original = bs4.BeautifulSoup(characters_page) 
+        characters_page_original = bs4.BeautifulSoup(characters_page,'lxml') 
         self.set(self.parse_characters(utilities.get_clean_dom(characters_page), characters_page_original))
         return self
 
