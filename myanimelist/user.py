@@ -8,6 +8,7 @@ import bs4
 
 import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
+from bs4 import BeautifulSoup
 
 
 class MalformedUserPageError(MalformedPageError):
@@ -451,24 +452,76 @@ class User(Base):
                     media = getattr(self.session, link_parts[1])(int(link_parts[2])).set({u'title': media_link.text})
 
                     helpfuls = meta_rows[1].find(u'span', recursive=False)
-                    helpful_match = re.match(r'(?P<people_helped>[0-9]+) of (?P<people_total>[0-9]+)',
-                                             helpfuls.text).groupdict()
-                    review_info[u'people_helped'] = int(helpful_match[u'people_helped'])
-                    review_info[u'people_total'] = int(helpful_match[u'people_total'])
+                    try:
+                        helpful_match = re.match(r'(?P<people_helped>[0-9]+) of (?P<people_total>[0-9]+)',
+                                                 helpfuls.text).groupdict()
+                        review_info[u'people_helped'] = int(helpful_match[u'people_helped'])
+                        review_info[u'people_total'] = int(helpful_match[u'people_total'])
+                    except AttributeError:
+                        # total of people is no longer shown
+                        # try another method, not using regex method.
+                        # ie: 805 people found this review helpful
+                        helpful_match = helpfuls.text.split('people found this review helpful')[0]
+                        review_info[u'people_helped'] = int(helpful_match)
+                        # review_info[u'people_total'] = int(helpful_match[u'people_total'])
+                        review_info[u'people_total'] = None
 
-                    consumption_match = re.match(r'(?P<media_consumed>[0-9]+) of (?P<media_total>[0-9?]+)',
-                                                 meta_rows[2].text).groupdict()
-                    review_info[u'media_consumed'] = int(consumption_match[u'media_consumed'])
-                    if consumption_match[u'media_total'] == u'?':
-                        review_info[u'media_total'] = None
-                    else:
-                        review_info[u'media_total'] = int(consumption_match[u'media_total'])
+                    try:
+                        consumption_match = re.match(r'(?P<media_consumed>[0-9]+) of (?P<media_total>[0-9?]+)',
+                                                     meta_rows[2].text).groupdict()
+                        review_info[u'media_consumed'] = int(consumption_match[u'media_consumed'])
+                        if consumption_match[u'media_total'] == u'?':
+                            review_info[u'media_total'] = None
+                        else:
+                            review_info[u'media_total'] = int(consumption_match[u'media_total'])
+                    except AttributeError:
+                        # available format
+                        # ie anime: 25 of 25 episodes seen
+                        # ie : 25 of ? episodes seen
+                        # ie : ? episodes
+                        # ie manga: 40 chapters
+                        # ie : 60 of ? chapters read
+                        # ie : ? chapters
+                        # <div class="lightLink" style="float: right;">24 of 24 episodes seen</div>
 
-                    review_info[u'rating'] = int(meta_rows[3].find(u'div').text.replace(u'Overall Rating: ', ''))
+                        media_tag = meta_rows[1].find_all('div')[0]
+                        if ' episodes' in media_tag.text:
+                            user_media_consumption = media_tag.text.split(' episodes')[0].strip()
+                        elif ' chapters' in media_tag.text:
+                            user_media_consumption = media_tag.text.split(' chapters')[0].strip()
+                        else:
+                            # no format recognized
+                            raise AttributeError
+                        # user_media_consumption : 'xx of xx', 'xx of ?', '? of xx', or '?'
+                        if 'of' not in user_media_consumption:
+                            review_info[u'media_consumed'] = None
+                            review_info[u'media_total'] = None
+                        else:
+                            # temp var for variable media_consumed
+                            temp_consumed = user_media_consumption.split('of')[0].strip()
+                            # temp var for variable media_total
+                            temp_total = user_media_consumption.split('of')[1].strip()
+                            if temp_consumed == '?':
+                                review_info[u'media_consumed'] = None
+                            else:
+                                review_info[u'media_consumed'] = int(temp_consumed)
+                            if temp_total == '?':
+                                review_info[u'media_total'] = None
+                            else:
+                                review_info[u'media_total'] = int(temp_total)
+
+                    review_info[u'rating'] = int(meta_rows[2].text.replace(u'Overall Rating: ', '').split('Other review')[0])
 
                     for x in review_elt.find_all([u'div', 'a']):
                         x.extract()
-                    review_info[u'text'] = review_elt.text.strip()
+
+                    try:
+                        review_info[u'text'] = review_elt.text.strip()
+                    except AttributeError: 
+                        # sometime reviw_elt cant produce attribute error
+                        # one of the solution is to reparse the tag
+                        review_info[u'text'] = BeautifulSoup(str(review_elt),"lxml").text.strip()
+
                     user_info[u'reviews'][media] = review_info
         except:
             if not self.session.suppress_parse_exceptions:

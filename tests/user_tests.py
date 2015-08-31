@@ -42,6 +42,8 @@ class testUserClass(TestCase):
         self.sao = self.session.anime(11757)
         self.threger = self.session.user(u'threger')
 
+        self.archaeon = self.session.user(u'Archaeon')
+
     def testNoIDInvalidUser(self):
         with self.assertRaises(TypeError):
             self.session.user()
@@ -219,8 +221,10 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.shal.reviews, dict)
         self.assertEqual(len(self.shal.reviews), 0)
 
+        # not using smooched as test because (s)he delete all the review
         self.assertIsInstance(self.smooched.reviews, dict)
         self.assertGreaterEqual(len(self.smooched.reviews), 0)
+        '''
         self.assertIn(self.sao, self.smooched.reviews)
         self.assertIsInstance(self.smooched.reviews[self.sao][u'date'], datetime.date)
         self.assertEqual(self.smooched.reviews[self.sao][u'date'], datetime.date(year=2012, month=7, day=24))
@@ -231,6 +235,21 @@ class testUserClass(TestCase):
         self.assertEqual(self.smooched.reviews[self.sao][u'rating'], 6)
         self.assertIsInstance(self.smooched.reviews[self.sao][u'text'], unicode)
         self.assertGreater(len(self.smooched.reviews[self.sao][u'text']), 0)
+        '''
+
+        self.assertIsInstance(self.archaeon.reviews, dict)
+        self.assertGreaterEqual(len(self.archaeon.reviews), 0)
+        self.assertIn(self.fate_zero, self.archaeon.reviews)
+        self.assertIsInstance(self.archaeon.reviews[self.fate_zero][u'date'], datetime.datetime)
+        self.assertEqual(self.archaeon.reviews[self.fate_zero][u'date'],
+                         datetime.datetime(year=2012, month=1, day=14, hour=8, minute=0))
+        self.assertGreaterEqual(self.archaeon.reviews[self.fate_zero][u'people_helped'], 689)
+        self.assertGreaterEqual(self.archaeon.reviews[self.fate_zero][u'people_total'], None)
+        self.assertEqual(self.archaeon.reviews[self.fate_zero][u'media_consumed'], 13)
+        self.assertEqual(self.archaeon.reviews[self.fate_zero][u'media_total'], 13)
+        self.assertEqual(self.archaeon.reviews[self.fate_zero][u'rating'], 9)
+        self.assertIsInstance(self.archaeon.reviews[self.fate_zero][u'text'], unicode)
+        self.assertGreater(len(self.archaeon.reviews[self.fate_zero][u'text']), 0)
 
         self.assertIsInstance(self.threger.reviews, dict)
         self.assertEqual(len(self.threger.reviews), 0)
