@@ -331,7 +331,7 @@ class Media(Base):
                 obj_id = int(href_parts[2])
                 title = related_media_tag.text
                 # create new object
-                new_obj = getattr(self.session, href_parts[1].lower())(obj_id).set({'title': title})
+                new_obj = getattr(self.session, href_parts[1])(obj_id).set({'title': title})
                 related_category_media_list.append(new_obj)
             # return found all related media in a dict
             result_dict[related_category] = related_category_media_list
@@ -359,9 +359,24 @@ class Media(Base):
             else :
                 # find Synopsis elt not directly
                 synopsis_elt = [x for x in self.media_page_original_soup.find_all(u'h2') if "Synopsis" in x.text][0].parent
-
-            utilities.extract_tags(synopsis_elt.find_all(u'h2'))
-            media_info[u'synopsis'] = synopsis_elt.text.strip()
+            # before removing h2 tag, filter the text after the second h2-tag
+            # synopsis_elt = synopsis_elt.split(synopsis_elt.find_all('h2'))[0]
+            # filter the text between 2 h2-tag
+            temp_synopsis_elt = []
+            for x in synopsis_elt.contents[1:]:
+                if type(x) == bs4.element.Tag:
+                    if x.name == 'h2':
+                        break
+                    temp_synopsis_elt.append(x.text)
+                else:
+                    temp_synopsis_elt.append(x)
+            synopsis_elt = ''.join(temp_synopsis_elt)
+            try:
+                utilities.extract_tags(synopsis_elt.find_all(u'h2'))
+                media_info[u'synopsis'] = synopsis_elt.text.strip()
+            except AttributeError:
+                # the current synopsis_elt may not contain any h2-tag
+                media_info[u'synopsis'] = synopsis_elt
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

@@ -270,6 +270,10 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.spicy_wolf.synopsis, unicode)
         self.assertGreater(len(self.spicy_wolf.synopsis), 0)
         self.assertIn(u'Holo', self.spicy_wolf.synopsis)
+        # check if background-part not synopsis
+        self.assertNotIn(u'No background information has been added to this title.',
+                         self.spicy_wolf.synopsis)
+
         self.assertIsInstance(self.bebop.synopsis, unicode)
         self.assertGreater(len(self.bebop.synopsis), 0)
         self.assertIn(u'Spike', self.bebop.synopsis)
