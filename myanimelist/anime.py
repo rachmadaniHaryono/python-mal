@@ -53,11 +53,14 @@ class Anime(media.Media):
         self._voice_actors = None
         self._staff = None
 
-    def parse_sidebar(self, anime_page):
+    def parse_sidebar(self, anime_page, anime_page_original=None):
         """Parses the DOM and returns anime attributes in the sidebar.
 
         :type anime_page: :class:`bs4.BeautifulSoup`
         :param anime_page: MAL anime page's DOM
+
+        :type anime_page: :class:`bs4.BeautifulSoup`
+        :param anime_page: MAL anime page's DOM uncleaned
 
         :rtype: dict
         :return: anime attributes
@@ -74,7 +77,7 @@ class Anime(media.Media):
             # otherwise, raise a MalformedAnimePageError.
             raise MalformedAnimePageError(self.id, anime_page, message="Could not find title div")
 
-        anime_info = super(Anime, self).parse_sidebar(anime_page)
+        anime_info = super(Anime, self).parse_sidebar(anime_page, anime_page_original)
         info_panel_first = anime_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
 
         try:
@@ -164,7 +167,7 @@ class Anime(media.Media):
 
         return anime_info
 
-    def parse_characters(self, character_page):
+    def parse_characters(self, character_page, character_page_original=None):
         """Parses the DOM and returns anime character attributes in the sidebar.
 
         :type character_page: :class:`bs4.BeautifulSoup`
@@ -176,11 +179,11 @@ class Anime(media.Media):
         :raises: :class:`.InvalidAnimeError`, :class:`.MalformedAnimePageError`
 
         """
-        anime_info = self.parse_sidebar(character_page)
+        anime_info = self.parse_sidebar(character_page, character_page_original)
 
         try:
             # character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, character_page.find_all(u'h2'))
-            character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, self.characters_page_original_soup.find_all(u'h2'))
+            character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, character_page_original.find_all(u'h2'))
             anime_info[u'characters'] = {}
             anime_info[u'voice_actors'] = {}
             if character_title:
@@ -228,7 +231,7 @@ class Anime(media.Media):
         try:
             # this contain list with 'staff' as text
             # staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))
-            staff_title = filter(lambda x: 'Staff' in x.text, self.characters_page_original_soup.find_all(u'h2'))                
+            staff_title = filter(lambda x: 'Staff' in x.text, character_page_original.find_all(u'h2'))                
             anime_info[u'staff'] = {}
             if staff_title:
                 staff_title = staff_title[0]

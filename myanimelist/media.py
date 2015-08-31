@@ -105,7 +105,7 @@ class Media(Base):
         self._score_stats = None
         self._status_stats = None
 
-    def parse_sidebar(self, media_page):
+    def parse_sidebar(self, media_page, media_page_original=None):
         """Parses the DOM and returns media attributes in the sidebar.
 
         :type media_page: :class:`bs4.BeautifulSoup`
@@ -137,7 +137,7 @@ class Media(Base):
             utilities.extract_tags(title_tag.find_all())
             media_info[u'title'] = title_tag.text.strip()
             if media_info[u'title'] == '':
-                media_info[u'title'] = self.media_page_original_soup.find('span',{'itemprop':'name'}).text 
+                media_info[u'title'] = media_page_original.find('span',{'itemprop':'name'}).text 
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -210,7 +210,7 @@ class Media(Base):
             try :
                 media_info[u'score'] = (decimal.Decimal(score_tag.text.strip()), num_users)
             except ( InvalidOperation, AttributeError) :
-                score_tag = self.media_page_original_soup.find('span',{'itemprop':'ratingValue'})
+                score_tag = media_page_original.find('span',{'itemprop':'ratingValue'})
                 media_info[u'score'] = (decimal.Decimal(score_tag.text), num_users)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -222,9 +222,9 @@ class Media(Base):
                 utilities.extract_tags(rank_tag.find_all())
                 media_info[u'rank'] = int(rank_tag.text.strip()[1:].replace(u',', ''))
             except AttributeError:
-                rank_tag = filter(lambda x: 'Ranked:' in x.text, self.media_page_original_soup.find_all('div', {'class':'spaceit'}))
+                rank_tag = filter(lambda x: 'Ranked:' in x.text, media_page_original.find_all('div', {'class':'spaceit'}))
                 media_info[u'rank'] = int(rank_tag[0].text.split('#')[-1].strip())
-                             
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -236,7 +236,7 @@ class Media(Base):
                 media_info[u'popularity'] = int(popularity_tag.text.strip()[1:].replace(u',', ''))
             except AttributeError :
                 rank_tag = filter(lambda x: 'Popularity' in x.text,
-                                  self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
+                                  media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
                 media_info[u'popularity'] = int(rank_tag.text.split('#')[-1].strip())
         except:
             if not self.session.suppress_parse_exceptions:
@@ -249,7 +249,7 @@ class Media(Base):
                 media_info[u'members'] = int(members_tag.text.strip().replace(u',', ''))
             except AttributeError :
                 members_tag = filter(lambda x: 'Members' in x.text,
-                                  self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
+                                  media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
                 media_info[u'members'] = int(members_tag.text.split(':')[-1].strip().replace(u',', ''))
 
         except:
@@ -263,7 +263,7 @@ class Media(Base):
                 media_info[u'favorites'] = int(favorites_tag.text.strip().replace(u',', ''))
             except AttributeError :
                 favorites_tag = filter(lambda x: 'Favorites' in x.text,
-                                  self.media_page_original_soup.find_all('span', {'class':'dark_text'}))[0].parent
+                                  media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
                 media_info[u'favorites'] = int(favorites_tag.text.split(':')[-1].strip().replace(u',', ''))                
             
         except:
@@ -281,7 +281,7 @@ class Media(Base):
                     num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
                     media_info[u'popular_tags'][tag] = num_people
             except AttributeError:
-                tags_tag = self.media_page_original_soup.find('span',text='Genres:').parent
+                tags_tag = media_page_original.find('span',text='Genres:').parent
                 media_info[u'popular_tags'] = {}
                 for tag_link in tags_tag.find_all('a'):
                     tag = self.session.tag(tag_link.text.lower())
@@ -341,24 +341,27 @@ class Media(Base):
         else:
             return result_dict
 
-    def parse(self, media_page):
+    def parse(self, media_page, media_page_original=None):
         """Parses the DOM and returns media attributes in the main-content area.
 
         :type media_page: :class:`bs4.BeautifulSoup`
         :param media_page: MAL media page's DOM
 
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM unclean
+
         :rtype: dict
         :return: media attributes.
 
         """
-        media_info = self.parse_sidebar(media_page)
+        media_info = self.parse_sidebar(media_page, media_page_original)
 
         try:
-            if media_page.find(u'h2', text=u'Synopsis') is not None :
+            if media_page.find(u'h2', text=u'Synopsis') is not None:
                 synopsis_elt = media_page.find(u'h2', text=u'Synopsis').parent
-            else :
+            else:
                 # find Synopsis elt not directly
-                synopsis_elt = [x for x in self.media_page_original_soup.find_all(u'h2') if "Synopsis" in x.text][0].parent
+                synopsis_elt = [x for x in media_page_original.find_all(u'h2') if "Synopsis" in x.text][0].parent
             # before removing h2 tag, filter the text after the second h2-tag
             # synopsis_elt = synopsis_elt.split(synopsis_elt.find_all('h2'))[0]
             # filter the text between 2 h2-tag
@@ -425,7 +428,7 @@ class Media(Base):
 
             # check once again using a single function if the first method found none
             if media_info[u'related'] is None:
-                media_info[u'related'] = self.parse_related_media(self.media_page_original_soup)
+                media_info[u'related'] = self.parse_related_media(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -526,7 +529,7 @@ class Media(Base):
 
         return media_info
 
-    def parse_characters(self, character_page):
+    def parse_characters(self, character_page, character_page_original=None):
         """Parses the DOM and returns media character attributes in the sidebar.
 
         :type character_page: :class:`bs4.BeautifulSoup`
@@ -536,7 +539,7 @@ class Media(Base):
         :return: character attributes.
 
         """
-        media_info = self.parse_sidebar(character_page)
+        media_info = self.parse_sidebar(character_page, character_page_original)
 
         try:
             character_title = filter(lambda x: u'Characters' in x.text, character_page.find_all(u'h2'))
@@ -557,7 +560,7 @@ class Media(Base):
                     media_info[u'characters'][character] = {'role': role}
                     curr_elt = curr_elt.find_next_sibling(u'table')
             if media_info[u'characters'] == {}:
-                character_title = filter(lambda x: u'Characters' in x.text, self.characters_page_original_soup.find_all(u'h2'))
+                character_title = filter(lambda x: u'Characters' in x.text, character_page_original.find_all(u'h2'))
                 tables = character_title[0].findNextSiblings(u'table')
                 for table in tables:
                     # one table only contain one row which contain 2 cell, which are photo , text
@@ -590,8 +593,8 @@ class Media(Base):
         """
         media_page = self.session.session.get(
             u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(self.id)).text
-        self.media_page_original_soup = bs4.BeautifulSoup(media_page)
-        self.set(self.parse(utilities.get_clean_dom(media_page)))
+        media_page_original = bs4.BeautifulSoup(media_page)
+        self.set(self.parse(utilities.get_clean_dom(media_page), media_page_original))
         return self
 
     def load_stats(self):
@@ -616,8 +619,8 @@ class Media(Base):
         character_page_url = u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(
                 self.id) + u'/' + utilities.urlencode(self.title) + u'/characters'
         characters_page = self.session.session.get(character_page_url).text
-        self.characters_page_original_soup = bs4.BeautifulSoup(characters_page) 
-        self.set(self.parse_characters(utilities.get_clean_dom(characters_page)))
+        characters_page_original = bs4.BeautifulSoup(characters_page) 
+        self.set(self.parse_characters(utilities.get_clean_dom(characters_page), characters_page_original))
         return self
 
     @property

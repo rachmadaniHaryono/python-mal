@@ -53,11 +53,14 @@ class Character(Base):
         self._pictures = None
         self._clubs = None
 
-    def parse_sidebar(self, character_page):
+    def parse_sidebar(self, character_page, character_page_original=None):
         """Parses the DOM and returns character attributes in the sidebar.
 
         :type character_page: :class:`bs4.BeautifulSoup`
         :param character_page: MAL character page's DOM
+
+        :type character_page: :class:`bs4.BeautifulSoup`
+        :param character_page: MAL character page's DOM uncleaned
 
         :rtype: dict
         :return: Character attributes

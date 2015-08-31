@@ -48,8 +48,11 @@ class Manga(media.Media):
         self._authors = None
         self._serialization = None
 
-    def parse_sidebar(self, manga_page):
+    def parse_sidebar(self, manga_page, manga_page_original=None):
         """Parses the DOM and returns manga attributes in the sidebar.
+
+        :type manga_page: :class:`bs4.BeautifulSoup`
+        :param manga_page: MAL manga page's DOM
 
         :type manga_page: :class:`bs4.BeautifulSoup`
         :param manga_page: MAL manga page's DOM
@@ -74,7 +77,7 @@ class Manga(media.Media):
                 raise
 
         # otherwise, begin parsing.
-        manga_info = super(Manga, self).parse_sidebar(manga_page)
+        manga_info = super(Manga, self).parse_sidebar(manga_page, manga_page_original)
 
         info_panel_first = manga_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
 
