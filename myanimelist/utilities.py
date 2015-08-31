@@ -117,13 +117,13 @@ def parse_profile_date(text, suppress=False):
         try:
             # this format dont have year so change it with current year
             # if not default year will be used(1990 or something)
-            parsed_datetime = datetime.datetime.strptime(text, '%b %d, %H:%M %p')
+            parsed_datetime = datetime.datetime.strptime(text, '%b %d, %I:%M %p')
             current_year = int(datetime.date.today().strftime("%Y"))
             return parsed_datetime.replace(year=current_year)
         except ValueError:
             pass
         try:
-            return datetime.datetime.strptime(text, '%b %d, %Y %H:%M %p')
+            return datetime.datetime.strptime(text, '%b %d, %Y %I:%M %p')
         except ValueError:
             pass
 
