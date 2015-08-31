@@ -109,10 +109,24 @@ def parse_profile_date(text, suppress=False):
             return datetime.datetime(year=yesterday.year, month=yesterday.month, day=yesterday.day, hour=hour,
                                      minute=minute, second=0)
 
+        # see if it's datetime
         try:
             return datetime.datetime.strptime(text, '%m-%d-%y, %I:%M %p')
         except ValueError:
             pass
+        try:
+            # this format dont have year so change it with current year
+            # if not default year will be used(1990 or something)
+            parsed_datetime = datetime.datetime.strptime(text, '%b %d, %H:%M %p')
+            current_year = int(datetime.date.today().strftime("%Y"))
+            return parsed_datetime.replace(year=current_year)
+        except ValueError:
+            pass
+        try:
+            return datetime.datetime.strptime(text, '%b %d, %Y %H:%M %p')
+        except ValueError:
+            pass
+
         # see if it's a date.
         try:
             return datetime.datetime.strptime(text, '%m-%d-%y').date()
@@ -150,15 +164,8 @@ def parse_profile_date(text, suppress=False):
         try:
             return datetime.datetime.strptime(text, '%b %Y').date()
         except ValueError:
-            try:
-                # this format dont have year so change it with current year
-                # if not default year will be used(1990 or something)
-                parsed_datetime = datetime.datetime.strptime(text, '%b %d, %H:%M %p')
-                current_year = int(datetime.date.today().strftime("%Y"))
-                return parsed_datetime.replace(year=current_year).date()
-            except ValueError:
-                return datetime.datetime.strptime(text, '%b %d, %Y %H:%M %p').date()
-
+            pass
+                
     except:
         if suppress:
             return None
