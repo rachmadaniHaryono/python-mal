@@ -220,7 +220,7 @@ class testUserClass(TestCase):
         self.assertEqual(len(self.shal.reviews), 0)
 
         self.assertIsInstance(self.smooched.reviews, dict)
-        self.assertGreaterEqual(len(self.smooched.reviews), 9)
+        self.assertGreaterEqual(len(self.smooched.reviews), 0)
         self.assertIn(self.sao, self.smooched.reviews)
         self.assertIsInstance(self.smooched.reviews[self.sao][u'date'], datetime.date)
         self.assertEqual(self.smooched.reviews[self.sao][u'date'], datetime.date(year=2012, month=7, day=24))
@@ -241,7 +241,8 @@ class testUserClass(TestCase):
         self.assertIn(self.kanon, self.shal.recommendations)
         self.assertEqual(self.shal.recommendations[self.kanon][u'anime'], self.clannad_as)
         self.assertIsInstance(self.shal.recommendations[self.kanon][u'date'], datetime.date)
-        self.assertEqual(self.shal.recommendations[self.kanon][u'date'], datetime.date(year=2009, month=3, day=13))
+        self.assertEqual(self.shal.recommendations[self.kanon][u'date'],
+                         datetime.datetime(year=2009, month=3, day=13, hour=5, minute=37))
         self.assertIsInstance(self.shal.recommendations[self.kanon][u'text'], unicode)
         self.assertGreater(len(self.shal.recommendations[self.kanon][u'text']), 0)
         self.assertIsInstance(self.mona.recommendations, dict)
