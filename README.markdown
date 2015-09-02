@@ -59,3 +59,7 @@ Testing requires `nose`. To run the tests that come with python-mal:
   3. Run `nosetests`.
 
 Make sure you don't spam the tests too quickly! One of the tests involves POSTing invalid credentials to MAL, so you're likely to be IP-banned if you do this too much in too short a span of time.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/rachmadaniHaryono/python-mal/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
