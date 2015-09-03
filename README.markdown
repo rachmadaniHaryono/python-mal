@@ -1,15 +1,18 @@
-[![Build Status](https://travis-ci.org/shaldengeki/python-mal.svg)](https://travis-ci.org/shaldengeki/python-mal)
-
-python-mal
+python3-mal
 ==========
 
 Provides programmatic access to MyAnimeList data.
+This is a fork of python-mal. My goal is to improve it and port it to python 3.x.
+
+Important
+=========
+
+Currently the original version of python-mal can be found on the repo. Updates soon.
 
 Dependencies
 ============
 
-- python 2.7.*
-- BeautifulSoup 4
+- python 3.*
 - pytz
 - requests
 - lxml
