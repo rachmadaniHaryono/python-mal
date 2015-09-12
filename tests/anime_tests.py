@@ -10,7 +10,7 @@ from myanimelist import anime
 class testAnimeClass(object):
     @classmethod
     def setUpClass(self):
-        
+
         self.session = session.Session()
         self.bebop = self.session.anime(1)
         self.sunrise = self.session.producer(14)

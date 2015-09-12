@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pushrbx/python3-mal.svg)](https://travis-ci.org/pushrbx/python3-mal)
+
 python3-mal
 ==========
 
