@@ -1,1 +1,1 @@
-from myanimelist import *
+from .myanimelist import *
