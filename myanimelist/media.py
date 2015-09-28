@@ -10,6 +10,7 @@ import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
 from decimal import InvalidOperation
 
+from anime import MalformedAnimePageError
 
 class MalformedMediaPageError(MalformedPageError):
     """Indicates that a media-related page on MAL has broken markup in some way.
@@ -127,8 +128,11 @@ class Media(Base):
         try:
             title_tag = media_page.find(u'div', {'id': 'contentWrapper'}).find(u'h1')
             if not title_tag.find(u'div'):
-                # otherwise, raise a MalformedMediaPageError.
-                raise MalformedMediaPageError(self.id, media_page, message="Could not find title div")
+                try:
+                    title_tag = media_page_original.select('div#contentWrapper h1.h1 span')[0]
+                except IndexError:
+                    # otherwise, raise a MalformedMediaPageError.
+                    raise MalformedMediaPageError(self.id, None, message="Could not find title div")
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -175,6 +179,9 @@ class Media(Base):
             type_tag = info_panel_first.find(text=u'Type:').parent.parent
             utilities.extract_tags(type_tag.find_all(u'span', {'class': 'dark_text'}))
             media_info[u'type'] = type_tag.text.strip()
+        except AttributeError:
+            type_tag = info_panel_first.select('td.borderClass div span.dark_text')[0].parent
+            media_info[u'type'] = type_tag.text.split(':')[-1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
