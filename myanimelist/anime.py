@@ -75,7 +75,10 @@ class Anime(media.Media):
         title_tag = anime_page.find(u'div', {'id': 'contentWrapper'}).find(u'h1')
         if not title_tag.find(u'div'):
             # otherwise, raise a MalformedAnimePageError.
-            raise MalformedAnimePageError(self.id, anime_page, message="Could not find title div")
+            try:
+                title_tag = anime_page.select('h1.h1 span')[0].text
+            except IndexError:
+                raise MalformedAnimePageError(self.id, None, message="Could not find title div")
 
         anime_info = super(Anime, self).parse_sidebar(anime_page, anime_page_original)
         info_panel_first = anime_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
