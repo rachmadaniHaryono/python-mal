@@ -84,17 +84,16 @@ class Anime(media.Media):
         info_panel_first = anime_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
 
         try:
-            episode_tag = info_panel_first.find(text=u'Episodes:').parent.parent
-            utilities.extract_tags(episode_tag.find_all(u'span', {'class': 'dark_text'}))
-            anime_info[u'episodes'] = int(episode_tag.text.strip()) if episode_tag.text.strip() != 'Unknown' else 0
+            episode_tag = [x for x in anime_page_original.find_all('span')if 'Episodes:' in x.text][0].parent
+            anime_info[u'episodes'] = int(episode_tag.text.split(':')[-1].strip()) if episode_tag.text.strip() != 'Unknown' else 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            aired_tag = info_panel_first.find(text=u'Aired:').parent.parent
-            utilities.extract_tags(aired_tag.find_all(u'span', {'class': 'dark_text'}))
-            aired_parts = aired_tag.text.strip().split(u' to ')
+            aired_tag = [x for x in anime_page_original.find_all('span')if 'Aired:' in x.text][0].parent
+            aired_tag_text = aired_tag.text.split(':')[1]
+            aired_parts = aired_tag_text.strip().split(u' to ')
             if len(aired_parts) == 1:
                 # this aired once.
                 try:
@@ -123,9 +122,7 @@ class Anime(media.Media):
                 raise
 
         try:
-            producers_tag = info_panel_first.find(text=u'Producers:').parent.parent
-            utilities.extract_tags(producers_tag.find_all(u'span', {'class': 'dark_text'}))
-            utilities.extract_tags(producers_tag.find_all(u'sup'))
+            producers_tag = [x for x in anime_page_original.find_all('span')if 'Producers:' in x.text][0].parent
             anime_info[u'producers'] = []
             for producer_link in producers_tag.find_all('a'):
                 if producer_link.text == u'add some':
@@ -141,9 +138,8 @@ class Anime(media.Media):
                 raise
 
         try:
-            duration_tag = info_panel_first.find(text=u'Duration:').parent.parent
-            utilities.extract_tags(duration_tag.find_all(u'span', {'class': 'dark_text'}))
-            anime_info[u'duration'] = duration_tag.text.strip()
+            duration_tag = [x for x in anime_page_original.find_all('span')if 'Duration:' in x.text][0].parent
+            anime_info[u'duration'] = duration_tag.text.split(':')[1].strip()
             duration_parts = [part.strip() for part in anime_info[u'duration'].split(u'.')]
             duration_mins = 0
             for part in duration_parts:
@@ -161,7 +157,7 @@ class Anime(media.Media):
                 raise
 
         try:
-            rating_tag = info_panel_first.find(text=u'Rating:').parent.parent
+            rating_tag = [x for x in anime_page_original.find_all('span')if 'Rating:' in x.text][0].parent
             utilities.extract_tags(rating_tag.find_all(u'span', {'class': 'dark_text'}))
             anime_info[u'rating'] = rating_tag.text.strip()
         except:
