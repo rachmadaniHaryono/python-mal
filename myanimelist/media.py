@@ -10,7 +10,7 @@ import utilities
 from base import Base, MalformedPageError, InvalidBaseError, loadable
 from decimal import InvalidOperation
 
-from anime import MalformedAnimePageError
+# from anime import MalformedAnimePageError
 
 class MalformedMediaPageError(MalformedPageError):
     """Indicates that a media-related page on MAL has broken markup in some way.
@@ -146,8 +146,8 @@ class Media(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        info_panel_first = media_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
-
+        # info_panel_first = media_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
+        info_panel_first =  media_page_original.select('div#content table td')[0]
         try:
             picture_tag = info_panel_first.find(u'img')
             media_info[u'picture'] = picture_tag.get(u'src').decode('utf-8')
@@ -176,32 +176,32 @@ class Media(Base):
                 raise
 
         try:
-            type_tag = info_panel_first.find(text=u'Type:').parent.parent
-            utilities.extract_tags(type_tag.find_all(u'span', {'class': 'dark_text'}))
-            media_info[u'type'] = type_tag.text.strip()
-        except AttributeError:
-            type_tag = info_panel_first.select('td.borderClass div span.dark_text')[0].parent
-            media_info[u'type'] = type_tag.text.split(':')[-1].strip()
+            try:
+                type_tag = info_panel_first.find(text=u'Type:').parent.parent
+                utilities.extract_tags(type_tag.find_all(u'span', {'class': 'dark_text'}))
+                media_info[u'type'] = type_tag.text.strip()
+            except AttributeError:
+                type_tag = [x for x in info_panel_first.find_all('div') if 'Type:' in x.text][0]
+                media_info[u'type'] = type_tag.text.split(':')[-1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            status_tag = info_panel_first.find(text=u'Status:').parent.parent
-            utilities.extract_tags(status_tag.find_all(u'span', {'class': 'dark_text'}))
-            media_info[u'status'] = status_tag.text.strip()
+            status_tag = [x for x in media_page.find_all('span')if 'Status:' in x.text][0].parent
+            media_info[u'status'] = status_tag.text.split(':')[1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             genres_tag = info_panel_first.find(text=u'Genres:').parent.parent
-            utilities.extract_tags(genres_tag.find_all(u'span', {'class': 'dark_text'}))
+            # utilities.extract_tags(genres_tag.find_all(u'span', {'class': 'dark_text'}))
             media_info[u'genres'] = []
             for genre_link in genres_tag.find_all('a'):
-                link_parts = genre_link.get('href').split('[]=')
+                link_parts = genre_link.get('href').split('=')
                 # of the form /anime|manga.php?genre[]=1
-                genre = self.session.genre(int(link_parts[1])).set({'name': genre_link.text})
+                genre = self.session.genre(int(link_parts[-1])).set({'name': genre_link.text})
                 media_info[u'genres'].append(genre)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -209,14 +209,14 @@ class Media(Base):
 
         try:
             # grab statistics for this media.
-            score_tag = info_panel_first.find(text=u'Score:').parent.parent
+            score_tag = media_page.find('div', {'itemprop': 'aggregateRating'})
             # get score and number of users.
-            users_node = [x for x in score_tag.find_all(u'small') if u'scored by' in x.text][0]
-            num_users = int(users_node.text.split(u'scored by ')[-1].split(u' users')[0])
-            utilities.extract_tags(score_tag.find_all())
-            try :
-                media_info[u'score'] = (decimal.Decimal(score_tag.text.strip()), num_users)
-            except ( InvalidOperation, AttributeError) :
+            num_users = int(score_tag.find('span', {'itemprop':'ratingCount'}).text.replace(',',''))
+            # utilities.extract_tags(score_tag.find_all())
+            score_point = score_tag.find('span',{'itemprop':'ratingValue'}).text
+            try:
+                media_info[u'score'] = (decimal.Decimal(score_point), num_users)
+            except (InvalidOperation, AttributeError) :
                 score_tag = media_page_original.find('span',{'itemprop':'ratingValue'})
                 media_info[u'score'] = (decimal.Decimal(score_tag.text), num_users)
         except:
