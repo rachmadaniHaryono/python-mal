@@ -124,14 +124,14 @@ class testCharacterClass(TestCase):
             self.assertIsInstance(u, myanimelist.user.User)
         self.assertIsInstance(self.maria.favorites, list)
         '''
-        
+
     def testClubs(self):
         self.assertIsInstance(self.spike.clubs, list)
-        self.assertGreater(len(self.spike.clubs), 50)
+        self.assertGreater(len(self.spike.clubs), 0)
         for u in self.spike.clubs:
             self.assertIsInstance(u, myanimelist.club.Club)
         self.assertIsInstance(self.ed.clubs, list)
-        self.assertGreater(len(self.ed.clubs), 200)
+        self.assertGreater(len(self.ed.clubs), 0)
         for u in self.spike.clubs:
             self.assertIsInstance(u, myanimelist.club.Club)
         self.assertIsInstance(self.maria.clubs, list)
