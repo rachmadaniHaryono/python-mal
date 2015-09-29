@@ -292,6 +292,20 @@ class Character(Base):
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
+        
+        # second method if the method return none in character_info[u'clubs']
+        try:
+            if len(character_info[u'clubs']) == 0:
+                clubs = clubs_page.select('div.borderClass')
+                for club_tag in clubs:
+                    club_id = int(club_tag.find('a').get('href').split('=')[-1])
+                    link = club_tag.find('a')
+                    num_members = club_tag.find('small').text
+                    character_info[u'clubs'].append(
+                                                self.session.club(club_id).set({'name': link.text, 'num_members': num_members}))
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
 
         return character_info
 

@@ -84,7 +84,10 @@ class Media(Base):
         :raises: :class:`.InvalidMediaError`
 
         """
-        super(Media, self).__init__(session)
+        try:
+            super(Media, self).__init__(session)
+        except TypeError:
+            pass
         self.id = id
         if not isinstance(self.id, int) or int(self.id) < 1:
             raise InvalidMediaError(self.id)
