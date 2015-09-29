@@ -210,6 +210,14 @@ class Media(Base):
         try:
             # grab statistics for this media.
             score_tag = media_page.find('span', {'itemprop': 'aggregateRating'})
+            # there is difference between anime and manga page
+            # in manga page score_tag is in span-tag and anime in div-page
+            # test score tag by try to find span-tag
+            try:
+                score_tag.find('span')
+            except AttributeError:
+                score_tag = score_tag = media_page.find('div', {'itemprop': 'aggregateRating'})
+
             # get score and number of users.
             num_users = int(score_tag.find('span', {'itemprop':'ratingCount'}).text.replace(',',''))
             # utilities.extract_tags(score_tag.find_all())
