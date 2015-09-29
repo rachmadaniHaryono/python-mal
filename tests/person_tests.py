@@ -14,21 +14,27 @@ class testPersonClass(TestCase):
     def setUpClass(self):
         self.session = myanimelist.session.Session()
         self.hiroshi_kamiya = self.session.person(118)
-        self.hk_char = self.session.character(22745)
-        self.hk_anime = self.session.anime(22745)
+
+        # false id
+        self.invalid_person = self.session.person(47103248710328947109247)
+
+        # test voice role
+        self.hk_name = u'Hiroshi Kamiya'
+        self.hk_anime = self.session.anime(22745)  # Juli
+        self.hk_char = self.session.character(80873)  # Brothers Conflict Special
         self.hk_role = 'Supporting'
 
     def testNoIDInvalidPerson(self):
         with self.assertRaises(TypeError):
-            self.session.character()
+            self.session.person()
 
     def testNegativeInvalidPerson(self):
         with self.assertRaises(myanimelist.person.InvalidPersonError):
-            self.session.character(-1)
+            self.session.person(-1)
 
     def testFloatInvalidPerson(self):
         with self.assertRaises(myanimelist.person.InvalidPersonError):
-            self.session.character(1.5)
+            self.session.person(1.5)
 
     def testNonExistentPerson(self):
         with self.assertRaises(myanimelist.person.InvalidPersonError):
@@ -38,13 +44,13 @@ class testPersonClass(TestCase):
         self.assertIsInstance(self.hiroshi_kamiya, myanimelist.person.Person)
 
     def testName(self):
-        self.assertEqual(self.hiroshi_kamiya.name, u'Hiroshi_Kamiya')
+        self.assertEqual(self.hiroshi_kamiya.name, self.hk_name)
 
     def testVoiceRoles(self):
         voice_roles = self.hiroshi_kamiya.voice_acting_roles
         self.assertIsInstance(voice_roles, dict)
-        self.assertGreater(len(self.hiroshi_kamiya), 0)
-        self.assertIn(self.hk.anime, self.hiroshi_kamiya.voice_acting_roles)
-        self.assertIn(self.hk_char, self.hiroshi_kamiya.voice_acting_roles[self.hk_anime])
-        role = self.hiroshi_kamiya.voice_acting_roles[self.hk_anime][self.hk_char]
+        self.assertGreater(len(voice_roles), 0)
+        self.assertIn(self.hk.anime, voice_roles)
+        self.assertIn(self.hk_char, voice_roles[self.hk_anime])
+        role = voice_roles[self.hk_anime][self.hk_char]
         self.assertEqual(role, self.hk_role)
