@@ -68,10 +68,10 @@ class Manga(media.Media):
             raise InvalidMangaError(self.id)
 
         try:
-            title_tag = manga_page.find(u'div', {'id': 'contentWrapper'}).find(u'h1')
-            if not title_tag.find(u'div'):
+            title_tag = manga_page.find(u'span', {'itemprop': 'name'})
+            if not title_tag:
                 # otherwise, raise a MalformedMangaPageError.
-                raise MalformedMangaPageError(self.id, manga_page, message="Could not find title div")
+                raise MalformedMangaPageError(self.id, manga_page, message="Could not find title")
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

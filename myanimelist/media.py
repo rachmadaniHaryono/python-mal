@@ -209,7 +209,7 @@ class Media(Base):
 
         try:
             # grab statistics for this media.
-            score_tag = media_page.find('div', {'itemprop': 'aggregateRating'})
+            score_tag = media_page.find('span', {'itemprop': 'aggregateRating'})
             # get score and number of users.
             num_users = int(score_tag.find('span', {'itemprop':'ratingCount'}).text.replace(',',''))
             # utilities.extract_tags(score_tag.find_all())
