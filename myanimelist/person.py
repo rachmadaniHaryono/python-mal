@@ -21,7 +21,7 @@ class Person(Base):
         self._name = None
 
         self._voice_acting_roles = None
-        self._staff_positions = None
+        self._anime_staff_positions = None
         self._published_manga = None
 
     def load(self):
@@ -105,13 +105,14 @@ class Person(Base):
                 anime_obj = self.session.anime(int(anime_id)).set({'title': anime_title})
 
                 # from the anime find character ie 'otonashi yuzuru'
-                char_tag = [xx for xx in a_tags if '/anime/' in xx.get('href')][0]
+                # this will return IndexError if the person don't have voice acting role
+                char_tag = [xx for xx in a_tags if '/character/' in xx.get('href')][0]
                 # ie '/character/24502/Yuzuru_Otonashi'
                 character_id = int(char_tag.get('href').split('/')[2])
                 character_name = fix_name(char_tag.text)
                 character_obj = self.session.character(character_id).set({'name': character_name})
 
-                # find the for the said character ie 'main'
+                # find the role for the said character ie 'main'
                 role_tag = va_tag.find_all('td')[2].find('div').text.strip()
 
                 # create a dict which will be merged into va_roles dict
@@ -119,6 +120,48 @@ class Person(Base):
 
             # add as person attribute
             person_info[u'voice_acting_roles'] = va_roles
+
+        except IndexError:
+            # this person don't have any voice acting roles
+            person_info[u'voice_acting_roles'] = None
+
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+        # parsing person position
+        try:
+            table_sibling = [tag for tag in person_page.select('div.normal_header') if 'Anime Staff Positions' in tag.text][0]
+            position_tags = table_sibling.parent.find_all('table')[1].find_all('tr')
+            positions = {}
+            for position_tag in position_tags:
+                a_tags = position_tag.find_all('a')
+
+                # find anime
+                anime_tags = [xx for xx in a_tags if '/anime/' in xx.get('href')]
+                if len(anime_tags) != 0:
+                    anime_tag = anime_tags[0]
+                else:
+                    continue
+                # ie '/anime/6547/Angel_Beats'
+                anime_id = anime_tag.get('href').split('/')[2]
+                anime_title = anime_tag.text
+                anime_obj = self.session.anime(int(anime_id)).set({'title': anime_title})
+
+                # find the for the said character ie 'main'
+                role_tag = position_tag.find_all('td')[1].find('div').find('small').text.strip()
+
+                try:
+                    # append dict to position
+                    positions[anime_obj].append(role_tag)
+                except KeyError:
+                    positions[anime_obj] = [role_tag]
+
+            # add as person attribute only if dict have been changed
+            if positions == {}:
+                person_info[u'anime_staff_positions'] = None
+            else:
+                person_info[u'anime_staff_positions'] = positions
 
         except:
             if not self.session.suppress_parse_exceptions:
@@ -164,3 +207,8 @@ class Person(Base):
     @loadable(u'load')
     def voice_acting_roles(self):
         return self._voice_acting_roles
+
+    @property
+    @loadable(u'load')
+    def anime_staff_positions(self):
+        return self._anime_staff_positions

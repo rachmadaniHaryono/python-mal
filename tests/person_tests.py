@@ -15,14 +15,17 @@ class testPersonClass(TestCase):
         self.session = myanimelist.session.Session()
         self.hiroshi_kamiya = self.session.person(118)
 
-        # false id
-        self.invalid_person = self.session.person(47103248710328947109247)
-
         # test voice role
         self.hk_name = u'Hiroshi Kamiya'
-        self.hk_anime = self.session.anime(22745)  # Juli
-        self.hk_char = self.session.character(80873)  # Brothers Conflict Special
+        self.hk_anime = self.session.anime(15605)  # Brothers Conflict
+        self.hk_char = self.session.character(80873)  # Juli
         self.hk_role = 'Supporting'
+        self.hk_position = 'Theme Song Performance'
+        # test no voice role person
+        self.sawano = self.session.person(8509)  # sawano hiroyuki
+
+        # test no position person
+        self.nayeli = self.session.person(9872)  # nayeli forest
 
     def testNoIDInvalidPerson(self):
         with self.assertRaises(TypeError):
@@ -38,7 +41,7 @@ class testPersonClass(TestCase):
 
     def testNonExistentPerson(self):
         with self.assertRaises(myanimelist.person.InvalidPersonError):
-            self.invalid_character.load()
+            self.session.person(4973204723047)
 
     def testPersonValid(self):
         self.assertIsInstance(self.hiroshi_kamiya, myanimelist.person.Person)
@@ -50,7 +53,24 @@ class testPersonClass(TestCase):
         voice_roles = self.hiroshi_kamiya.voice_acting_roles
         self.assertIsInstance(voice_roles, dict)
         self.assertGreater(len(voice_roles), 0)
-        self.assertIn(self.hk.anime, voice_roles)
+        self.assertIn(self.hk_anime, voice_roles)
         self.assertIn(self.hk_char, voice_roles[self.hk_anime])
         role = voice_roles[self.hk_anime][self.hk_char]
         self.assertEqual(role, self.hk_role)
+
+    def testNoVoiceRoles(self):
+        voice_roles = self.sawano.voice_acting_roles
+        self.assertIsNone(voice_roles)
+
+    def testPersonPosition(self):
+        hk_positions = self.hiroshi_kamiya.anime_staff_positions
+        self.assertIsInstance(hk_positions, dict)
+        self.assertGreater(hk_positions, 0)
+        self.assertIn(self.hk_anime, hk_positions)
+        self.assertIn(self.hk_position, hk_positions[self.hk_anime])
+        self.assertIsInstance(hk_positions[self.hk_anime], list)
+        self.assertGreater(hk_positions[self.hk_anime], 0)
+
+    def testNoPersonPosition(self):
+        positions = self.nayeli.anime_staff_positions
+        self.assertIsNone(positions)
