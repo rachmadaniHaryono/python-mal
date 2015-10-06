@@ -52,6 +52,10 @@ class testAnimeClass(TestCase):
         self.non_tagged_anime = self.session.anime(10448)
         # this anime is not non_tagged but only have one tag(drama)
 
+        # test character without va
+        self.non_non_biyori = self.session.anime(17549)
+        self.suguru = self.session.character(88597)
+
     def testNoIDInvalidAnime(self):
         with self.assertRaises(TypeError):
             self.session.anime()
@@ -350,6 +354,11 @@ class testAnimeClass(TestCase):
         self.assertIn(self.ilya_va, self.prisma.voice_actors)
         self.assertEqual(self.prisma.voice_actors[self.ilya_va][u'role'], 'Main')
         self.assertEqual(self.prisma.voice_actors[self.ilya_va][u'character'], self.ilya)
+
+    def testNoVoiceActors(self):
+        self.assertIsInstance(self.non_non_biyori.voice_actors, dict)
+        self.assertGreater(len(self.non_non_biyori.voice_actors), 0)
+        # TODO L a method to check if a character not in va
 
     def testStaff(self):
         self.assertIsInstance(self.spicy_wolf.staff, dict)
