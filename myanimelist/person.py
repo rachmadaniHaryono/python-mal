@@ -5,10 +5,14 @@ from base import Base, MalformedPageError, InvalidBaseError, loadable
 
 
 class MalformedPersonPageError(MalformedPageError):
+    """Indicates that an person-related page on MAL has irreparably broken markup in some way.
+    """
     pass
 
 
 class InvalidPersonError(InvalidBaseError):
+    """Indicates that the requested person does not exist on MAL.
+    """
     pass
 
 
@@ -82,7 +86,7 @@ class Person(Base):
             temp_name = person_page.select('div#contentWrapper h1.h1')[0].text
             person_info[u'name'] = fix_name(temp_name)
             if person_info[u'name'] == 'Invalid':
-                raise InvalidPersonError
+                raise InvalidPersonError(self.id)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
