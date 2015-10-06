@@ -192,16 +192,21 @@ class Character(Base):
             voice_actors_header = second_col.find(u'div', text=u'Voice Actors')
             if voice_actors_header:
                 voice_actors_table = voice_actors_header.find_next_sibling(u'table')
-                for row in voice_actors_table.find_all(u'tr'):
-                    # second column has va info.
-                    info_col = row.find_all(u'td')[1]
-                    voice_actor_link = info_col.find(u'a')
-                    name = ' '.join(reversed(voice_actor_link.text.split(u', ')))
-                    link_parts = voice_actor_link.get(u'href').split(u'/')
-                    # of the form: /people/82/Romi_Park
-                    person = self.session.person(int(link_parts[2])).set({'name': name})
-                    language = info_col.find(u'small').text
-                    character_info[u'voice_actors'][person] = language
+                try:
+                    # will raise attribute error when no va found
+                    for row in voice_actors_table.find_all(u'tr'):
+                        # second column has va info.
+                        info_col = row.find_all(u'td')[1]
+                        voice_actor_link = info_col.find(u'a')
+                        name = ' '.join(reversed(voice_actor_link.text.split(u', ')))
+                        link_parts = voice_actor_link.get(u'href').split(u'/')
+                        # of the form: /people/82/Romi_Park
+                        person = self.session.person(int(link_parts[2])).set({'name': name})
+                        language = info_col.find(u'small').text
+                        character_info[u'voice_actors'][person] = language
+                except AttributeError:
+                        character_info[u'voice_actors'] = None
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
