@@ -16,6 +16,7 @@ class testCharacterClass(TestCase):
         self.ed = self.session.character(11)
         self.maria = self.session.character(112693)
         self.invalid_character = self.session.character(457384754)
+        self.suguru = self.session.character(88597)
 
     def testNoIDInvalidCharacter(self):
         with self.assertRaises(TypeError):
@@ -135,3 +136,6 @@ class testCharacterClass(TestCase):
         for u in self.spike.clubs:
             self.assertIsInstance(u, myanimelist.club.Club)
         self.assertIsInstance(self.maria.clubs, list)
+
+    def testNoVoiceActors(self):
+        self.assertIsNone(self.suguru.voice_actors)
