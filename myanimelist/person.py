@@ -81,6 +81,8 @@ class Person(Base):
         try:
             temp_name = person_page.select('div#contentWrapper h1.h1')[0].text
             person_info[u'name'] = fix_name(temp_name)
+            if person_info[u'name'] == 'Invalid':
+                raise InvalidPersonError
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
