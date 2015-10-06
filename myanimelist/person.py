@@ -132,7 +132,12 @@ class Person(Base):
         # parsing person position
         try:
             table_sibling = [tag for tag in person_page.select('div.normal_header') if 'Anime Staff Positions' in tag.text][0]
-            position_tags = table_sibling.parent.find_all('table')[1].find_all('tr')
+            position_tables = table_sibling.parent.find_all('table')
+            # check if position table only have  1table
+            if len(position_tables) < 2:
+                position_tags = []
+            else:
+                position_tags = position_tables[1].find_all('tr')
             positions = {}
             for position_tag in position_tags:
                 a_tags = position_tag.find_all('a')
