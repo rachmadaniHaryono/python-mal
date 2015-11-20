@@ -109,10 +109,9 @@ class User(Base):
             raise InvalidUserError(self.username)
 
         try:
-            username_tag = user_page.find(u'div', {u'id': u'contentWrapper'}).find(u'h1')
-            if not username_tag.find(u'div'):
-                # otherwise, raise a MalformedUserPageError.
-                raise MalformedUserPageError(self.username, user_page, message=u"Could not find title div")
+            username_tag = user_page.select('h1.h1')[0].text.replace("'s Profile", '').strip()
+#             if not username_tag.find(u'div'):
+#                 raise MalformedUserPageError(self.username, user_page, message=u"Could not find title div")
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -120,16 +119,16 @@ class User(Base):
         info_panel_first = user_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'td')
 
         try:
-            picture_tag = info_panel_first.find(u'img')
-            user_info[u'picture'] = picture_tag.get(u'src').decode('utf-8')
+            user_info[u'picture'] = user_page.select('div.user-image img')[0].get('src')
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             # the user ID is always present in the blogfeed link.
-            all_comments_link = info_panel_first.find(u'a', text=u'Blog Feed')
-            user_info[u'id'] = int(all_comments_link.get(u'href').split(u'&id=')[1])
+            user_info[u'id'] = [xx.get('href').split('&id=')[1] 
+                                for xx in user_page.select('div.user-profile-sns a')
+                                if '&id=' in xx.get('href')][0]
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
