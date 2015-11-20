@@ -204,7 +204,7 @@ class Media(Base):
             for genre_link in genres_tag.find_all('a'):
                 link_parts = genre_link.get('href').split('=')
                 # of the form /anime|manga.php?genre[]=1
-                genre = self.session.genre(int(link_parts[-1])).set({'name': genre_link.text})
+                genre = self.session.genre(int(link_parts[0].split('/')[-1])).set({'name': genre_link.text})
                 media_info[u'genres'].append(genre)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -306,7 +306,7 @@ class Media(Base):
                     try: 
                         num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
                         media_info[u'popular_tags'][tag] = num_people
-                    except TypeError: 
+                    except (TypeError, AttributeError): 
                         tag_num = tag_link.get('href').split('=')[-1]
                         media_info[u'popular_tags'][tag] = tag_num
                 
