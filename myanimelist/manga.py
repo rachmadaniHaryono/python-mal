@@ -151,8 +151,10 @@ class Manga(media.Media):
             if publication_link:
                 link_parts = publication_link.get('href').split('mid=')
                 # of the form /manga.php?mid=1
-                manga_info[u'serialization'] = self.session.publication(int(link_parts[1])).set(
-                    {'name': publication_link.text})
+                # publication variable
+                pub_id = int(link_parts[0].split('/')[-1])
+                pub_dict = {'name': publication_link.text}
+                manga_info[u'serialization'] = self.session.publication(pub_id).set(pub_dict)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
