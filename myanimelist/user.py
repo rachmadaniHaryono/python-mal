@@ -107,26 +107,19 @@ class User(Base):
         error_tag = user_page.find(u'div', {u'class': u'badresult'})
         if error_tag:
             raise InvalidUserError(self.username)
-
-        try:
-            username_tag = user_page.select('h1.h1')[0].text.replace("'s Profile", '').strip()
-#             if not username_tag.find(u'div'):
-#                 raise MalformedUserPageError(self.username, user_page, message=u"Could not find title div")
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
-
         info_panel_first = user_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'td')
-
+        # parse user picture
         try:
             user_info[u'picture'] = user_page.select('div.user-image img')[0].get('src')
+        except IndexError:
+            user_info[u'picture'] = u''
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             # the user ID is always present in the blogfeed link.
-            user_info[u'id'] = [xx.get('href').split('&id=')[1] 
+            user_info[u'id'] = [xx.get('href').split('&id=')[1]
                                 for xx in user_page.select('div.user-profile-sns a')
                                 if '&id=' in xx.get('href')][0]
         except:
@@ -288,6 +281,8 @@ class User(Base):
                     access_rank = general_table.find(u'td', text=u'Access Rank')
                     if access_rank:
                         user_info[u'access_rank'] = access_rank.findNext(u'td').text
+                    if user_info[u'access_rank'] is None:
+                        user_info[u'access_rank'] = u'Member'
                 except:
                     if not self.session.suppress_parse_exceptions:
                         raise
@@ -296,6 +291,8 @@ class User(Base):
                     anime_list_views = general_table.find(u'td', text=u'Anime List Views')
                     if anime_list_views:
                         user_info[u'anime_list_views'] = int(anime_list_views.findNext(u'td').text.replace(',', ''))
+                    if user_info[u'anime_list_views'] is None:
+                        user_info[u'anime_list_views'] = 0
                 except:
                     if not self.session.suppress_parse_exceptions:
                         raise
@@ -383,6 +380,8 @@ class User(Base):
                         else:
                             value = int(value)
                         user_info[u'anime_stats'][cols[0].text] = value
+                    if user_info[u'anime_stats'] is None:
+                        user_info[u'anime_stats'] = {}
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -412,6 +411,9 @@ class User(Base):
             if about_header:
                 about_header = about_header[0]
                 user_info[u'about'] = about_header.findNext(u'div').text.strip()
+            # change into empty string if no info found
+            if user_info[u'about'] is None:
+                user_info[u'about'] = u''
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

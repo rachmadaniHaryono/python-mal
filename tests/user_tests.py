@@ -224,19 +224,6 @@ class testUserClass(TestCase):
         # not using smooched as test because (s)he delete all the review
         self.assertIsInstance(self.smooched.reviews, dict)
         self.assertGreaterEqual(len(self.smooched.reviews), 0)
-        '''
-        self.assertIn(self.sao, self.smooched.reviews)
-        self.assertIsInstance(self.smooched.reviews[self.sao][u'date'], datetime.date)
-        self.assertEqual(self.smooched.reviews[self.sao][u'date'], datetime.date(year=2012, month=7, day=24))
-        self.assertGreaterEqual(self.smooched.reviews[self.sao][u'people_helped'], 259)
-        self.assertGreaterEqual(self.smooched.reviews[self.sao][u'people_total'], 644)
-        self.assertEqual(self.smooched.reviews[self.sao][u'media_consumed'], 13)
-        self.assertEqual(self.smooched.reviews[self.sao][u'media_total'], 25)
-        self.assertEqual(self.smooched.reviews[self.sao][u'rating'], 6)
-        self.assertIsInstance(self.smooched.reviews[self.sao][u'text'], unicode)
-        self.assertGreater(len(self.smooched.reviews[self.sao][u'text']), 0)
-        '''
-
         self.assertIsInstance(self.archaeon.reviews, dict)
         self.assertGreaterEqual(len(self.archaeon.reviews), 0)
         self.assertIn(self.fate_zero, self.archaeon.reviews)
