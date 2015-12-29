@@ -108,7 +108,7 @@ class Person(Base):
                 raise
         return person_info
 
-    def parse_role(self, person_page):        # parsing person role in anime
+    def parse_role(self, person_page):
         """find role in person page."""
         try:
             person_info = {}
@@ -152,13 +152,34 @@ class Person(Base):
                 raise
         return person_info
 
+    def _parse_position_tag(self, position_tag):
+        """parse position tag and return anime object and the role in that tag."""
+        a_tags = position_tag.find_all('a')
+        # find anime
+        anime_tags = [xx for xx in a_tags if '/anime/' in xx.get('href')]
+        if len(anime_tags) != 0:
+            anime_tag = anime_tags[0]
+            # ie '/anime/6547/Angel_Beats'
+            anime_id = anime_tag.get('href').split('/')[2]
+            anime_title = anime_tag.text
+            anime_obj = self.session.anime(int(anime_id)).set({'title': anime_title})
+
+            # find the role the said character ie 'main'
+            role_tag = position_tag.find_all('td')[1].find('div').find('small').text.strip()
+            return anime_obj, role_tag
+        else:
+            return None, None
+
     def parse_position(self, person_page):
         """find person position in anime production."""
         try:
             person_info = {}
             table_siblings = [tag for tag in person_page.select('div.normal_header')
                               if 'Anime Staff Positions' in tag.text]
-            table_sibling = table_siblings[0]
+            try:
+                table_sibling = table_siblings[0]
+            except IndexError:
+                raise InvalidPersonError
             position_tables = table_sibling.parent.find_all('table')
             # check if position table only have  1table
             if len(position_tables) < 2:
@@ -167,33 +188,16 @@ class Person(Base):
                 position_tags = position_tables[1].find_all('tr')
             positions = {}
             for position_tag in position_tags:
-                a_tags = position_tag.find_all('a')
-
-                # find anime
-                anime_tags = [xx for xx in a_tags if '/anime/' in xx.get('href')]
-                if len(anime_tags) != 0:
-                    anime_tag = anime_tags[0]
-                else:
+                anime_obj, role_tag = self._parse_position_tag(position_tag)
+                if anime_obj is None:  # no anime is found on this tag
                     continue
-                # ie '/anime/6547/Angel_Beats'
-                anime_id = anime_tag.get('href').split('/')[2]
-                anime_title = anime_tag.text
-                anime_obj = self.session.anime(int(anime_id)).set({'title': anime_title})
-
-                # find the for the said character ie 'main'
-                role_tag = position_tag.find_all('td')[1].find('div').find('small').text.strip()
-
-                try:
+                elif anime_obj in positions:
                     # append dict to position
                     positions[anime_obj].append(role_tag)
-                except KeyError:
+                else:
                     positions[anime_obj] = [role_tag]
-
             # add as person attribute only if dict have been changed
-            if positions == {}:
-                person_info[u'anime_staff_positions'] = None
-            else:
-                person_info[u'anime_staff_positions'] = positions
+            person_info[u'anime_staff_positions'] = None if positions == {} else positions
 
         except:
             if not self.session.suppress_parse_exceptions:
