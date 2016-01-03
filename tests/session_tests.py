@@ -2,11 +2,16 @@
 # -*- coding: utf-8 -*-
 
 from nose.tools import *
-from ..myanimelist import session
-from ..myanimelist import anime
-from .. import myanimelist
 import os
 
+if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
+    from myanimelist import session
+    from myanimelist import anime
+    import myanimelist
+else:
+    from ..myanimelist import session
+    from ..myanimelist import anime
+    from .. import myanimelist
 
 class testSessionClass(object):
     @classmethod

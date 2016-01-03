@@ -3,10 +3,16 @@
 
 from nose.tools import *
 import datetime
+import os
 
-from ..myanimelist import session
-from ..myanimelist import media_list
-from ..myanimelist import anime_list
+if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
+    from myanimelist import session
+    from myanimelist import media_list
+    from myanimelist import anime_list
+else:
+    from ..myanimelist import session
+    from ..myanimelist import media_list
+    from ..myanimelist import anime_list
 
 
 class testAnimeListClass(object):

@@ -3,9 +3,16 @@
 
 from nose.tools import *
 import datetime
-from ..myanimelist import session
-from ..myanimelist import user
-from .. import myanimelist
+import os
+
+if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
+    from myanimelist import session
+    from myanimelist import user
+    import myanimelist
+else:
+    from ..myanimelist import session
+    from ..myanimelist import user
+    from .. import myanimelist
 
 
 class testUserClass(object):
