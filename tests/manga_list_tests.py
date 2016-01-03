@@ -4,9 +4,10 @@
 from nose.tools import *
 import datetime
 
-import myanimelist.session
-import myanimelist.media_list
-import myanimelist.manga_list
+from ..myanimelist import session
+from ..myanimelist import media_list
+from ..myanimelist import manga_list
+from .. import myanimelist
 
 class testMangaListClass(object):
   @classmethod

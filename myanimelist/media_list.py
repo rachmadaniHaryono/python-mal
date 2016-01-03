@@ -3,7 +3,7 @@
 
 import abc
 import collections
-import bs4
+from lxml import etree as et
 import decimal
 import datetime
 import urllib.request, urllib.parse, urllib.error
@@ -68,14 +68,14 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
     def parse_entry_media_attributes(self, soup):
         """
           Args:
-            soup: a bs4 element containing a row from the current media list
+            soup: a lxml.html.HtmlElement containing a row from the current media list
 
           Return a dict of attributes of the media the row is about.
         """
         row_info = {}
 
         try:
-            start = utilities.parse_profile_date(soup.find('series_start').text)
+            start = utilities.parse_profile_date(soup.find('.//series_start').text)
         except ValueError:
             start = None
         except:
@@ -84,7 +84,7 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
 
         if start is not None:
             try:
-                row_info['aired'] = (start, utilities.parse_profile_date(soup.find('series_end').text))
+                row_info['aired'] = (start, utilities.parse_profile_date(soup.find('.//series_end').text))
             except ValueError:
                 row_info['aired'] = (start, None)
             except:
@@ -95,25 +95,25 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
         status_terms = getattr(self.session, self.type)(1)._status_terms
 
         try:
-            row_info['id'] = int(soup.find('series_' + self.type + 'db_id').text)
+            row_info['id'] = int(soup.find('.//series_' + self.type + 'db_id').text)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            row_info['title'] = soup.find('series_title').text
+            row_info['title'] = soup.find('.//series_title').text
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            row_info['status'] = status_terms[int(soup.find('series_status').text)]
+            row_info['status'] = status_terms[int(soup.find('.//series_status').text)]
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            row_info['picture'] = soup.find('series_image').text
+            row_info['picture'] = soup.find('.//series_image').text
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -123,7 +123,7 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
     def parse_entry(self, soup):
         """
           Given:
-            soup: a bs4 element containing a row from the current media list
+            soup: a lxml.html.HtmlElement containing a row from the current media list
 
           Return a tuple:
             (media object, dict of this row's parseable attributes)
@@ -136,7 +136,7 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
 
         entry_info = {}
         try:
-            entry_info['started'] = utilities.parse_profile_date(soup.find('my_start_date').text)
+            entry_info['started'] = utilities.parse_profile_date(soup.find('.//my_start_date').text)
         except ValueError:
             entry_info['started'] = None
         except:
@@ -144,7 +144,7 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
                 raise
 
         try:
-            entry_info['finished'] = utilities.parse_profile_date(soup.find('my_finish_date').text)
+            entry_info['finished'] = utilities.parse_profile_date(soup.find('.//my_finish_date').text)
         except ValueError:
             entry_info['finished'] = None
         except:
@@ -152,13 +152,13 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
                 raise
 
         try:
-            entry_info['status'] = self.user_status_terms[int(soup.find('my_status').text)]
+            entry_info['status'] = self.user_status_terms[int(soup.find('.//my_status').text)]
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info['score'] = int(soup.find('my_score').text)
+            entry_info['score'] = int(soup.find('.//my_score').text)
             # if user hasn't set a score, set it to None to indicate as such.
             if entry_info['score'] == 0:
                 entry_info['score'] = None
@@ -167,7 +167,7 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
                 raise
 
         try:
-            entry_info['last_updated'] = datetime.datetime.fromtimestamp(int(soup.find('my_last_updated').text))
+            entry_info['last_updated'] = datetime.datetime.fromtimestamp(int(soup.find('.//my_last_updated').text))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -177,14 +177,14 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
     def parse_stats(self, soup):
         """
           Given:
-            soup: a bs4 element containing the current media list's stats
+            soup: a lxml.etree element containing the current media list's stats
 
           Return a dict of this media list's stats.
         """
         stats = {}
-        for row in soup.children:
+        for row in soup.getchildren():
             try:
-                key = row.name.replace('user_', '')
+                key = row.tag.replace('user_', '')
                 if key == 'id':
                     stats[key] = int(row.text)
                 elif key == 'name':
@@ -227,26 +227,26 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
 
     def parse(self, xml):
         list_info = {}
-        list_page = bs4.BeautifulSoup(xml, "xml")
+        list_page = et.fromstring(xml.encode())
 
-        primary_elt = list_page.find('myanimelist')
-        if not primary_elt:
+        primary_elt = list_page
+        if primary_elt is None:
             raise MalformedMediaListPageError(self.username, xml,
                                               message="Could not find root XML element in " + self.type + " list")
 
-        bad_username_elt = list_page.find('error')
-        if bad_username_elt:
+        bad_username_elt = list_page.find('.//error')
+        if bad_username_elt is not None:
             raise InvalidMediaListError(self.username, message="Invalid username when fetching " + self.type + " list")
 
-        stats_elt = list_page.find('myinfo')
-        if not stats_elt:
-            raise MalformedMediaListPageError(self.username, html,
+        stats_elt = list_page.find('.//myinfo')
+        if stats_elt is None:
+            raise MalformedMediaListPageError(self.username, xml,
                                               message="Could not find stats element in " + self.type + " list")
 
         list_info['stats'] = self.parse_stats(stats_elt)
 
         list_info['list'] = {}
-        for row in list_page.find_all(self.type):
+        for row in list_page.findall(".//%s" % self.type):
             (media, entry) = self.parse_entry(row)
             list_info['list'][media] = entry
 

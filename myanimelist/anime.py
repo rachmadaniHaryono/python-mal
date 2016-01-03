@@ -56,7 +56,7 @@ class Anime(media.Media):
     def parse_sidebar(self, anime_page):
         """Parses the DOM and returns anime attributes in the sidebar.
 
-        :type anime_page: :class:`bs4.BeautifulSoup`
+        :type anime_page: :class:`lxml.html.HtmlElement`
         :param anime_page: MAL anime page's DOM
 
         :rtype: dict
@@ -65,30 +65,39 @@ class Anime(media.Media):
         :raises: :class:`.InvalidAnimeError`, :class:`.MalformedAnimePageError`
         """
         # if MAL says the series doesn't exist, raise an InvalidAnimeError.
-        error_tag = anime_page.find('div', {'class': 'badresult'})
-        if error_tag:
+        # badresult
+        error_tag = anime_page.xpath(".//div[contains(@class,'error')] | .//div[@class='badresult']")
+        if len(error_tag) > 0:
             raise InvalidAnimeError(self.id)
 
-        title_tag = anime_page.find('div', {'id': 'contentWrapper'}).find('h1')
-        if not title_tag.find('div'):
-            # otherwise, raise a MalformedAnimePageError.
-            raise MalformedAnimePageError(self.id, anime_page, message="Could not find title div")
+        title_tag = anime_page.xpath(".//div[@id='contentWrapper']//h1//span")
+        if len(title_tag) == 0:
+            raise MalformedAnimePageError(self.id, anime_page.text, message="Could not find title div")
 
         anime_info = super(Anime, self).parse_sidebar(anime_page)
-        info_panel_first = anime_page.find('div', {'id': 'content'}).find('table').find('td')
+        info_panel_first = None
 
         try:
-            episode_tag = info_panel_first.find(text='Episodes:').parent.parent
-            utilities.extract_tags(episode_tag.find_all('span', {'class': 'dark_text'}))
-            anime_info['episodes'] = int(episode_tag.text.strip()) if episode_tag.text.strip() != 'Unknown' else 0
+            container = utilities.css_select("#content", anime_page)
+            if container is None:
+                raise MalformedAnimePageError(self.id, anime_page.text, message="Could not find the info table")
+
+            info_panel_first = container[0].find(".//table/tr/td")
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Episodes:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find episode tag.")
+            episode_tag = temp[0].getparent().xpath(".//text()")[-1]
+            anime_info['episodes'] = int(episode_tag.strip()) if episode_tag.strip() != 'Unknown' else 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            aired_tag = info_panel_first.find(text='Aired:').parent.parent
-            utilities.extract_tags(aired_tag.find_all('span', {'class': 'dark_text'}))
-            aired_parts = aired_tag.text.strip().split(' to ')
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Aired:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find aired tag.")
+            aired_tag = temp[0].getparent().xpath(".//text()")[2]
+            aired_parts = aired_tag.strip().split(' to ')
             if len(aired_parts) == 1:
                 # this aired once.
                 try:
@@ -117,11 +126,12 @@ class Anime(media.Media):
                 raise
 
         try:
-            producers_tag = info_panel_first.find(text='Producers:').parent.parent
-            utilities.extract_tags(producers_tag.find_all('span', {'class': 'dark_text'}))
-            utilities.extract_tags(producers_tag.find_all('sup'))
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Producers:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find producers tag.")
+            producers_tags = temp[0].getparent().xpath(".//a")
             anime_info['producers'] = []
-            for producer_link in producers_tag.find_all('a'):
+            for producer_link in producers_tags:
                 if producer_link.text == 'add some':
                     # MAL is saying "None found, add some".
                     break
@@ -129,15 +139,22 @@ class Anime(media.Media):
                 # of the form: /anime.php?p=14
                 if len(link_parts) > 1:
                     anime_info['producers'].append(
-                        self.session.producer(int(link_parts[1])).set({'name': producer_link.text}))
+                            self.session.producer(int(link_parts[1])).set({'name': producer_link.text}))
+                else:
+                    # of the form: /anime/producer/65
+                    link_parts = producer_link.get('href').split('/')
+                    anime_info['producers'].append(
+                            self.session.producer(int(link_parts[-1])).set({"name": producer_link.text}))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            duration_tag = info_panel_first.find(text='Duration:').parent.parent
-            utilities.extract_tags(duration_tag.find_all('span', {'class': 'dark_text'}))
-            anime_info['duration'] = duration_tag.text.strip()
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Duration:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find duration tag.")
+            duration_tag = temp[0].xpath("../text()")[-1]
+            anime_info['duration'] = duration_tag.strip()
             duration_parts = [part.strip() for part in anime_info['duration'].split('.')]
             duration_mins = 0
             for part in duration_parts:
@@ -155,9 +172,11 @@ class Anime(media.Media):
                 raise
 
         try:
-            rating_tag = info_panel_first.find(text='Rating:').parent.parent
-            utilities.extract_tags(rating_tag.find_all('span', {'class': 'dark_text'}))
-            anime_info['rating'] = rating_tag.text.strip()
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Rating:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find duration tag.")
+            rating_tag = temp[0].xpath(".//text()")[-1]
+            anime_info['rating'] = rating_tag.strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -167,7 +186,7 @@ class Anime(media.Media):
     def parse_characters(self, character_page):
         """Parses the DOM and returns anime character attributes in the sidebar.
 
-        :type character_page: :class:`bs4.BeautifulSoup`
+        :type character_page: :class:`lxml.html.HtmlElement`
         :param character_page: MAL anime character page's DOM
 
         :rtype: dict
@@ -179,68 +198,77 @@ class Anime(media.Media):
         anime_info = self.parse_sidebar(character_page)
 
         try:
-            character_title = [x for x in character_page.find_all('h2') if 'Characters & Voice Actors' in x.text]
+            temp = character_page.xpath(".//h2[text()[contains(.,'Characters')]]/following-sibling::table[1]")
+
             anime_info['characters'] = {}
             anime_info['voice_actors'] = {}
-            if character_title:
-                character_title = character_title[0]
-                curr_elt = character_title.nextSibling
-                while True:
-                    if curr_elt.name != 'table':
-                        break
-                    curr_row = curr_elt.find('tr')
-                    # character in second col, VAs in third.
-                    (_, character_col, va_col) = curr_row.find_all('td', recursive=False)
 
-                    character_link = character_col.find('a')
+            if len(temp) != 0:
+                curr_elt = temp[0]
+                while curr_elt is not None:
+                    if curr_elt.tag != 'table':
+                        break
+                    curr_row = curr_elt.find('.//tr')
+                    temp = curr_row.findall("./td")
+                    # we got to the staff part, todo: fix the sibling part. this is ugly
+                    if len(temp) != 3:
+                        break
+                    (_, character_col, va_col) = temp
+
+                    character_link = character_col.find('.//a')
                     character_name = ' '.join(reversed(character_link.text.split(', ')))
                     link_parts = character_link.get('href').split('/')
                     # of the form /character/7373/Holo
                     character = self.session.character(int(link_parts[2])).set({'name': character_name})
-                    role = character_col.find('small').text
+                    role = character_col.find('.//small').text
                     character_entry = {'role': role, 'voice_actors': {}}
 
-                    va_table = va_col.find('table')
-                    if va_table:
-                        for row in va_table.find_all('tr'):
-                            va_info_cols = row.find_all('td')
-                            if not va_info_cols:
+                    va_table = va_col.find('.//table')
+                    if va_table is not None:
+                        for row in va_table.findall("tr"):
+                            va_info_cols = row.findall('td')
+                            if not va_info_cols or len(va_info_cols) == 0:
                                 # don't ask me why MAL has an extra blank table row i don't know!!!
                                 continue
+
                             va_info_col = va_info_cols[0]
-                            va_link = va_info_col.find('a')
-                            if va_link:
+                            va_link = va_info_col.find('.//a')
+                            if va_link is not None:
                                 va_name = ' '.join(reversed(va_link.text.split(', ')))
                                 link_parts = va_link.get('href').split('/')
                                 # of the form /people/70/Ami_Koshimizu
                                 person = self.session.person(int(link_parts[2])).set({'name': va_name})
-                                language = va_info_col.find('small').text
+                                language = va_info_col.find('.//small').text
                                 anime_info['voice_actors'][person] = {'role': role, 'character': character,
-                                                                       'language': language}
+                                                                      'language': language}
                                 character_entry['voice_actors'][person] = language
+
                     anime_info['characters'][character] = character_entry
-                    curr_elt = curr_elt.nextSibling
+                    temp = curr_elt.xpath("./following-sibling::table[1]")
+                    if len(temp) != 0:
+                        curr_elt = temp[0]
+                    else:
+                        curr_elt = None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            staff_title = [x for x in character_page.find_all('h2') if 'Staff' in x.text]
+            temp = character_page.xpath(".//h2[text()[contains(.,'Staff')]]/following-sibling::table[1]")
             anime_info['staff'] = {}
-            if staff_title:
-                staff_title = staff_title[0]
-                staff_table = staff_title.nextSibling.nextSibling
-                for row in staff_table.find_all('tr'):
+            if len(temp) != 0:
+                staff_table = temp[0]
+                for row in staff_table.findall('.//tr'):
                     # staff info in second col.
-                    info = row.find_all('td')[1]
-                    staff_link = info.find('a')
+                    info = row.find('./td[2]')
+                    staff_link = info.find('.//a')
                     if staff_link is not None:
                         staff_name = ' '.join(reversed(staff_link.text.split(', ')))
                         link_parts = staff_link.get('href').split('/')
                         # of the form /people/1870/Miyazaki_Hayao
-                        person = self.session.person(int(link_parts[4])).set({'name': staff_name})
+                        person = self.session.person(int(link_parts[-2])).set({'name': staff_name})
                         # staff role(s).
-                        smallTag = info.find('small')
+                        smallTag = info.find('.//small')
                         if smallTag is not None:
                             anime_info['staff'][person] = set(smallTag.text.split(', '))
         except:

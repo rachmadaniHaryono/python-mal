@@ -22,6 +22,8 @@ from . import manga_list
 
 from .base import Error
 
+from lxml import html as ht
+
 
 class UnauthorizedError(Error):
     """
@@ -81,7 +83,12 @@ class Session(object):
         self.password = password
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': user_agent
+            'User-Agent': user_agent,
+            'DNT': 1,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
+            'Connection': 'keep-alive',
         })
 
         """Suppresses any Malformed*PageError exceptions raised during parsing.
@@ -103,8 +110,12 @@ class Session(object):
 
         panel_url = 'http://myanimelist.net/panel.php'
         panel = self.session.get(panel_url)
+        html = ht.fromstring(panel.content.decode("utf-8"))
 
-        if 'Logout' in panel.content:
+        if 'Logout' in panel.content.decode("utf-8") or len(html.xpath(".//*[text()[contains(.,'Logout')]]")) > 0:
+            return True
+
+        if html.find("./body/div[1]/div[3]/div[1]/div/div[2]/ul/li[3]/form/a[1]") is not None:
             return True
 
         return False
@@ -116,18 +127,51 @@ class Session(object):
         :return: The current session.
 
         """
-        # POSTS a login to mal.
         mal_headers = {
             'Host': 'myanimelist.net',
+            'DNT': 1,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'iMAL-iOS',
         }
+
+        panel_url = 'http://myanimelist.net'
+        # set the session cookies:
+        r = self.session.get(panel_url)
+
+        if len(r.history) > 0:
+            cookies = r.history[0].cookies
+            html = ht.fromstring(r.content.decode("utf-8"))
+            token_tag = html.xpath(".//meta[@name='csrf_token']")
+        else:
+            cookies = r.cookies
+            html = ht.fromstring(r.content.decode("utf-8"))
+            token_tag = html.xpath(".//meta[@name='csrf_token']")
+
+        if len(token_tag) == 0:
+            return self
+
+        token_tag = token_tag[0]
+        token = token_tag.get("content")
+
+        # POSTS a login to mal.
         mal_payload = {
-            'username': self.username,
+            'user_name': self.username,
             'password': self.password,
             'cookie': 1,
-            'sublogin': 'Login'
+            'sublogin': 'Login',
+            'submit': 1,
+            'csrf_token': token
         }
         self.session.headers.update(mal_headers)
+        if "MALHLOGSESSID" in cookies.keys():
+            self.session.cookies = cookies
         r = self.session.post('http://myanimelist.net/login.php', data=mal_payload)
+        # remove content type:
+        self.session.headers.pop("Content-Type")
         return self
 
     def anime(self, anime_id):
