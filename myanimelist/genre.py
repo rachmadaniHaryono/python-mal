@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import bs4
 import re
 
 from . import utilities
@@ -24,8 +23,31 @@ class Genre(Base):
             raise InvalidGenreError(self.id)
         self._name = None
 
+    def parse(self, genre_page):
+        """Parses the DOM and returns genre attributes in the main-content area.
+
+        :type genre_page: :class:`lxml.html.HtmlElement`
+        :param genre_page: MAL character page's DOM
+
+        :rtype: dict
+        :return: Genre attributes.
+
+        """
+        genre_info = {}
+
+        try:
+            header = genre_page.find(".//div[@id='contentWrapper']//h1[@class='h1']")
+            if header is not None:
+                genre_info["name"] = header.text.split(' ')[0]
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+        return genre_info
+
     def load(self):
-        # TODO
+        genre = self.session.session.get('http://myanimelist.net/anime/genre/' + str(self.id)).text
+        self.set(self.parse(utilities.get_clean_dom(genre)))
         pass
 
     @property

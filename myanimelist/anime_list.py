@@ -24,7 +24,7 @@ class AnimeList(media_list.MediaList):
         attributes = super(AnimeList, self).parse_entry_media_attributes(soup)
 
         try:
-            attributes['episodes'] = int(soup.find('series_episodes').text)
+            attributes['episodes'] = int(soup.find('.//series_episodes').text)
         except ValueError:
             attributes['episodes'] = None
         except:
@@ -37,7 +37,7 @@ class AnimeList(media_list.MediaList):
         anime, entry_info = super(AnimeList, self).parse_entry(soup)
 
         try:
-            entry_info['episodes_watched'] = int(soup.find('my_watched_episodes').text)
+            entry_info['episodes_watched'] = int(soup.find('.//my_watched_episodes').text)
         except ValueError:
             entry_info['episodes_watched'] = 0
         except:
@@ -45,7 +45,7 @@ class AnimeList(media_list.MediaList):
                 raise
 
         try:
-            entry_info['rewatching'] = bool(soup.find('my_rewatching').text)
+            entry_info['rewatching'] = bool(soup.find('.//my_rewatching').text)
         except ValueError:
             entry_info['rewatching'] = False
         except:
@@ -53,7 +53,7 @@ class AnimeList(media_list.MediaList):
                 raise
 
         try:
-            entry_info['episodes_rewatched'] = int(soup.find('my_rewatching_ep').text)
+            entry_info['episodes_rewatched'] = int(soup.find('.//my_rewatching_ep').text)
         except ValueError:
             entry_info['episodes_rewatched'] = 0
         except:

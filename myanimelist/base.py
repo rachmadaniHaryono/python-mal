@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import abc
-import bs4
 import functools
 
 from . import utilities
+from lxml import html as ht
 
 
 class Error(Exception):
@@ -34,18 +34,21 @@ class MalformedPageError(Error):
         if isinstance(id, str):
             self.id = id
         else:
-            self.id = str(id).decode('utf-8')
+            self.id = str(id)
         if isinstance(html, str):
             self.html = html
         else:
-            self.html = str(html).decode('utf-8')
+            if isinstance(html, ht.HtmlElement):
+                self.html = html.text
+            else:
+                self.html = str(html)
 
     def __str__(self):
         return "\n".join([
             super(MalformedPageError, self).__str__(),
             "ID: " + self.id,
             "HTML: " + self.html
-        ]).encode('utf-8')
+        ])
 
 
 class InvalidBaseError(Error):

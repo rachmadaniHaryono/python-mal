@@ -24,7 +24,7 @@ class MangaList(media_list.MediaList):
         attributes = super(MangaList, self).parse_entry_media_attributes(soup)
 
         try:
-            attributes['chapters'] = int(soup.find('series_chapters').text)
+            attributes['chapters'] = int(soup.find('.//series_chapters').text)
         except ValueError:
             attributes['chapters'] = None
         except:
@@ -32,7 +32,7 @@ class MangaList(media_list.MediaList):
                 raise
 
         try:
-            attributes['volumes'] = int(soup.find('series_volumes').text)
+            attributes['volumes'] = int(soup.find('.//series_volumes').text)
         except ValueError:
             attributes['volumes'] = None
         except:
@@ -45,7 +45,7 @@ class MangaList(media_list.MediaList):
         manga, entry_info = super(MangaList, self).parse_entry(soup)
 
         try:
-            entry_info['chapters_read'] = int(soup.find('my_read_chapters').text)
+            entry_info['chapters_read'] = int(soup.find('.//my_read_chapters').text)
         except ValueError:
             entry_info['chapters_read'] = 0
         except:
@@ -53,7 +53,7 @@ class MangaList(media_list.MediaList):
                 raise
 
         try:
-            entry_info['volumes_read'] = int(soup.find('my_read_volumes').text)
+            entry_info['volumes_read'] = int(soup.find('.//my_read_volumes').text)
         except ValueError:
             entry_info['volumes_read'] = 0
         except:
@@ -61,7 +61,7 @@ class MangaList(media_list.MediaList):
                 raise
 
         try:
-            entry_info['rereading'] = bool(soup.find('my_rereadingg').text)
+            entry_info['rereading'] = bool(soup.find('.//my_rereadingg').text)
         except ValueError:
             entry_info['rereading'] = False
         except:
@@ -69,7 +69,7 @@ class MangaList(media_list.MediaList):
                 raise
 
         try:
-            entry_info['chapters_reread'] = int(soup.find('my_rereading_chap').text)
+            entry_info['chapters_reread'] = int(soup.find('.//my_rereading_chap').text)
         except ValueError:
             entry_info['chapters_reread'] = 0
         except:

@@ -51,7 +51,7 @@ class Manga(media.Media):
     def parse_sidebar(self, manga_page):
         """Parses the DOM and returns manga attributes in the sidebar.
 
-        :type manga_page: :class:`bs4.BeautifulSoup`
+        :type manga_page: :class:`lxml.html.HtmlElement`
         :param manga_page: MAL manga page's DOM
 
         :rtype: dict
@@ -60,44 +60,49 @@ class Manga(media.Media):
         :raises: :class:`.InvalidMangaError`, :class:`.MalformedMangaPageError`
         """
         # if MAL says the series doesn't exist, raise an InvalidMangaError.
-        error_tag = manga_page.find('div', {'class': 'badresult'})
-        if error_tag:
+        error_tag = manga_page.xpath(".//div[contains(@class,'error')] | .//div[@class='badresult']")
+        if len(error_tag) > 0:
             raise InvalidMangaError(self.id)
 
-        try:
-            title_tag = manga_page.find('div', {'id': 'contentWrapper'}).find('h1')
-            if not title_tag.find('div'):
-                # otherwise, raise a MalformedMangaPageError.
-                raise MalformedMangaPageError(self.id, manga_page, message="Could not find title div")
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
+        title_tag = manga_page.xpath(".//div[@id='contentWrapper']//h1//span")
+        if len(title_tag) == 0:
+            raise MalformedMangaPageError(self.id, manga_page, message="Could not find title div")
 
         # otherwise, begin parsing.
         manga_info = super(Manga, self).parse_sidebar(manga_page)
-
-        info_panel_first = manga_page.find('div', {'id': 'content'}).find('table').find('td')
+        info_panel_first = None
 
         try:
-            volumes_tag = info_panel_first.find(text='Volumes:').parent.parent
-            utilities.extract_tags(volumes_tag.find_all('span', {'class': 'dark_text'}))
-            manga_info['volumes'] = int(volumes_tag.text.strip()) if volumes_tag.text.strip() != 'Unknown' else None
+            container = utilities.css_select("#content", manga_page)
+            if container is None:
+                raise MalformedMangaPageError(self.id, manga_page, message="Could not find the info table")
+
+            info_panel_first = container[0].find(".//table/tr/td")
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Volumes:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find volumes tag.")
+            volumes_tag = temp[0].getparent().xpath(".//text()")[-1]
+            manga_info['volumes'] = int(volumes_tag.strip()) if volumes_tag.strip() != 'Unknown' else None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            chapters_tag = info_panel_first.find(text='Chapters:').parent.parent
-            utilities.extract_tags(chapters_tag.find_all('span', {'class': 'dark_text'}))
-            manga_info['chapters'] = int(chapters_tag.text.strip()) if chapters_tag.text.strip() != 'Unknown' else None
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Chapters:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find chapters tag.")
+            chapters_tag = temp[0].getparent().xpath(".//text()")[-1]
+            manga_info['chapters'] = int(chapters_tag.strip()) if chapters_tag.strip() != 'Unknown' else None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            published_tag = info_panel_first.find(text='Published:').parent.parent
-            utilities.extract_tags(published_tag.find_all('span', {'class': 'dark_text'}))
-            published_parts = published_tag.text.strip().split(' to ')
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Published:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find published tag.")
+            published_tag = temp[0].getparent().xpath(".//text()")[-1]
+            published_parts = published_tag.strip().split(' to ')
             if len(published_parts) == 1:
                 # this published once.
                 try:
@@ -128,28 +133,40 @@ class Manga(media.Media):
                 raise
 
         try:
-            authors_tag = info_panel_first.find(text='Authors:').parent.parent
-            utilities.extract_tags(authors_tag.find_all('span', {'class': 'dark_text'}))
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Authors:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find authors tag.")
+            authors_tags = temp[0].getparent().xpath(".//a")
             manga_info['authors'] = {}
-            for author_link in authors_tag.find_all('a'):
+            for author_link in authors_tags:
                 link_parts = author_link.get('href').split('/')
                 # of the form /people/1867/Naoki_Urasawa
                 person = self.session.person(int(link_parts[2])).set({'name': author_link.text})
-                role = author_link.nextSibling.replace(' (', '').replace(')', '')
+                role = author_link.xpath("./following-sibling::text()")[0].replace(' (', '').replace(')', '')
                 manga_info['authors'][person] = role
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            serialization_tag = info_panel_first.find(text='Serialization:').parent.parent
-            publication_link = serialization_tag.find('a')
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Serialization:')]]")
+            if len(temp) == 0:
+                raise Exception("Couldn't find authors tag.")
+            serialization_tags = temp[0].getparent().xpath(".//a")
+
             manga_info['serialization'] = None
-            if publication_link:
+            if len(serialization_tags) != 0:
+                publication_link = serialization_tags[0]
                 link_parts = publication_link.get('href').split('mid=')
-                # of the form /manga.php?mid=1
-                manga_info['serialization'] = self.session.publication(int(link_parts[1])).set(
-                    {'name': publication_link.text})
+                if len(link_parts) != 1:
+                    # of the form /manga.php?mid=1
+                    manga_info['serialization'] = self.session.publication(int(link_parts[1])).set(
+                        {'name': publication_link.text})
+                else:
+                    # of the form /manga/magazine/83
+                    link_parts = publication_link.get('href').split('/')
+                    manga_info['serialization'] = self.session.publication(int(link_parts[-1])).set(
+                        {'name': publication_link.text})
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
