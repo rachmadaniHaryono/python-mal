@@ -5,6 +5,4 @@ install:
   - python setup.py install
 script: nosetests-3.4
 env:
-  - RUNENV=travis
-  - MAL_USERNAME=py3mal
-  - MAL_PASSWORD=nepszerujelszo
+  - RUNENV=travis MAL_USERNAME=py3mal MAL_PASSWORD=nepszerujelszo
