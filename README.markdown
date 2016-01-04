@@ -14,6 +14,7 @@ Dependencies
 - requests
 - lxml
 - nose (only if you want to run tests, though!)
+- cssselect
 
 Installation
 ============
