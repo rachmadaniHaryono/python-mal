@@ -115,7 +115,7 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.mona.last_online, datetime.datetime)
 
     def testGender(self):
-        self.assertEqual(self.shal.gender, u"Not specified")
+        self.assertIsNone(self.shal.gender)
         self.assertEqual(self.mona.gender, u"Male")
 
     def testBirthday(self):
@@ -139,21 +139,15 @@ class testUserClass(TestCase):
         self.assertEqual(self.mona.join_date, datetime.date(year=2009, month=10, day=9))
 
     def testAccessRank(self):
-        self.assertEqual(self.shal.access_rank, u'Member')
-        self.assertEqual(self.mona.access_rank, u'Member')
+        self.assertIsNone(self.shal.access_rank)
+        self.assertIsNone(self.mona.access_rank)
         self.assertEqual(self.naruleach.access_rank, u'Anime DB Moderator')
 
     def testAnimeListViews(self):
-        self.assertIsInstance(self.shal.anime_list_views, int)
-        self.assertGreaterEqual(self.shal.anime_list_views, 1767)
-        self.assertIsInstance(self.mona.anime_list_views, int)
-        self.assertGreaterEqual(self.mona.anime_list_views, 1969)
+        pass  # deprecated
 
     def testMangaListViews(self):
-        self.assertIsInstance(self.shal.manga_list_views, int)
-        self.assertGreaterEqual(self.shal.manga_list_views, 1037)
-        self.assertIsInstance(self.mona.manga_list_views, int)
-        self.assertGreaterEqual(self.mona.manga_list_views, 548)
+        pass  # deprecated
 
     def testNumComments(self):
         self.assertIsInstance(self.shal.num_comments, int)
@@ -179,7 +173,6 @@ class testUserClass(TestCase):
         self.assertEqual(self.shal.last_list_updates[self.fate_zero][u'time'],
                          datetime.datetime(year=2014, month=9, day=5, hour=14, minute=1, second=0))
         self.assertIn(self.bebop, self.shal.last_list_updates)
-        self.assertIn(self.bebop, self.shal.last_list_updates)
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'status'], u'Completed')
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'episodes'], 26)
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'total_episodes'], 26)
@@ -192,30 +185,26 @@ class testUserClass(TestCase):
     def testAnimeStats(self):
         self.assertIsInstance(self.shal.anime_stats, dict)
         self.assertGreater(len(self.shal.anime_stats), 0)
-        self.assertEqual(self.shal.anime_stats[u'Time (Days)'], 38.9)
+        self.assertEqual(self.shal.anime_stats[u'Days'], 38.9)
         self.assertEqual(self.shal.anime_stats[u'Total Entries'], 146)
         self.assertIsInstance(self.mona.anime_stats, dict)
         self.assertGreater(len(self.mona.anime_stats), 0)
-        self.assertGreaterEqual(self.mona.anime_stats[u'Time (Days)'], 470)
+        self.assertGreaterEqual(self.mona.anime_stats[u'Days'], 470)
         self.assertGreaterEqual(self.mona.anime_stats[u'Total Entries'], 1822)
 
     def testMangaStats(self):
         self.assertIsInstance(self.shal.manga_stats, dict)
         self.assertGreater(len(self.shal.manga_stats), 0)
-        self.assertEqual(self.shal.manga_stats[u'Time (Days)'], 1.0)
+        self.assertEqual(self.shal.manga_stats[u'Days'], 1.0)
         self.assertEqual(self.shal.manga_stats[u'Total Entries'], 2)
         self.assertIsInstance(self.mona.manga_stats, dict)
         self.assertGreater(len(self.mona.manga_stats), 0)
-        self.assertGreaterEqual(self.mona.manga_stats[u'Time (Days)'], 69.4)
+        self.assertGreaterEqual(self.mona.manga_stats[u'Days'], 69.4)
         self.assertGreaterEqual(self.mona.manga_stats[u'Total Entries'], 186)
 
     def testAbout(self):
-        self.assertIsInstance(self.shal.about, unicode)
-        self.assertGreater(len(self.shal.about), 0)
-        self.assertIn(u'retiree', self.shal.about)
-        self.assertIsInstance(self.mona.about, unicode)
-        self.assertGreater(len(self.mona.about), 0)
-        self.assertEqual(self.mona.about, u'Nothing yet')
+        """Not tested because new format change in website."""
+        pass
 
     def testReviews(self):
         self.assertIsInstance(self.shal.reviews, dict)
