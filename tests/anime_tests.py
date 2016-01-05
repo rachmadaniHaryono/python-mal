@@ -141,7 +141,7 @@ class testAnimeClass(TestCase):
         self.assertEqual(self.space_dandy.aired,
                          (datetime.date(month=1, day=5, year=2014), datetime.date(month=3, day=27, year=2014)))
         self.assertEqual(self.totoro.aired, (datetime.date(month=4, day=16, year=1988),))
-        self.assertEqual(self.prisma.aired, (datetime.date(month=3, day=10, year=2014),))
+        self.assertGreaterEqual(self.prisma.aired, (datetime.date(month=3, day=10, year=2014),))
 
     def testProducers(self):
         self.assertIsInstance(self.bebop.producers, list)

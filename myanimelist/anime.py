@@ -53,6 +53,25 @@ class Anime(media.Media):
         self._voice_actors = None
         self._staff = None
 
+    def _parse_producers(self, anime_page):
+        try:
+            producers_tag = [x for x in anime_page.find_all('span')
+                             if 'Producers' in x.text][0].parent
+            result = []
+            for producer_link in producers_tag.find_all('a'):
+                # e.g. http://myanimelist.net/anime/producer/23
+                producer_id = producer_link.get('href').split('/producer/')[-1]
+                producer_name = producer_link.text
+                result.append(self
+                              .session
+                              .producer(int(producer_id))
+                              .set({'name': producer_name}))
+            return result
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+
     def parse_sidebar(self, anime_page, anime_page_original=None):
         """Parses the DOM and returns anime attributes in the sidebar.
 
@@ -120,23 +139,8 @@ class Anime(media.Media):
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
-
-        try:
-            producers_tag = [x for x in anime_page_original.find_all('span')if 'Producers:' in x.text][0].parent
-            anime_info[u'producers'] = []
-            for producer_link in producers_tag.find_all('a'):
-                if producer_link.text == u'add some':
-                    # MAL is saying "None found, add some".
-                    break
-                link_parts = producer_link.get('href').split('p=')
-                # of the form: /anime.php?p=14
-                if len(link_parts) > 1:
-                    anime_info[u'producers'].append(
-                        self.session.producer(int(link_parts[1])).set({'name': producer_link.text}))
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
-
+        anime_info[u'producers'] = self._parse_producers(anime_page)
+        
         try:
             duration_tag = [x for x in anime_page_original.find_all('span')if 'Duration:' in x.text][0].parent
             anime_info[u'duration'] = duration_tag.text.split(':')[1].strip()
