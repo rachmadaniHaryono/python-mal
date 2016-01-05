@@ -60,6 +60,8 @@ class Anime(media.Media):
             result = []
             for producer_link in producers_tag.find_all('a'):
                 # e.g. http://myanimelist.net/anime/producer/23
+                if '/anime/producer/' not in producer_link.get('href'):
+                    continue  # skip when not producer link
                 producer_id = producer_link.get('href').split('/producer/')[-1]
                 producer_name = producer_link.text
                 result.append(self

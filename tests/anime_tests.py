@@ -14,6 +14,7 @@ class testAnimeClass(TestCase):
         self.session = myanimelist.session.Session()
         self.bebop = self.session.anime(1)
         self.sunrise = self.session.producer(14)
+        self.bandai_visual = self.session.producer(23)
         self.action = self.session.genre(1)
         self.hex = self.session.character(94717)
         self.hex_va = self.session.person(5766)
@@ -147,7 +148,7 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.bebop.producers, list)
         self.assertGreater(len(self.bebop.producers), 0)
 
-        self.assertIn(self.sunrise, self.bebop.producers)
+        self.assertIn(self.bandai_visual, self.bebop.producers)
 
         self.assertIsInstance(self.spicy_wolf.producers, list)
         self.assertGreater(len(self.spicy_wolf.producers), 0)
@@ -157,7 +158,7 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.space_dandy.producers, list)
         self.assertGreater(len(self.space_dandy.producers), 0)
 
-        self.assertIn(self.funi, self.space_dandy.producers)
+        self.assertIn(self.bandai_visual, self.space_dandy.producers)
 
         self.assertIsInstance(self.totoro.producers, list)
         self.assertGreater(len(self.totoro.producers), 0)
