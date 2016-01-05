@@ -37,6 +37,7 @@ class testAnimeClass(TestCase):
 
         self.totoro = self.session.anime(523)
         self.gkids = self.session.producer(783)
+        self.studio_fantasia = self.session.producer(24)
         self.supernatural = self.session.genre(37)
         self.satsuki = self.session.character(267)
         self.satsuki_va = self.session.person(1104)
@@ -163,7 +164,7 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.totoro.producers, list)
         self.assertGreater(len(self.totoro.producers), 0)
 
-        self.assertIn(self.gkids, self.totoro.producers)
+        self.assertIn(self.studio_fantasia, self.totoro.producers)
 
         self.assertIsInstance(self.prisma.producers, list)
         self.assertGreater(len(self.prisma.producers), 0)

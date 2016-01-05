@@ -141,7 +141,7 @@ class testAnimeListClass(TestCase):
         self.assertEqual(self.shal.stats[u'on_hold'], 1)
         self.assertEqual(self.shal.stats[u'dropped'], 5)
         self.assertEqual(self.shal.stats[u'plan_to_watch'], 28)
-        self.assertEqual(float(self.shal.stats[u'days_spent']), 38.88)
+        self.assertGreaterEqual(float(self.shal.stats[u'days_spent']), 38.88)
 
         self.assertIsInstance(self.pl.stats, dict)
         self.assertGreater(len(self.pl.stats), 0)
