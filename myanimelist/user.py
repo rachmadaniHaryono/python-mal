@@ -92,28 +92,32 @@ class User(Base):
         self._join_date = None
         # bottom parts of sidebar
         self._num_forum_posts = None
-        self._num_comments = None
         self._num_reviews = None
         self._num_recommendations = None
         self._num_blog_posts = None
         self._num_clubs = None
         # Deprecated
-        self._anime_list_views = None  # DEPRECATED
-        self._manga_list_views = None  # DEPRECATED
+        self._num_comments = None
+        self._anime_list_views = None
+        self._manga_list_views = None
 
     def _parse_sidebar_user_status_top_section(self, user_page):
         """parse the top section below the user profile picture."""
+        # user detail parts
         top_section_tags = [xx for xx in user_page.select('ul.user-status.border-top')[0].children
                             if type(xx) == bs4.element.Tag]
-        top_section_tags.extend([xx
-                                for xx in user_page.select(
-                                    'ul.user-status.border-top')[2].select('li')
-                                if type(xx) == bs4.element.Tag])
         top_section = {}
         for tag in top_section_tags:
             tag_children = list(tag.children)
             if len(tag_children) >= 2:
                 top_section[tag_children[0].text.lower()] = tag_children[1].text
+        # statistic parts
+        statistic_tags = [xx
+                          for xx in user_page.select('ul.user-status.border-top')[2].select('li')
+                          if type(xx) == bs4.element.Tag]
+        for tag in statistic_tags:
+            span_tags = tag.select('span')
+            top_section[span_tags[0].text.lower()] = int(span_tags[1].text.replace(',', ''))
         return top_section
 
     def _parse_sidebar_user_status(self, user_page):
@@ -357,7 +361,11 @@ class User(Base):
     def _parse_user_website(self, user_page):
         """parse user website."""
         try:
-            return None
+            website = user_page.select('div.user-profile-sns a')[0].get('href')
+            if 'myanimelist.net/' not in website:
+                return website
+            else:
+                return None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -374,6 +382,7 @@ class User(Base):
         """
         user_info = self.parse_sidebar(user_page)
         user_info[u'access_rank'] = self._parse_access_rank(user_page)
+        user_info[u'website'] = self._parse_user_website(user_page)
         # parse favorite
         user_info[u'favorite_anime'] = self._parse_favorite(user_page, 'anime')
         user_info[u'favorite_manga'] = self._parse_favorite(user_page, 'manga')
@@ -383,13 +392,6 @@ class User(Base):
         user_info[u'anime_stats'] = self._parse_stats(user_page, 'anime')
         user_info[u'manga_stats'] = self._parse_stats(user_page, 'manga')
         user_info[u'last_list_updates'] = self._parse_last_list_updates(user_page)
-        section_headings = user_page.find_all(u'div', {u'class': u'normal_header'})
-
-        # parse general details.
-        # we have to work from the bottom up, since there's broken HTML after every header.
-
-        lower_section_headings = user_page.find_all(u'h2')
-
         return user_info
 
     def parse_reviews(self, reviews_page):
@@ -802,7 +804,7 @@ class User(Base):
     @property
     @loadable(u'load')
     def num_comments(self):
-        """The number of comments this user has made."""
+        """DEPRECATED! The number of comments this user has made."""
         return self._num_comments
 
     @property

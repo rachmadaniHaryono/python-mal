@@ -129,7 +129,7 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.mona.location, unicode)
 
     def testWebsite(self):
-        self.assertEqual(self.shal.website, u'llanim.us')
+        self.assertEqual(self.shal.website, u'http://llanim.us')
         self.assertIsNone(self.mona.website)
 
     def testJoinDate(self):
@@ -150,10 +150,7 @@ class testUserClass(TestCase):
         pass  # deprecated
 
     def testNumComments(self):
-        self.assertIsInstance(self.shal.num_comments, int)
-        self.assertGreaterEqual(self.shal.num_comments, 93)
-        self.assertIsInstance(self.mona.num_comments, int)
-        self.assertGreaterEqual(self.mona.num_comments, 30)
+        pass  # deprecated
 
     def testNumForumPosts(self):
         self.assertIsInstance(self.shal.num_forum_posts, int)
@@ -216,9 +213,9 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.archaeon.reviews, dict)
         self.assertGreaterEqual(len(self.archaeon.reviews), 0)
         self.assertIn(self.fate_zero, self.archaeon.reviews)
-        self.assertIsInstance(self.archaeon.reviews[self.fate_zero][u'date'], datetime.datetime)
+        self.assertIsInstance(self.archaeon.reviews[self.fate_zero][u'date'], datetime.date)
         self.assertEqual(self.archaeon.reviews[self.fate_zero][u'date'],
-                         datetime.datetime(year=2012, month=1, day=14, hour=8, minute=0))
+                         datetime.date(year=2012, month=1, day=14))
         self.assertGreaterEqual(self.archaeon.reviews[self.fate_zero][u'people_helped'], 689)
         self.assertGreaterEqual(self.archaeon.reviews[self.fate_zero][u'people_total'], None)
         self.assertEqual(self.archaeon.reviews[self.fate_zero][u'media_consumed'], 13)
@@ -237,7 +234,7 @@ class testUserClass(TestCase):
         self.assertEqual(self.shal.recommendations[self.kanon][u'anime'], self.clannad_as)
         self.assertIsInstance(self.shal.recommendations[self.kanon][u'date'], datetime.date)
         self.assertEqual(self.shal.recommendations[self.kanon][u'date'],
-                         datetime.datetime(year=2009, month=3, day=13, hour=5, minute=37))
+                         datetime.date(year=2009, month=3, day=13))
         self.assertIsInstance(self.shal.recommendations[self.kanon][u'text'], unicode)
         self.assertGreater(len(self.shal.recommendations[self.kanon][u'text']), 0)
         self.assertIsInstance(self.mona.recommendations, dict)
