@@ -41,7 +41,14 @@ class testPersonClass(TestCase):
 
     def testNonExistentPerson(self):
         with self.assertRaises(myanimelist.person.InvalidPersonError):
-            self.session.person(4973204723047)
+            person_short = self.session.person(49732)  # for short int
+            person_short.load()
+        with self.assertRaises(myanimelist.person.InvalidPersonError):
+            person_long = self.session.person(4973204723047)  # for long int
+            person_long.load()
+
+
+
 
     def testPersonValid(self):
         self.assertIsInstance(self.hiroshi_kamiya, myanimelist.person.Person)

@@ -71,6 +71,9 @@ class Person(Base):
             z = x.copy()
             z.update(y)
             return z
+        # check if person page exist:
+        if person_page.select('div.error404'):
+            raise InvalidPersonError(self.id)
         person_info = self.parse_sidebar(person_page)
         person_info = merge_two_dicts(person_info, self.parse_name(person_page))
         person_info = merge_two_dicts(person_info, self.parse_role(person_page))
