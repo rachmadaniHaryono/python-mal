@@ -106,6 +106,28 @@ class Media(Base):
         self._score_stats = None
         self._status_stats = None
 
+    def parse_genres(self, media_page):
+        """Parse the DOM and returns media genres in the sidebar.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: list
+        :return: media genres.
+        """
+        info_panel = media_page.select('div#content table td')[0]
+        genres_tag = info_panel.find(text=u'Genres:').parent.parent
+        # utilities.extract_tags(genres_tag.find_all(u'span', {'class': 'dark_text'}))
+        genres = []
+        for genre_link in genres_tag.find_all('a'):
+            # genre_link e.g: '/anime/genre/29/Space'
+            link_parts = genre_link.get('href').split('/')
+            genre_id = int(link_parts[-2])
+            genre_text = link_parts[-1]
+            genre = self.session.genre(genre_id).set({'name': genre_text})
+            genres.append(genre)
+        return genres
+
     def parse_sidebar(self, media_page, media_page_original=None):
         """Parses the DOM and returns media attributes in the sidebar.
 
@@ -146,7 +168,6 @@ class Media(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        # info_panel_first = media_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
         info_panel_first =  media_page_original.select('div#content table td')[0]
         try:
             picture_tag = info_panel_first.find(u'img')
@@ -195,14 +216,7 @@ class Media(Base):
                 raise
 
         try:
-            genres_tag = info_panel_first.find(text=u'Genres:').parent.parent
-            # utilities.extract_tags(genres_tag.find_all(u'span', {'class': 'dark_text'}))
-            media_info[u'genres'] = []
-            for genre_link in genres_tag.find_all('a'):
-                link_parts = genre_link.get('href').split('=')
-                # of the form /anime|manga.php?genre[]=1
-                genre = self.session.genre(int(link_parts[0].split('/')[-1])).set({'name': genre_link.text})
-                media_info[u'genres'].append(genre)
+            media_info[u'genres'] = self.parse_genres(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

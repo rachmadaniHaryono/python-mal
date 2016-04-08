@@ -53,26 +53,29 @@ class Anime(media.Media):
         self._voice_actors = None
         self._staff = None
 
-    def _parse_producers(self, anime_page):
-        try:
-            producers_tag = [x for x in anime_page.find_all('span')
-                             if 'Producers' in x.text][0].parent
-            result = []
-            for producer_link in producers_tag.find_all('a'):
-                # e.g. http://myanimelist.net/anime/producer/23
-                if '/anime/producer/' not in producer_link.get('href'):
-                    continue  # skip when not producer link
-                producer_id = producer_link.get('href').split('/producer/')[-1]
-                producer_name = producer_link.text
-                result.append(self
-                              .session
-                              .producer(int(producer_id))
-                              .set({'name': producer_name}))
-            return result
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
+    def parse_producers(self, anime_page):
+        """Parse the DOM and returns anime producers.
 
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: list
+        :return: anime produres.
+        """
+        producers_tag = [x for x in anime_page.find_all('span')
+                         if 'Producers' in x.text][0].parent
+        result = []
+        for producer_link in producers_tag.find_all('a'):
+            # e.g. http://myanimelist.net/anime/producer/23
+            if '/anime/producer/' not in producer_link.get('href'):
+                continue  # skip when not producer link
+            producer_id = producer_link.get('href').split('/producer/')[-1].split('/')[0]
+            producer_name = producer_link.text
+            result.append(self
+                          .session
+                          .producer(int(producer_id))
+                          .set({'name': producer_name}))
+        return result
 
     def parse_sidebar(self, anime_page, anime_page_original=None):
         """Parses the DOM and returns anime attributes in the sidebar.
@@ -141,8 +144,12 @@ class Anime(media.Media):
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
-        anime_info[u'producers'] = self._parse_producers(anime_page)
-        
+        try:
+            anime_info[u'producers'] = self.parse_producers(anime_page)
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
         try:
             duration_tag = [x for x in anime_page_original.find_all('span')if 'Duration:' in x.text][0].parent
             anime_info[u'duration'] = duration_tag.text.split(':')[1].strip()
