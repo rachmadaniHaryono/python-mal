@@ -179,6 +179,38 @@ class Anime(media.Media):
 
         return anime_info
 
+    def parse_staff(self, character_page):
+        """Parse the DOM and returns anime staff.
+
+        :type character_page: :class:`bs4.BeautifulSoup`
+        :param character_page: MAL anime character page's DOM
+
+        :rtype: dict
+        :return: anime character attributes
+
+        :raises: :class:`.InvalidAnimeError`, :class:`.MalformedAnimePageError`
+        """
+        # this contain list with 'staff' as text
+        # staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))
+        staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))
+        result = {}
+        if staff_title:
+            staff_title = staff_title[0]
+            staff_table = staff_title.nextSibling
+            if staff_table.name != 'table':  # only change if staff_table dont have table tag
+                staff_table = staff_title.nextSibling
+            for row in staff_table.find_all(u'tr'):
+                # staff info in second col.
+                info = row.find_all(u'td')[1]
+                staff_link = info.find(u'a')
+                staff_name = ' '.join(reversed(staff_link.text.split(u', ')))
+                link_parts = staff_link.get(u'href').split(u'/')
+                # of the form /people/1870/Miyazaki_Hayao
+                person = self.session.person(int(link_parts[2])).set({'name': staff_name})
+                # staff role(s).
+                result[person] = set(info.find(u'small').text.split(u', '))
+        return result
+
     def parse_characters(self, character_page, character_page_original=None):
         """Parses the DOM and returns anime character attributes in the sidebar.
 
@@ -241,25 +273,7 @@ class Anime(media.Media):
                 raise
 
         try:
-            # this contain list with 'staff' as text
-            # staff_title = filter(lambda x: 'Staff' in x.text, character_page.find_all(u'h2'))
-            staff_title = filter(lambda x: 'Staff' in x.text, character_page_original.find_all(u'h2'))                
-            anime_info[u'staff'] = {}
-            if staff_title:
-                staff_title = staff_title[0]
-                staff_table = staff_title.nextSibling.nextSibling
-                if staff_table.name != 'table' : #only change if staff_table dont have table tag
-                    staff_table = staff_title.nextSibling
-                for row in staff_table.find_all(u'tr'):
-                    # staff info in second col.
-                    info = row.find_all(u'td')[1]
-                    staff_link = info.find(u'a')
-                    staff_name = ' '.join(reversed(staff_link.text.split(u', ')))
-                    link_parts = staff_link.get(u'href').split(u'/')
-                    # of the form /people/1870/Miyazaki_Hayao
-                    person = self.session.person(int(link_parts[2])).set({'name': staff_name})
-                    # staff role(s).
-                    anime_info[u'staff'][person] = set(info.find(u'small').text.split(u', '))
+            anime_info[u'staff'] = self.parse_staff(character_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
