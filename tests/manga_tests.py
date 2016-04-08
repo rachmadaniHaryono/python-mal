@@ -102,7 +102,8 @@ class testMangaClass(TestCase):
         self.assertIn(u'xxxHolic Cage', self.holic.alternative_titles[u'Synonyms'])
         self.assertIn(u'Japanese', self.naruto.alternative_titles)
         self.assertIsInstance(self.naruto.alternative_titles[u'Japanese'], list)
-        self.assertIn(u'NARUTO -ナルト-', self.naruto.alternative_titles[u'Japanese'])
+        self.assertIn(u'NARUTO\u2015\u30ca\u30eb\u30c8\u2015',
+                      self.naruto.alternative_titles[u'Japanese'])
         self.assertIn(u'English', self.tomoyo_after.alternative_titles)
         self.assertIsInstance(self.tomoyo_after.alternative_titles[u'English'], list)
         self.assertIn(u'Tomoyo After ~Dear Shining Memories~', self.tomoyo_after.alternative_titles[u'English'])
