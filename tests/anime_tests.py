@@ -289,7 +289,7 @@ class testAnimeClass(TestCase):
         self.assertIn(u'Satsuki', self.totoro.synopsis)
         self.assertIsInstance(self.prisma.synopsis, unicode)
         self.assertGreater(len(self.prisma.synopsis), 0)
-        self.assertIn(u'Einzbern', self.prisma.synopsis)
+        self.assertIn(u'Illya', self.prisma.synopsis)
 
     def testRelated(self):
         self.assertIsInstance(self.spicy_wolf.related, dict)
