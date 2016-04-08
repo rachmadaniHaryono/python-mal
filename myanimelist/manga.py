@@ -48,6 +48,28 @@ class Manga(media.Media):
         self._authors = None
         self._serialization = None
 
+    def parse_serialization(self, manga_page):
+        """Parse the DOM and returns manga serialization.
+
+        :type manga_page: :class:`bs4.BeautifulSoup`
+        :param manga_page: MAL manga page's DOM
+
+        :return: publication obj
+        """
+        result = None
+        info_panel_first = manga_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
+        serialization_tag = info_panel_first.find(text=u'Serialization:').parent.parent
+        publication_link = serialization_tag.find('a')
+        if publication_link:
+            link_parts = publication_link.get('href').split('mid=')
+            # of the form /manga.php?mid=1
+            # e.g. link_parts
+            # [u'/manga/magazine/1/Big_Comic_Original']
+            pub_id = int(link_parts[0].split('/')[-2])
+            pub_dict = {'name': publication_link.text}
+            result = self.session.publication(pub_id).set(pub_dict)
+        return result
+
     def parse_sidebar(self, manga_page, manga_page_original=None):
         """Parses the DOM and returns manga attributes in the sidebar.
 
@@ -145,16 +167,7 @@ class Manga(media.Media):
                 raise
 
         try:
-            serialization_tag = info_panel_first.find(text=u'Serialization:').parent.parent
-            publication_link = serialization_tag.find('a')
-            manga_info[u'serialization'] = None
-            if publication_link:
-                link_parts = publication_link.get('href').split('mid=')
-                # of the form /manga.php?mid=1
-                # publication variable
-                pub_id = int(link_parts[0].split('/')[-1])
-                pub_dict = {'name': publication_link.text}
-                manga_info[u'serialization'] = self.session.publication(pub_id).set(pub_dict)
+            manga_info[u'serialization'] = self.parse_serialization(manga_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
