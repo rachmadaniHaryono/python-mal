@@ -27,6 +27,7 @@ class testAnimeListClass(TestCase):
         self.zombie = self.session.anime(3354)
         self.lollipop = self.session.anime(1509)
         self.musume = self.session.anime(5246)
+        self.ai_shite = self.session.anime(2221)
 
         self.threger = self.session.anime_list(u'threger')
 
@@ -112,7 +113,8 @@ class testAnimeListClass(TestCase):
 
         self.assertEqual(self.mona[self.zombie][u'status'], u'Completed')
         self.assertEqual(self.mona[self.lollipop][u'status'], u'On-Hold')
-        self.assertEqual(self.mona[self.musume][u'status'], u'Plan to Watch')
+        self.assertEqual(self.mona[self.musume][u'status'], u'Completed')
+        self.assertEqual(self.mona[self.ai_shite][u'status'], u'Plan to Watch')
 
         self.assertEqual(self.mona[self.zombie][u'score'], 7)
         self.assertIsNone(self.mona[self.lollipop][u'score'])
@@ -171,11 +173,15 @@ class testAnimeListClass(TestCase):
         self.assertEqual(float(self.threger.stats[u'days_spent']), 0.00)
 
     def testSection(self):
+        # shal
         self.assertIsInstance(self.shal.section(u'Watching'), dict)
         self.assertIn(self.fz, self.shal.section(u'Watching'))
         self.assertIsInstance(self.pl.section(u'Completed'), dict)
         self.assertIn(self.baccano, self.pl.section(u'Completed'))
+        # mona
         self.assertIsInstance(self.mona.section(u'Plan to Watch'), dict)
-        self.assertIn(self.musume, self.mona.section(u'Plan to Watch'))
+        self.assertIn(self.musume, self.mona.section(u'Completed'))
+        self.assertIn(self.ai_shite, self.mona.section(u'Plan to Watch'))
+        # threger
         self.assertIsInstance(self.threger.section(u'Watching'), dict)
         self.assertEqual(len(self.threger.section(u'Watching')), 0)
