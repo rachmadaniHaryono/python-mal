@@ -122,7 +122,7 @@ class testAnimeListClass(TestCase):
 
         self.assertEqual(self.mona[self.zombie][u'episodes_watched'], 2)
         self.assertEqual(self.mona[self.lollipop][u'episodes_watched'], 12)
-        self.assertEqual(self.mona[self.musume][u'episodes_watched'], 0)
+        self.assertGreater(self.mona[self.musume][u'episodes_watched'], 0)
 
         self.assertIsNone(self.mona[self.zombie][u'started'])
         self.assertEqual(self.mona[self.lollipop][u'started'], datetime.date(year=2013, month=4, day=14))
