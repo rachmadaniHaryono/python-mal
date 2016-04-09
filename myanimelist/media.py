@@ -139,6 +139,22 @@ class Media(Base):
             genres.append(genre)
         return genres
 
+    def parse_picture(self, media_page):
+        """Parse the DOM and returns media picture.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: unicode
+        :return: media picture
+        """
+        info_panel_first = media_page.select('div#content table td')[0]
+        picture_tag = info_panel_first.find(u'img')
+        try:
+            return picture_tag.get(u'src').decode('utf-8')
+        except AttributeError:
+            return picture_tag.get(u'src')
+
     def parse_sidebar(self, media_page, media_page_original=None):
         """Parse the DOM and returns media attributes in the sidebar.
 
@@ -181,8 +197,7 @@ class Media(Base):
 
         info_panel_first = media_page_original.select('div#content table td')[0]
         try:
-            picture_tag = info_panel_first.find(u'img')
-            media_info[u'picture'] = picture_tag.get(u'src').decode('utf-8')
+            media_info[u'picture'] = self.parse_picture(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
