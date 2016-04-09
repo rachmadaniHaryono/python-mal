@@ -139,6 +139,28 @@ class Media(Base):
             genres.append(genre)
         return genres
 
+    def parse_rank(self, media_page):
+        """Parse the DOM and returns media rank.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :return: media rank.
+        """
+        info_panel_first = media_page.select('div#content table td')[0]
+        try:
+            rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
+            utilities.extract_tags(rank_tag.find_all())
+            return int(rank_tag.text.strip()[1:].replace(u',', ''))
+        except AttributeError:
+            rank_tag = filter(lambda x: 'Ranked:' in x.text,
+                              media_page.find_all('div', {'class': 'spaceit'}))
+            return int(rank_tag[0].text.split('#')[-1].strip())
+        except ValueError:
+            rank_tag_txt = rank_tag.text.strip()[1:].replace(u',', '')
+            rank_tag_txt = rank_tag_txt.split('#')[1].splitlines()[0]
+            return int(rank_tag_txt)
+
     def parse_picture(self, media_page):
         """Parse the DOM and returns media picture.
 
@@ -274,15 +296,7 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
-                utilities.extract_tags(rank_tag.find_all())
-                media_info[u'rank'] = int(rank_tag.text.strip()[1:].replace(u',', ''))
-            except AttributeError:
-                rank_tag = filter(lambda x: 'Ranked:' in x.text,
-                                  media_page_original.find_all('div', {'class': 'spaceit'}))
-                media_info[u'rank'] = int(rank_tag[0].text.split('#')[-1].strip())
-
+            media_info[u'rank'] = self.parse_rank(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
