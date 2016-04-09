@@ -177,6 +177,29 @@ class Media(Base):
         except AttributeError:
             return picture_tag.get(u'src')
 
+    def parse_popularity(self, media_page):
+        """Parse the DOM and returns media popularity rank.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: int
+        :return: media popularity rank
+        """
+        info_panel_first = media_page.select('div#content table td')[0]
+        try:
+            popularity_tag = info_panel_first.find(text=u'Popularity:').parent.parent
+            utilities.extract_tags(popularity_tag.find_all())
+            return int(popularity_tag.text.strip()[1:].replace(u',', ''))
+        except AttributeError:
+            rank_tag_cls = {'class': 'dark_text'}
+            rank_tag = filter(lambda x: 'Popularity' in x.text,
+                              media_page.find_all('span', rank_tag_cls))[0].parent
+            return int(rank_tag.text.split('#')[-1].strip())
+        except ValueError:
+            pop_txt = popularity_tag.text.strip()[1:].replace(u',', '')
+            return pop_txt.split('#')[1]
+
     def parse_sidebar(self, media_page, media_page_original=None):
         """Parse the DOM and returns media attributes in the sidebar.
 
@@ -302,15 +325,7 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                popularity_tag = info_panel_first.find(text=u'Popularity:').parent.parent
-                utilities.extract_tags(popularity_tag.find_all())
-                media_info[u'popularity'] = int(popularity_tag.text.strip()[1:].replace(u',', ''))
-            except AttributeError:
-                rank_tag_cls = {'class': 'dark_text'}
-                rank_tag = filter(lambda x: 'Popularity' in x.text,
-                                  media_page_original.find_all('span', rank_tag_cls))[0].parent
-                media_info[u'popularity'] = int(rank_tag.text.split('#')[-1].strip())
+            media_info[u'popularity'] = self.parse_popularity(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
