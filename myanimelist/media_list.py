@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Module for media list."""
 
 import abc
 import collections
@@ -9,8 +10,12 @@ import urllib
 
 import bs4
 
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+try:
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 
 class MalformedMediaListPageError(MalformedPageError):

@@ -1,8 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Module for media tag."""
 
-from base import Base, MalformedPageError, InvalidBaseError
-
+try:
+    from base import Base, MalformedPageError, InvalidBaseError
+except ImportError:
+    from .base import Base, MalformedPageError, InvalidBaseError
 
 class MalformedTagPageError(MalformedPageError):
     pass

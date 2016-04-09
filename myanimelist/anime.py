@@ -1,28 +1,36 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Module to anime."""
 import datetime
 import re
 
-import utilities
-import media
-from base import loadable
+try:  # python2
+    from base import loadable
+    from utilities import parse_profile_date
+    import media
+    import utilities
+except ImportError:  # python3
+    from . import media
+    from . import utilities
+    from .base import loadable
+    from .utilities import parse_profile_date
 
 
 class MalformedAnimePageError(media.MalformedMediaPageError):
-    """Indicates that an anime-related page on MAL has irreparably broken markup in some way.
-    """
+    """Indicates that an anime-related page on MAL has irreparably broken markup in some way."""
+
     pass
 
 
 class InvalidAnimeError(media.InvalidMediaError):
-    """Indicates that the anime requested does not exist on MAL.
-    """
+    """Indicates that the anime requested does not exist on MAL."""
+
     pass
 
 
 class Anime(media.Media):
-    """Primary interface to anime resources on MAL.
-    """
+    """Primary interface to anime resources on MAL."""
+
     _status_terms = [
         u'Unknown',
         u'Currently Airing',
@@ -32,7 +40,7 @@ class Anime(media.Media):
     _consuming_verb = "watch"
 
     def __init__(self, session, anime_id):
-        """Creates a new instance of Anime.
+        """Create a new instance of Anime.
 
         :type session: :class:`myanimelist.session.Session`
         :param session: A valid MAL session
@@ -78,7 +86,7 @@ class Anime(media.Media):
         return result
 
     def parse_sidebar(self, anime_page, anime_page_original=None):
-        """Parses the DOM and returns anime attributes in the sidebar.
+        """Parse the DOM and returns anime attributes in the sidebar.
 
         :type anime_page: :class:`bs4.BeautifulSoup`
         :param anime_page: MAL anime page's DOM
@@ -105,41 +113,51 @@ class Anime(media.Media):
                 raise MalformedAnimePageError(self.id, None, message="Could not find title div")
 
         anime_info = super(Anime, self).parse_sidebar(anime_page, anime_page_original)
-        info_panel_first = anime_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
+        # 'info_panel_first'not used
+        # info_panel_first = anime_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
 
         try:
-            episode_tag = [x for x in anime_page_original.find_all('span')if 'Episodes:' in x.text][0].parent
-            anime_info[u'episodes'] = int(episode_tag.text.split(':')[-1].strip()) if episode_tag.text.strip() != 'Unknown' else 0
+            episode_tag = [x for x in anime_page_original.find_all('span')
+                           if 'Episodes:' in x.text][0].parent
+            if episode_tag.text.strip() != 'Unknown':
+                anime_info[u'episodes'] = int(episode_tag.text.split(':')[-1].strip())
+            else:
+                anime_info[u'episodes'] = 0
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            aired_tag = [x for x in anime_page_original.find_all('span')if 'Aired:' in x.text][0].parent
+            aired_tag = [x for x in anime_page_original.find_all('span')
+                         if 'Aired:' in x.text][0].parent
             aired_tag_text = aired_tag.text.split(':')[1]
             aired_parts = aired_tag_text.strip().split(u' to ')
+            suppress_parse_exceptions = self.session.suppress_parse_exceptions
             if len(aired_parts) == 1:
                 # this aired once.
                 try:
-                    aired_date = utilities.parse_profile_date(aired_parts[0],
-                                                              suppress=self.session.suppress_parse_exceptions)
+                    aired_date = parse_profile_date(aired_parts[0],
+                                                    suppress=suppress_parse_exceptions)
                 except ValueError:
-                    raise MalformedAnimePageError(self.id, aired_parts[0], message="Could not parse single air date")
+                    err_msg = "Could not parse single air date"
+                    raise MalformedAnimePageError(self.id, aired_parts[0], message=err_msg)
                 anime_info[u'aired'] = (aired_date,)
             else:
                 # two airing dates.
                 try:
-                    air_start = utilities.parse_profile_date(aired_parts[0],
-                                                             suppress=self.session.suppress_parse_exceptions)
+                    air_start = parse_profile_date(aired_parts[0],
+                                                   suppress=suppress_parse_exceptions)
                 except ValueError:
                     raise MalformedAnimePageError(self.id, aired_parts[0],
                                                   message="Could not parse first of two air dates")
                 try:
-                    air_end = utilities.parse_profile_date(aired_parts[1],
-                                                           suppress=self.session.suppress_parse_exceptions)
+                    air_end = parse_profile_date(aired_parts[1],
+                                                 suppress=suppress_parse_exceptions)
                 except ValueError:
+                    error_msg = "Could not parse second of two air dates"
                     raise MalformedAnimePageError(self.id, aired_parts[1],
-                                                  message="Could not parse second of two air dates")
+                                                  message=error_msg)
                 anime_info[u'aired'] = (air_start, air_end)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -151,7 +169,8 @@ class Anime(media.Media):
                 raise
 
         try:
-            duration_tag = [x for x in anime_page_original.find_all('span')if 'Duration:' in x.text][0].parent
+            duration_tag = [x for x in anime_page_original.find_all('span')
+                            if 'Duration:' in x.text][0].parent
             anime_info[u'duration'] = duration_tag.text.split(':')[1].strip()
             duration_parts = [part.strip() for part in anime_info[u'duration'].split(u'.')]
             duration_mins = 0
@@ -170,7 +189,8 @@ class Anime(media.Media):
                 raise
 
         try:
-            rating_tag = [x for x in anime_page_original.find_all('span')if 'Rating:' in x.text][0].parent
+            rating_tag = [x for x in anime_page_original.find_all('span')
+                          if 'Rating:' in x.text][0].parent
             utilities.extract_tags(rating_tag.find_all(u'span', {'class': 'dark_text'}))
             anime_info[u'rating'] = rating_tag.text.strip()
         except:
@@ -212,7 +232,7 @@ class Anime(media.Media):
         return result
 
     def parse_characters(self, character_page, character_page_original=None):
-        """Parses the DOM and returns anime character attributes in the sidebar.
+        """Parse the DOM and returns anime character attributes in the sidebar.
 
         :type character_page: :class:`bs4.BeautifulSoup`
         :param character_page: MAL anime character page's DOM
@@ -226,8 +246,10 @@ class Anime(media.Media):
         anime_info = self.parse_sidebar(character_page, character_page_original)
 
         try:
-            # character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, character_page.find_all(u'h2'))
-            character_title = filter(lambda x: 'Characters & Voice Actors' in x.text, character_page_original.find_all(u'h2'))
+            # character_title = filter(lambda x: 'Characters & Voice Actors' in x.text,
+            #                          character_page.find_all(u'h2'))
+            character_title = filter(lambda x: 'Characters & Voice Actors' in x.text,
+                                     character_page_original.find_all(u'h2'))
             anime_info[u'characters'] = {}
             anime_info[u'voice_actors'] = {}
             if character_title:
@@ -244,7 +266,8 @@ class Anime(media.Media):
                     character_name = ' '.join(reversed(character_link.text.split(u', ')))
                     link_parts = character_link.get(u'href').split(u'/')
                     # of the form /character/7373/Holo
-                    character = self.session.character(int(link_parts[2])).set({'name': character_name})
+                    char_id = int(link_parts[2])
+                    character = self.session.character(char_id).set({'name': character_name})
                     role = character_col.find(u'small').text
                     character_entry = {'role': role, 'voice_actors': {}}
 
@@ -261,9 +284,11 @@ class Anime(media.Media):
                                 va_name = ' '.join(reversed(va_link.text.split(u', ')))
                                 link_parts = va_link.get(u'href').split(u'/')
                                 # of the form /people/70/Ami_Koshimizu
-                                person = self.session.person(int(link_parts[2])).set({'name': va_name})
+                                person_id = int(link_parts[2])
+                                person = self.session.person(person_id).set({'name': va_name})
                                 language = va_info_col.find(u'small').text
-                                anime_info[u'voice_actors'][person] = {'role': role, 'character': character,
+                                anime_info[u'voice_actors'][person] = {'role': role,
+                                                                       'character': character,
                                                                        'language': language}
                                 character_entry[u'voice_actors'][person] = language
                     anime_info[u'characters'][character] = character_entry
@@ -283,14 +308,16 @@ class Anime(media.Media):
     @property
     @loadable(u'load')
     def episodes(self):
-        """The number of episodes in this anime. If undetermined, is None, otherwise > 0.
-        """
+        """The number of episodes in this anime. If undetermined, is None, otherwise > 0."""
         return self._episodes
 
     @property
     @loadable(u'load')
     def aired(self):
-        """A tuple(2) containing up to two :class:`datetime.date` objects representing the start and end dates of this anime's airing.
+        """get anime airing date.
+
+        A tuple(2) containing up to two :class:`datetime.date` objects.
+        It representing the start and end dates of this anime's airing.
 
           Potential configurations:
 
@@ -306,34 +333,38 @@ class Anime(media.Media):
     @property
     @loadable(u'load')
     def producers(self):
-        """A list of :class:`myanimelist.producer.Producer` objects involved in this anime.
-        """
+        """A list of :class:`myanimelist.producer.Producer` objects involved in this anime."""
         return self._producers
 
     @property
     @loadable(u'load')
     def duration(self):
-        """The duration of an episode of this anime as a :class:`datetime.timedelta`.
-        """
+        """The duration of an episode of this anime as a :class:`datetime.timedelta`."""
         return self._duration
 
     @property
     @loadable(u'load')
     def rating(self):
-        """The MPAA rating given to this anime.
-        """
+        """The MPAA rating given to this anime."""
         return self._rating
 
     @property
     @loadable(u'load_characters')
     def voice_actors(self):
-        """A voice actors dict with :class:`myanimelist.person.Person` objects of the voice actors as keys, and dicts containing info about the roles played, e.g. {'role': 'Main', 'character': myanimelist.character.Character(1)} as values.
+        """Voice actors in anime.
+
+        A VA dict with :class:`myanimelist.person.Person` objects of the voice actors as keys,
+        and dicts containing info about the roles played.
+        e.g. {'role': 'Main', 'character': myanimelist.character.Character(1)} as values.
         """
         return self._voice_actors
 
     @property
     @loadable(u'load_characters')
     def staff(self):
-        """A staff dict with :class:`myanimelist.person.Person` objects of the staff members as keys, and lists containing the various duties performed by staff members as values.
+        """Staff in Anime.
+
+        A staff dict with :class:`myanimelist.person.Person` objects of the staff as keys,
+        and lists containing the various duties performed by staff members as values.
         """
         return self._staff

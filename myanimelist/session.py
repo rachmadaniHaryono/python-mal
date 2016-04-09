@@ -1,30 +1,45 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Module to handle myanimelist session."""
+
 
 import requests
 
-import anime
-import manga
-import character
-import person
-import user
-import club
-import genre
-import tag
-import publication
-import producer
-import anime_list
-import manga_list
-from base import Error
+try:  # python2
+    import anime
+    import manga
+    import character
+    import person
+    import user
+    import club
+    import genre
+    import tag
+    import publication
+    import producer
+    import anime_list
+    import manga_list
+    from base import Error
+except ImportError:  # python3
+    from . import anime
+    from . import manga
+    from . import character
+    from . import person
+    from . import user
+    from . import club
+    from . import genre
+    from . import tag
+    from . import publication
+    from . import producer
+    from . import anime_list
+    from . import manga_list
+    from .base import Error
 
 
 class UnauthorizedError(Error):
-    """
-      Indicates that the current session is unauthorized to make the given request.
-    """
+    """Indicates that the current session is unauthorized to make the given request."""
 
     def __init__(self, session, url, result):
-        """Creates a new instance of UnauthorizedError.
+        """Create a new instance of UnauthorizedError.
 
         :type session: :class:`.Session`
         :param session: A valid MAL session.
@@ -45,6 +60,7 @@ class UnauthorizedError(Error):
         self.result = result
 
     def __str__(self):
+        """string representation."""
         return "\n".join([
             super(UnauthorizedError, self).__str__(),
             "URL: " + self.url,
@@ -53,11 +69,10 @@ class UnauthorizedError(Error):
 
 
 class Session(object):
-    """Class to handle requests to MAL. Handles login, setting HTTP headers, etc.
-    """
+    """Class to handle requests to MAL. Handles login, setting HTTP headers, etc."""
 
     def __init__(self, username=None, password=None, user_agent="iMAL-iOS"):
-        """Creates a new instance of Session.
+        """Create a new instance of Session.
 
         :type username: str
         :param username: A MAL username. May be omitted.
@@ -66,7 +81,8 @@ class Session(object):
         :param username: A MAL password. May be omitted.
 
         :type user_agent: str
-        :param user_agent: A user-agent to send to MAL in requests. If you have a user-agent assigned to you by Incapsula, pass it in here.
+        :param user_agent: A user-agent to send to MAL in requests.
+        If you have a user-agent assigned to you by Incapsula, pass it in here.
 
         :rtype: :class:`.Session`
         :return: The desired session.
@@ -86,8 +102,10 @@ class Session(object):
         self.suppress_parse_exceptions = False
 
     def logged_in(self):
-        """Checks the logged-in status of the current session.
-        Expensive (requests a page), so use sparingly! Best practice is to try a request and catch an UnauthorizedError.
+        """Check the logged-in status of the current session.
+
+        Expensive (requests a page), so use sparingly!
+        Best practice is to try a request and catch an UnauthorizedError.
 
         :rtype: bool
         :return: Whether or not the current session is logged-in.
@@ -105,7 +123,7 @@ class Session(object):
         return False
 
     def login(self):
-        """Logs into MAL and sets cookies appropriately.
+        """Log into MAL and sets cookies appropriately.
 
         :rtype: :class:`.Session`
         :return: The current session.
@@ -122,11 +140,11 @@ class Session(object):
             'sublogin': 'Login'
         }
         self.session.headers.update(mal_headers)
-        r = self.session.post(u'http://myanimelist.net/login.php', data=mal_payload)
+        self.session.post(u'http://myanimelist.net/login.php', data=mal_payload)
         return self
 
     def anime(self, anime_id):
-        """Creates an instance of myanimelist.Anime with the given ID.
+        """Create an instance of myanimelist.Anime with the given ID.
 
         :type anime_id: int
         :param anime_id: The desired anime's ID.
@@ -138,7 +156,7 @@ class Session(object):
         return anime.Anime(self, anime_id)
 
     def anime_list(self, username):
-        """Creates an instance of myanimelist.AnimeList belonging to the given username.
+        """Create an instance of myanimelist.AnimeList belonging to the given username.
 
         :type username: str
         :param username: The username to whom the desired anime list belongs.
@@ -150,7 +168,7 @@ class Session(object):
         return anime_list.AnimeList(self, username)
 
     def character(self, character_id):
-        """Creates an instance of myanimelist.Character with the given ID.
+        """Create an instance of myanimelist.Character with the given ID.
 
         :type character_id: int
         :param character_id: The desired character's ID.
@@ -162,7 +180,7 @@ class Session(object):
         return character.Character(self, character_id)
 
     def club(self, club_id):
-        """Creates an instance of myanimelist.Club with the given ID.
+        """Create an instance of myanimelist.Club with the given ID.
 
         :type club_id: int
         :param club_id: The desired club's ID.
@@ -174,7 +192,7 @@ class Session(object):
         return club.Club(self, club_id)
 
     def genre(self, genre_id):
-        """Creates an instance of myanimelist.Genre with the given ID.
+        """Create an instance of myanimelist.Genre with the given ID.
 
         :type genre_id: int
         :param genre_id: The desired genre's ID.
@@ -186,7 +204,7 @@ class Session(object):
         return genre.Genre(self, genre_id)
 
     def manga(self, manga_id):
-        """Creates an instance of myanimelist.Manga with the given ID.
+        """Create an instance of myanimelist.Manga with the given ID.
 
         :type manga_id: int
         :param manga_id: The desired manga's ID.
@@ -198,7 +216,7 @@ class Session(object):
         return manga.Manga(self, manga_id)
 
     def manga_list(self, username):
-        """Creates an instance of myanimelist.MangaList belonging to the given username.
+        """Create an instance of myanimelist.MangaList belonging to the given username.
 
         :type username: str
         :param username: The username to whom the desired manga list belongs.
@@ -210,7 +228,7 @@ class Session(object):
         return manga_list.MangaList(self, username)
 
     def person(self, person_id):
-        """Creates an instance of myanimelist.Person with the given ID.
+        """Create an instance of myanimelist.Person with the given ID.
 
         :type person_id: int
         :param person_id: The desired person's ID.
@@ -222,7 +240,7 @@ class Session(object):
         return person.Person(self, person_id)
 
     def producer(self, producer_id):
-        """Creates an instance of myanimelist.Producer with the given ID.
+        """Create an instance of myanimelist.Producer with the given ID.
 
         :type producer_id: int
         :param producer_id: The desired producer's ID.
@@ -234,7 +252,7 @@ class Session(object):
         return producer.Producer(self, producer_id)
 
     def publication(self, publication_id):
-        """Creates an instance of myanimelist.Publication with the given ID.
+        """Create an instance of myanimelist.Publication with the given ID.
 
         :type publication_id: int
         :param publication_id: The desired publication's ID.
@@ -246,7 +264,7 @@ class Session(object):
         return publication.Publication(self, publication_id)
 
     def tag(self, tag_id):
-        """Creates an instance of myanimelist.Tag with the given ID.
+        """Create an instance of myanimelist.Tag with the given ID.
 
         :type tag_id: int
         :param tag_id: The desired tag's ID.
@@ -258,7 +276,7 @@ class Session(object):
         return tag.Tag(self, tag_id)
 
     def user(self, username):
-        """Creates an instance of myanimelist.User with the given username
+        """Create an instance of myanimelist.User with the given username.
 
         :type username: str
         :param username: The desired user's username.

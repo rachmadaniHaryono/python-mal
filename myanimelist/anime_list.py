@@ -1,7 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""Module for anime list."""
 
-import media_list
+try:
+    import media_list
+except ImportError:
+    from . import media_list
 
 
 class AnimeList(media_list.MediaList):

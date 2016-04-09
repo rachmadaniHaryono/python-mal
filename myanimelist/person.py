@@ -1,8 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Parser for person page."""
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+
+try:
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+
 
 
 class MalformedPersonPageError(MalformedPageError):

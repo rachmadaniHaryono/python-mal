@@ -1,8 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import utilities
-from base import loadable
-import media
+try:
+    from base import loadable
+    import media
+    import utilities
+except ImportError:
+    from .base import loadable
+    from . import media
+    from . import utilities
 
 
 class MalformedMangaPageError(media.MalformedMediaPageError):

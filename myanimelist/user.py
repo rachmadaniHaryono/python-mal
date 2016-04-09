@@ -4,8 +4,12 @@
 import re
 import urllib
 
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+try:
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 from bs4 import BeautifulSoup
 import bs4
