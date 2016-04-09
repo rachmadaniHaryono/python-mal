@@ -200,6 +200,31 @@ class Media(Base):
             pop_txt = popularity_tag.text.strip()[1:].replace(u',', '')
             return pop_txt.split('#')[1]
 
+    def parse_members(self, media_page):
+        """Parse the DOM and returns media member rank.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: int
+        :return: media member rank
+        """
+        info_panel_first = media_page.select('div#content table td')[0]
+        try:
+            members_tag = info_panel_first.find(text=u'Members:').parent.parent
+            utilities.extract_tags(members_tag.find_all())
+            return int(members_tag.text.strip().replace(u',', ''))
+        except AttributeError:
+            members_tag_cls = {'class': 'dark_text'}
+            members_tag_list = media_page.find_all('span', members_tag_cls)
+            members_tag = filter(lambda x: 'Members' in x.text, members_tag_list)[0].parent
+            members_tag = members_tag.text.split(':')[-1].strip().replace(u',', '')
+            return int(members_tag)
+        except ValueError:
+            members_txt = members_tag.text.strip().replace(u',', '')
+            members_txt = members_txt.splitlines()[1]
+            return int(members_txt)
+
     def parse_sidebar(self, media_page, media_page_original=None):
         """Parse the DOM and returns media attributes in the sidebar.
 
@@ -331,17 +356,7 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                members_tag = info_panel_first.find(text=u'Members:').parent.parent
-                utilities.extract_tags(members_tag.find_all())
-                media_info[u'members'] = int(members_tag.text.strip().replace(u',', ''))
-            except AttributeError:
-                members_tag_cls = {'class': 'dark_text'}
-                members_tag_list = media_page_original.find_all('span', members_tag_cls)
-                members_tag = filter(lambda x: 'Members' in x.text, members_tag_list)[0].parent
-                members_tag = members_tag.text.split(':')[-1].strip().replace(u',', '')
-                media_info[u'members'] = int(members_tag)
-
+            media_info[u'members'] = self.parse_members(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
