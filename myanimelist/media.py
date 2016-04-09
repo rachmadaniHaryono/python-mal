@@ -225,6 +225,30 @@ class Media(Base):
             members_txt = members_txt.splitlines()[1]
             return int(members_txt)
 
+    def parse_favorites(self, media_page):
+        """Parse the DOM and returns media favorite rank.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: int
+        :return: media favorite rank
+        """
+        info_panel_first = media_page.select('div#content table td')[0]
+        try:
+            favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
+            utilities.extract_tags(favorites_tag.find_all())
+            return int(favorites_tag.text.strip().replace(u',', ''))
+        except AttributeError:
+            favorites_tag_list = media_page.find_all('span', {'class': 'dark_text'})
+            favorites_tag = filter(lambda x: 'Favorites' in x.text,
+                                   favorites_tag_list)[0].parent
+            favorites_tag = favorites_tag.text.split(':')[-1].strip().replace(u',', '')
+            return int(favorites_tag)
+        except ValueError:
+            favorites_txt = favorites_tag.text.strip().replace(u',', '')
+            return int(favorites_txt.splitlines()[1].strip())
+
     def parse_sidebar(self, media_page, media_page_original=None):
         """Parse the DOM and returns media attributes in the sidebar.
 
@@ -362,16 +386,7 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
-                utilities.extract_tags(favorites_tag.find_all())
-                media_info[u'favorites'] = int(favorites_tag.text.strip().replace(u',', ''))
-            except AttributeError:
-                favorites_tag_list = media_page_original.find_all('span', {'class': 'dark_text'})
-                favorites_tag = filter(lambda x: 'Favorites' in x.text,
-                                       favorites_tag_list)[0].parent
-                favorites_tag = favorites_tag.text.split(':')[-1].strip().replace(u',', '')
-                media_info[u'favorites'] = int(favorites_tag)
+            media_info[u'favorites'] = self.parse_favorites(media_page_original)
 
         except:
             if not self.session.suppress_parse_exceptions:
