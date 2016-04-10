@@ -31,11 +31,17 @@ class MalformedPageError(Error):
         if isinstance(id, str):
             self.id = id
         else:
-            self.id = str(id).decode('utf-8')
+            try:
+                self.id = str(id).decode('utf-8')
+            except AttributeError:
+                self.id = str(id)
         if isinstance(html, str):
             self.html = html
         else:
-            self.html = str(html).decode('utf-8')
+            try:
+                self.html = str(html).decode('utf-8')
+            except AttributeError:
+                self.html = str(html)
 
     def __str__(self):
         return "\n".join([

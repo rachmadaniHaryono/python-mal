@@ -52,10 +52,12 @@ def get_clean_dom(html):
 
 
 def urlencode(url):
-    """
-      Given a string, return a string that can be used safely in a MAL url.
-    """
-    return urllib.parse.urlencode({'': url.encode('utf-8').replace(' ', '_')})[1:].replace('%2F', '/')
+    """Given a string, return a string that can be used safely in a MAL url."""
+    try:
+        utf8_url = {'': url.encode('utf-8').replace(' ', '_')}
+    except TypeError:
+        utf8_url = {'': url.replace(' ', '_')}
+    return urllib.parse.urlencode(utf8_url)[1:].replace('%2F', '/')
 
 
 def extract_tags(tags):
