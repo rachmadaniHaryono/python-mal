@@ -148,43 +148,53 @@ class testMangaClass(TestCase):
                          datetime.date(month=10, day=20, year=2007)))
 
     def testGenres(self):
+        """test manga genres."""
         self.assertIsInstance(self.holic.genres, list)
-        self.assertGreater(self.holic.genres, 0)
+        self.assertGreater(len(self.holic.genres), 0)
         self.assertIn(self.mystery, self.holic.genres)
         self.assertIn(self.supernatural, self.holic.genres)
+
         self.assertIsInstance(self.tomoyo_after.genres, list)
-        self.assertGreater(self.tomoyo_after.genres, 0)
+        self.assertGreater(len(self.tomoyo_after.genres), 0)
         self.assertIn(self.drama, self.tomoyo_after.genres)
+
         self.assertIsInstance(self.naruto.genres, list)
-        self.assertGreater(self.naruto.genres, 0)
+        self.assertGreater(len(self.naruto.genres), 0)
         self.assertIn(self.shounen, self.naruto.genres)
+
         self.assertIsInstance(self.monster.genres, list)
-        self.assertGreater(self.monster.genres, 0)
+        self.assertGreater(len(self.monster.genres), 0)
         self.assertIn(self.mystery, self.monster.genres)
+
         self.assertIsInstance(self.judos.genres, list)
-        self.assertGreater(self.judos.genres, 0)
+        self.assertGreater(len(self.judos.genres), 0)
         self.assertIn(self.shounen, self.judos.genres)
         self.assertIn(self.action, self.judos.genres)
 
     def testAuthors(self):
+        """test manga authors."""
         self.assertIsInstance(self.holic.authors, dict)
-        self.assertGreater(self.holic.authors, 0)
+        self.assertGreater(len(self.holic.authors), 0)
         self.assertIn(self.clamp, self.holic.authors)
         self.assertEqual(self.holic.authors[self.clamp], 'Story & Art')
+
         self.assertIsInstance(self.tomoyo_after.authors, dict)
-        self.assertGreater(self.tomoyo_after.authors, 0)
+        self.assertGreater(len(self.tomoyo_after.authors), 0)
         self.assertIn(self.sumiyoshi, self.tomoyo_after.authors)
         self.assertEqual(self.tomoyo_after.authors[self.sumiyoshi], 'Art')
+
         self.assertIsInstance(self.naruto.authors, dict)
-        self.assertGreater(self.naruto.authors, 0)
+        self.assertGreater(len(self.naruto.authors), 0)
         self.assertIn(self.kishimoto, self.naruto.authors)
         self.assertEqual(self.naruto.authors[self.kishimoto], 'Story & Art')
+
         self.assertIsInstance(self.monster.authors, dict)
-        self.assertGreater(self.monster.authors, 0)
+        self.assertGreater(len(self.monster.authors), 0)
         self.assertIn(self.urasawa, self.monster.authors)
         self.assertEqual(self.monster.authors[self.urasawa], 'Story & Art')
+
         self.assertIsInstance(self.judos.authors, dict)
-        self.assertGreater(self.judos.authors, 0)
+        self.assertGreater(len(self.judos.authors), 0)
         self.assertIn(self.kondou, self.judos.authors)
         self.assertEqual(self.judos.authors[self.kondou], 'Story & Art')
 
@@ -279,40 +289,48 @@ class testMangaClass(TestCase):
         self.assertGreaterEqual(self.judos.favorites, 0)
 
     def testPopularTags(self):
+        """test manga popular tags."""
         self.assertIsInstance(self.holic.popular_tags, dict)
-        self.assertGreater(self.holic.popular_tags, 0)
+        self.assertGreater(len(self.holic.popular_tags), 0)
         self.assertIn(self.supernatural_tag, self.holic.popular_tags)
-        self.assertGreater(self.holic.popular_tags[self.supernatural_tag], 269)
+        # no ranking of tag found after website update.
+        # self.assertGreater(self.holic.popular_tags[self.supernatural_tag], 269)
+
         self.assertIsInstance(self.tomoyo_after.popular_tags, dict)
-        self.assertGreater(self.tomoyo_after.popular_tags, 0)
+        self.assertGreater(len(self.tomoyo_after.popular_tags), 0)
         self.assertIn(self.romance_tag, self.tomoyo_after.popular_tags)
-        self.assertGreater(self.tomoyo_after.popular_tags[self.romance_tag], 57)
+
         self.assertIsInstance(self.naruto.popular_tags, dict)
-        self.assertGreater(self.naruto.popular_tags, 0)
+        self.assertGreater(len(self.naruto.popular_tags), 0)
         self.assertIn(self.action_tag, self.naruto.popular_tags)
-        self.assertGreater(self.naruto.popular_tags[self.action_tag], 561)
+
         self.assertIsInstance(self.monster.popular_tags, dict)
-        self.assertGreater(self.monster.popular_tags, 0)
+        self.assertGreater(len(self.monster.popular_tags), 0)
         self.assertIn(self.mystery_tag, self.monster.popular_tags)
-        self.assertGreater(self.monster.popular_tags[self.mystery_tag], 105)
+
         self.assertIsInstance(self.judos.popular_tags, dict)
         self.assertGreater(len(self.judos.popular_tags), 0)
 
     def testSynopsis(self):
+        """test manga synopsis."""
         self.assertIsInstance(self.holic.synopsis, str)
-        self.assertGreater(self.holic.synopsis, 0)
+        self.assertGreater(len(self.holic.synopsis), 0)
         self.assertIn('Watanuki', self.holic.synopsis)
+
         self.assertIsInstance(self.monster.synopsis, str)
-        self.assertGreater(self.monster.synopsis, 0)
+        self.assertGreater(len(self.monster.synopsis), 0)
         self.assertIn('Tenma', self.monster.synopsis)
+
         self.assertIsInstance(self.naruto.synopsis, str)
-        self.assertGreater(self.naruto.synopsis, 0)
+        self.assertGreater(len(self.naruto.synopsis), 0)
         self.assertIn('Hokage', self.naruto.synopsis)
+
         self.assertIsInstance(self.tomoyo_after.synopsis, str)
-        self.assertGreater(self.tomoyo_after.synopsis, 0)
+        self.assertGreater(len(self.tomoyo_after.synopsis), 0)
         self.assertIn('Clannad', self.tomoyo_after.synopsis)
+
         self.assertIsInstance(self.judos.synopsis, str)
-        self.assertGreater(self.judos.synopsis, 0)
+        self.assertGreater(len(self.judos.synopsis), 0)
         self.assertIn('hardcore', self.judos.synopsis)
 
     def testRelated(self):
@@ -324,22 +342,23 @@ class testMangaClass(TestCase):
         self.assertIn(self.monster_side_story, self.monster.related['Side story'])
 
     def testCharacters(self):
+        """test manga characters."""
         self.assertIsInstance(self.holic.characters, dict)
-        self.assertGreater(self.holic.characters, 0)
+        self.assertGreater(len(self.holic.characters), 0)
         self.assertIn(self.doumeki, self.holic.characters)
         self.assertEqual(self.holic.characters[self.doumeki]['role'], 'Main')
 
         self.assertIsInstance(self.monster.characters, dict)
-        self.assertGreater(self.monster.characters, 0)
+        self.assertGreater(len(self.monster.characters), 0)
         self.assertIn(self.heinemann, self.monster.characters)
         self.assertEqual(self.monster.characters[self.heinemann]['role'], 'Main')
 
         self.assertIsInstance(self.naruto.characters, dict)
-        self.assertGreater(self.naruto.characters, 0)
+        self.assertGreater(len(self.naruto.characters), 0)
         self.assertIn(self.ebizou, self.naruto.characters)
         self.assertEqual(self.naruto.characters[self.ebizou]['role'], 'Supporting')
 
         self.assertIsInstance(self.tomoyo_after.characters, dict)
-        self.assertGreater(self.tomoyo_after.characters, 0)
+        self.assertGreater(len(self.tomoyo_after.characters), 0)
         self.assertIn(self.kanako, self.tomoyo_after.characters)
         self.assertEqual(self.tomoyo_after.characters[self.kanako]['role'], 'Supporting')
