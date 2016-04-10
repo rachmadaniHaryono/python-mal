@@ -56,8 +56,28 @@ class Character(Base):
         self._pictures = None
         self._clubs = None
 
+    def parse_char_picture(self, character_page):
+        """Parse the DOM and returns character picture.
+
+        :type character_page: :class:`bs4.BeautifulSoup`
+        :param character_page: MAL character page's DOM
+
+        :type character_page: :class:`bs4.BeautifulSoup`
+        :param character_page: MAL character page's DOM uncleaned
+
+        :rtype: str
+        :return: Character picture
+        """
+        cls_attr = {'id': 'content'}
+        info_panel_first = character_page.find('div', cls_attr).find('table').find('td')
+        picture_tag = info_panel_first.find('img')
+        try:
+            return picture_tag.get('src').decode('utf-8')
+        except AttributeError:
+            return picture_tag.get('src')
+
     def parse_sidebar(self, character_page, character_page_original=None):
-        """Parses the DOM and returns character attributes in the sidebar.
+        """Parse the DOM and returns character attributes in the sidebar.
 
         :type character_page: :class:`bs4.BeautifulSoup`
         :param character_page: MAL character page's DOM
@@ -90,8 +110,7 @@ class Character(Base):
         info_panel_first = character_page.find('div', {'id': 'content'}).find('table').find('td')
 
         try:
-            picture_tag = info_panel_first.find('img')
-            character_info['picture'] = picture_tag.get('src').decode('utf-8')
+            character_info['picture'] = self.parse_char_picture(character_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -244,7 +263,7 @@ class Character(Base):
         return character_info
 
     def parse_pictures(self, picture_page):
-        """Parses the DOM and returns character pictures attributes.
+        """Parse the DOM and returns character pictures attributes.
 
         :type picture_page: :class:`bs4.BeautifulSoup`
         :param picture_page: MAL character pictures page's DOM
@@ -254,14 +273,20 @@ class Character(Base):
 
         """
         character_info = self.parse_sidebar(picture_page)
-        second_col = \
-            picture_page.find('div', {'id': 'content'}).find('table').find('tr').find_all('td', recursive=False)[1]
+        second_col = picture_page.find('div', {'id': 'content'}).find('table').find('tr')
+        second_col = second_col.find_all('td', recursive=False)[1]
 
         try:
             picture_table = second_col.find('table', recursive=False)
             character_info['pictures'] = []
             if picture_table:
-                character_info['pictures'] = [img.get('src').decode('utf-8') for img in picture_table.find_all('img')]
+                try:
+                    character_info['pictures'] = [img.get('src').decode('utf-8')
+                                                  for img in picture_table.find_all('img')]
+
+                except AttributeError:
+                    character_info['pictures'] = [img.get('src')
+                                                  for img in picture_table.find_all('img')]
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
