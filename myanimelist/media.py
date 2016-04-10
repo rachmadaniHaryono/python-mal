@@ -15,7 +15,7 @@ try:
 except ImportError:
     from . import utilities
     # from .anime import MalformedAnimePageError
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable, with_metaclass
 
 
 class MalformedMediaPageError(MalformedPageError):
@@ -30,7 +30,8 @@ class InvalidMediaError(InvalidBaseError):
     pass
 
 
-class Media(Base, metaclass=abc.ABCMeta):
+@with_metaclass(abc.ABCMeta)
+class Media(Base):
     """Abstract base class for all media resources on MAL.
 
     To subclass, create a class that inherits from Media,

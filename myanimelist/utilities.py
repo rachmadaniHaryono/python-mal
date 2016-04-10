@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 import datetime
 import re
-import urllib.request, urllib.parse, urllib.error
+try:
+    import urllib.request
+    import urllib.parse
+    import urllib.error
+except ImportError:
+    import urllib
 
 import bs4
 

@@ -91,12 +91,27 @@ def loadable(func_name):
     return inner
 
 
-class Base(object, metaclass=abc.ABCMeta):
-    """Abstract base class for MAL resources. Provides autoloading, auto-setting functionality for other MAL objects.
+def with_metaclass(mcls):
+    """decorator for metaclass."""
+    def decorator(cls):
+        body = vars(cls).copy()
+        # clean out class body
+        body.pop('__dict__', None)
+        body.pop('__weakref__', None)
+        return mcls(cls.__name__, cls.__bases__, body)
+    return decorator
+
+
+@with_metaclass(abc.ABCMeta)
+class Base(object):
+    """Abstract base class for MAL resources.
+
+    Provides autoloading, auto-setting functionality for other MAL objects.
     """
 
     """Attribute name for primary reference key to this object.
-    When an attribute by the name given by _id_attribute is passed into set(), set() doesn't prepend an underscore for load()ing.
+    When an attribute by the name given by _id_attribute is passed into set(),
+    set() doesn't prepend an underscore for load()ing.
     """
     _id_attribute = "id"
 

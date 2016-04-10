@@ -2,12 +2,17 @@
 # -*- coding: utf-8 -*-
 """module for user object."""
 import re
-import urllib.request, urllib.parse, urllib.error
 
-try:
-    from . import utilities
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
-except ImportError:
+try:  # py2
+    import urllib
+
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:  # py3
+    import urllib.request
+    import urllib.parse
+    import urllib.error
+
     from . import utilities
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
 

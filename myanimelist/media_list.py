@@ -6,27 +6,40 @@ import abc
 import collections
 import decimal
 import datetime
-import urllib.request, urllib.parse, urllib.error
+
+try:  # py3
+    import urllib.request
+    import urllib.parse
+    import urllib.error
+except ImportError:  # py2
+    import urllib
 
 import bs4
 
 try:
-    from . import utilities
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable, with_metaclass
 except ImportError:
     from . import utilities
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable, with_metaclass
 
 
 class MalformedMediaListPageError(MalformedPageError):
+    """error caused by malformed page."""
+
     pass
 
 
 class InvalidMediaListError(InvalidBaseError):
+    """error for invalid media."""
+
     pass
 
 
-class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
+@with_metaclass(abc.ABCMeta)
+class MediaList(Base, collections.Mapping):
+    """media list class."""
+
     __id_attribute = "username"
 
     def __getitem__(self, media):
