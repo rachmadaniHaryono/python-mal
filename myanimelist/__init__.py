@@ -5,4 +5,4 @@ __license__ = 'LICENSE.txt'
 __version__ = '0.1.7'
 __email__ = 'shaldengeki@gmail.com'
 
-from myanimelist import *
+from .myanimelist import *

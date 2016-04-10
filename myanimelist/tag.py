@@ -3,7 +3,7 @@
 """Module for media tag."""
 
 try:
-    from base import Base, MalformedPageError, InvalidBaseError
+    from .base import Base, MalformedPageError, InvalidBaseError
 except ImportError:
     from .base import Base, MalformedPageError, InvalidBaseError
 
@@ -21,7 +21,7 @@ class Tag(Base):
     def __init__(self, session, name):
         super(Tag, self).__init__(session)
         self.name = name
-        if not isinstance(self.name, unicode) or len(self.name) < 1:
+        if not isinstance(self.name, str) or len(self.name) < 1:
             raise InvalidTagError(self.name)
 
     def load(self):

@@ -3,7 +3,7 @@
 """module for myanimelist user."""
 
 try:
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 except ImportError:
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
@@ -30,11 +30,11 @@ class Club(Base):
         pass
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def name(self):
         return self._name
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def num_members(self):
         return self._num_members

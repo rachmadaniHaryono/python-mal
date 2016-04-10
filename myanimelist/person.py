@@ -3,8 +3,8 @@
 """Parser for person page."""
 
 try:
-    import utilities
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 except ImportError:
     from . import utilities
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
@@ -45,7 +45,7 @@ class Person(Base):
         :return: Current person object.
 
         """
-        person = self.session.session.get(u'http://myanimelist.net/people/' + str(self.id)).text
+        person = self.session.session.get('http://myanimelist.net/people/' + str(self.id)).text
         self.set(self.parse(utilities.get_clean_dom(person)))
         return self
 
@@ -57,8 +57,8 @@ class Person(Base):
 
         """
         person = self.session.session.get(
-            u'http://myanimelist.net/person/' + str(self.id) + u'/' + utilities.urlencode(
-                self.name) + u'/pictures').text
+            'http://myanimelist.net/person/' + str(self.id) + '/' + utilities.urlencode(
+                self.name) + '/pictures').text
         self.set(self.parse_pictures(utilities.get_clean_dom(person)))
         return self
 
@@ -109,8 +109,8 @@ class Person(Base):
         try:
             person_info = {}
             temp_name = person_page.select('div#contentWrapper h1.h1')[0].text
-            person_info[u'name'] = self._fix_name(temp_name)
-            if person_info[u'name'] == 'Invalid':
+            person_info['name'] = self._fix_name(temp_name)
+            if person_info['name'] == 'Invalid':
                 raise InvalidPersonError(self.id)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -150,11 +150,11 @@ class Person(Base):
                 va_roles[anime_obj] = {character_obj: role_tag}
 
             # add as person attribute
-            person_info[u'voice_acting_roles'] = va_roles
+            person_info['voice_acting_roles'] = va_roles
 
         except IndexError:
             # this person don't have any voice acting roles
-            person_info[u'voice_acting_roles'] = None
+            person_info['voice_acting_roles'] = None
 
         except:
             if not self.session.suppress_parse_exceptions:
@@ -206,7 +206,7 @@ class Person(Base):
                 else:
                     positions[anime_obj] = [role_tag]
             # add as person attribute only if dict have been changed
-            person_info[u'anime_staff_positions'] = None if positions == {} else positions
+            person_info['anime_staff_positions'] = None if positions == {} else positions
 
         except:
             if not self.session.suppress_parse_exceptions:
@@ -244,19 +244,19 @@ class Person(Base):
         pass
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def name(self):
         """name of the person."""
         return self._name
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def voice_acting_roles(self):
         """voice acting role done by this person."""
         return self._voice_acting_roles
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def anime_staff_positions(self):
         """Position of this person on anime production."""
         return self._anime_staff_positions

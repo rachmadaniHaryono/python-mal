@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Module for mannga publication."""
 try:
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 except ImportError:
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
@@ -28,6 +28,6 @@ class Publication(Base):
         pass
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def name(self):
         return self._name

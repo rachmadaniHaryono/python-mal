@@ -19,7 +19,7 @@ class Error(Exception):
         self.message = message
 
     def __str__(self):
-        return unicode(self.message) if self.message is not None else u""
+        return str(self.message) if self.message is not None else ""
 
 
 class MalformedPageError(Error):
@@ -28,21 +28,21 @@ class MalformedPageError(Error):
 
     def __init__(self, id, html, message=None):
         super(MalformedPageError, self).__init__(message=message)
-        if isinstance(id, unicode):
+        if isinstance(id, str):
             self.id = id
         else:
-            self.id = str(id).decode(u'utf-8')
-        if isinstance(html, unicode):
+            self.id = str(id).decode('utf-8')
+        if isinstance(html, str):
             self.html = html
         else:
-            self.html = str(html).decode(u'utf-8')
+            self.html = str(html).decode('utf-8')
 
     def __str__(self):
         return "\n".join([
             super(MalformedPageError, self).__str__(),
             "ID: " + self.id,
             "HTML: " + self.html
-        ]).encode(u'utf-8')
+        ]).encode('utf-8')
 
 
 class InvalidBaseError(Error):
@@ -56,7 +56,7 @@ class InvalidBaseError(Error):
     def __str__(self):
         return "\n".join([
             super(InvalidBaseError, self).__str__(),
-            "ID: " + unicode(self.id)
+            "ID: " + str(self.id)
         ])
 
 
@@ -85,10 +85,9 @@ def loadable(func_name):
     return inner
 
 
-class Base(object):
+class Base(object, metaclass=abc.ABCMeta):
     """Abstract base class for MAL resources. Provides autoloading, auto-setting functionality for other MAL objects.
     """
-    __metaclass__ = abc.ABCMeta
 
     """Attribute name for primary reference key to this object.
     When an attribute by the name given by _id_attribute is passed into set(), set() doesn't prepend an underscore for load()ing.
@@ -96,18 +95,18 @@ class Base(object):
     _id_attribute = "id"
 
     def __repr__(self):
-        return u"".join([
+        return "".join([
             "<",
             self.__class__.__name__,
             " ",
             self._id_attribute,
             ": ",
-            unicode(getattr(self, self._id_attribute)),
+            str(getattr(self, self._id_attribute)),
             ">"
         ])
 
     def __hash__(self):
-        return hash('-'.join([self.__class__.__name__, unicode(getattr(self, self._id_attribute))]))
+        return hash('-'.join([self.__class__.__name__, str(getattr(self, self._id_attribute))]))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and getattr(self, self._id_attribute) == getattr(other,
@@ -145,5 +144,5 @@ class Base(object):
             if key == self._id_attribute:
                 setattr(self, self._id_attribute, attr_dict[key])
             else:
-                setattr(self, u"_" + key, attr_dict[key])
+                setattr(self, "_" + key, attr_dict[key])
         return self

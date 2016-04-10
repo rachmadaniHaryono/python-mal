@@ -3,7 +3,7 @@
 """Module for manga list."""
 
 try:
-    import media_list
+    from . import media_list
 except ImportError:
     from . import media_list
 
@@ -47,33 +47,33 @@ class MangaList(media_list.MediaList):
         manga, entry_info = super(MangaList, self).parse_entry(soup)
 
         try:
-            entry_info[u'chapters_read'] = int(soup.find('my_read_chapters').text)
+            entry_info['chapters_read'] = int(soup.find('my_read_chapters').text)
         except ValueError:
-            entry_info[u'chapters_read'] = 0
+            entry_info['chapters_read'] = 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'volumes_read'] = int(soup.find('my_read_volumes').text)
+            entry_info['volumes_read'] = int(soup.find('my_read_volumes').text)
         except ValueError:
-            entry_info[u'volumes_read'] = 0
+            entry_info['volumes_read'] = 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'rereading'] = bool(soup.find('my_rereadingg').text)
+            entry_info['rereading'] = bool(soup.find('my_rereadingg').text)
         except ValueError:
-            entry_info[u'rereading'] = False
+            entry_info['rereading'] = False
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'chapters_reread'] = int(soup.find('my_rereading_chap').text)
+            entry_info['chapters_reread'] = int(soup.find('my_rereading_chap').text)
         except ValueError:
-            entry_info[u'chapters_reread'] = 0
+            entry_info['chapters_reread'] = 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

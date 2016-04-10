@@ -9,9 +9,9 @@ import re
 import bs4
 
 try:
-    from anime import MalformedAnimePageError
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
-    import utilities
+    from .anime import MalformedAnimePageError
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    from . import utilities
 except ImportError:
     from . import utilities
     # from .anime import MalformedAnimePageError
@@ -30,14 +30,12 @@ class InvalidMediaError(InvalidBaseError):
     pass
 
 
-class Media(Base):
+class Media(Base, metaclass=abc.ABCMeta):
     """Abstract base class for all media resources on MAL.
 
     To subclass, create a class that inherits from Media,
     implementing status_terms and consuming_verb at the bare minimum.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty
     def _status_terms(self):
@@ -74,13 +72,13 @@ class Media(Base):
 
         """
         media_type = cls.__name__.lower()
-        p = session.session.get(u'http://myanimelist.net/' +
+        p = session.session.get('http://myanimelist.net/' +
                                 media_type + '.php?o=9&c[]=a&c[]=d&cv=2&w=1').text
         soup = utilities.get_clean_dom(p)
-        latest_entry = soup.find(u"div", {u"class": u"hoverinfo"})
+        latest_entry = soup.find("div", {"class": "hoverinfo"})
         if not latest_entry:
-            raise MalformedMediaPageError(0, p, u"No media entries found on recently-added page")
-        latest_id = int(latest_entry[u'rel'][1:])
+            raise MalformedMediaPageError(0, p, "No media entries found on recently-added page")
+        latest_id = int(latest_entry['rel'][1:])
         return getattr(session, media_type)(latest_id)
 
     def __init__(self, session, id):
@@ -127,7 +125,7 @@ class Media(Base):
         :return: media genres.
         """
         info_panel = media_page.select('div#content table td')[0]
-        genres_tag = info_panel.find(text=u'Genres:').parent.parent
+        genres_tag = info_panel.find(text='Genres:').parent.parent
         # utilities.extract_tags(genres_tag.find_all(u'span', {'class': 'dark_text'}))
         genres = []
         for genre_link in genres_tag.find_all('a'):
@@ -149,15 +147,14 @@ class Media(Base):
         """
         info_panel_first = media_page.select('div#content table td')[0]
         try:
-            rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
+            rank_tag = info_panel_first.find(text='Ranked:').parent.parent
             utilities.extract_tags(rank_tag.find_all())
-            return int(rank_tag.text.strip()[1:].replace(u',', ''))
+            return int(rank_tag.text.strip()[1:].replace(',', ''))
         except AttributeError:
-            rank_tag = filter(lambda x: 'Ranked:' in x.text,
-                              media_page.find_all('div', {'class': 'spaceit'}))
+            rank_tag = [x for x in media_page.find_all('div', {'class': 'spaceit'}) if 'Ranked:' in x.text]
             return int(rank_tag[0].text.split('#')[-1].strip())
         except ValueError:
-            rank_tag_txt = rank_tag.text.strip()[1:].replace(u',', '')
+            rank_tag_txt = rank_tag.text.strip()[1:].replace(',', '')
             rank_tag_txt = rank_tag_txt.split('#')[1].splitlines()[0]
             return int(rank_tag_txt)
 
@@ -171,11 +168,11 @@ class Media(Base):
         :return: media picture
         """
         info_panel_first = media_page.select('div#content table td')[0]
-        picture_tag = info_panel_first.find(u'img')
+        picture_tag = info_panel_first.find('img')
         try:
-            return picture_tag.get(u'src').decode('utf-8')
+            return picture_tag.get('src').decode('utf-8')
         except AttributeError:
-            return picture_tag.get(u'src')
+            return picture_tag.get('src')
 
     def parse_popularity(self, media_page):
         """Parse the DOM and returns media popularity rank.
@@ -188,16 +185,16 @@ class Media(Base):
         """
         info_panel_first = media_page.select('div#content table td')[0]
         try:
-            popularity_tag = info_panel_first.find(text=u'Popularity:').parent.parent
+            popularity_tag = info_panel_first.find(text='Popularity:').parent.parent
             utilities.extract_tags(popularity_tag.find_all())
-            return int(popularity_tag.text.strip()[1:].replace(u',', ''))
+            return int(popularity_tag.text.strip()[1:].replace(',', ''))
         except AttributeError:
             rank_tag_cls = {'class': 'dark_text'}
             rank_tag = filter(lambda x: 'Popularity' in x.text,
                               media_page.find_all('span', rank_tag_cls))[0].parent
             return int(rank_tag.text.split('#')[-1].strip())
         except ValueError:
-            pop_txt = popularity_tag.text.strip()[1:].replace(u',', '')
+            pop_txt = popularity_tag.text.strip()[1:].replace(',', '')
             return pop_txt.split('#')[1]
 
     def parse_members(self, media_page):
@@ -211,17 +208,17 @@ class Media(Base):
         """
         info_panel_first = media_page.select('div#content table td')[0]
         try:
-            members_tag = info_panel_first.find(text=u'Members:').parent.parent
+            members_tag = info_panel_first.find(text='Members:').parent.parent
             utilities.extract_tags(members_tag.find_all())
-            return int(members_tag.text.strip().replace(u',', ''))
+            return int(members_tag.text.strip().replace(',', ''))
         except AttributeError:
             members_tag_cls = {'class': 'dark_text'}
             members_tag_list = media_page.find_all('span', members_tag_cls)
             members_tag = filter(lambda x: 'Members' in x.text, members_tag_list)[0].parent
-            members_tag = members_tag.text.split(':')[-1].strip().replace(u',', '')
+            members_tag = members_tag.text.split(':')[-1].strip().replace(',', '')
             return int(members_tag)
         except ValueError:
-            members_txt = members_tag.text.strip().replace(u',', '')
+            members_txt = members_tag.text.strip().replace(',', '')
             members_txt = members_txt.splitlines()[1]
             return int(members_txt)
 
@@ -236,17 +233,17 @@ class Media(Base):
         """
         info_panel_first = media_page.select('div#content table td')[0]
         try:
-            favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
+            favorites_tag = info_panel_first.find(text='Favorites:').parent.parent
             utilities.extract_tags(favorites_tag.find_all())
-            return int(favorites_tag.text.strip().replace(u',', ''))
+            return int(favorites_tag.text.strip().replace(',', ''))
         except AttributeError:
             favorites_tag_list = media_page.find_all('span', {'class': 'dark_text'})
             favorites_tag = filter(lambda x: 'Favorites' in x.text,
                                    favorites_tag_list)[0].parent
-            favorites_tag = favorites_tag.text.split(':')[-1].strip().replace(u',', '')
+            favorites_tag = favorites_tag.text.split(':')[-1].strip().replace(',', '')
             return int(favorites_tag)
         except ValueError:
-            favorites_txt = favorites_tag.text.strip().replace(u',', '')
+            favorites_txt = favorites_tag.text.strip().replace(',', '')
             return int(favorites_txt.splitlines()[1].strip())
 
     def parse_sidebar(self, media_page, media_page_original=None):
@@ -264,13 +261,13 @@ class Media(Base):
         media_info = {}
 
         # if MAL says the series doesn't exist, raise an InvalidMediaError.
-        error_tag = media_page.find(u'div', {'class': 'badresult'})
+        error_tag = media_page.find('div', {'class': 'badresult'})
         if error_tag:
             raise InvalidMediaError(self.id)
 
         try:
-            title_tag = media_page.find(u'div', {'id': 'contentWrapper'}).find(u'h1')
-            if not title_tag.find(u'div'):
+            title_tag = media_page.find('div', {'id': 'contentWrapper'}).find('h1')
+            if not title_tag.find('div'):
                 try:
                     title_tag = media_page_original.select('div#contentWrapper h1.h1 span')[0]
                 except IndexError:
@@ -282,61 +279,61 @@ class Media(Base):
 
         try:
             utilities.extract_tags(title_tag.find_all())
-            media_info[u'title'] = title_tag.text.strip()
-            if media_info[u'title'] == '':
-                media_info[u'title'] = media_page_original.find('span', {'itemprop': 'name'}).text
+            media_info['title'] = title_tag.text.strip()
+            if media_info['title'] == '':
+                media_info['title'] = media_page_original.find('span', {'itemprop': 'name'}).text
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         info_panel_first = media_page_original.select('div#content table td')[0]
         try:
-            media_info[u'picture'] = self.parse_picture(media_page_original)
+            media_info['picture'] = self.parse_picture(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             # assemble alternative titles for this series.
-            media_info[u'alternative_titles'] = {}
-            alt_titles_header = info_panel_first.find(u'h2', text=u'Alternative Titles')
+            media_info['alternative_titles'] = {}
+            alt_titles_header = info_panel_first.find('h2', text='Alternative Titles')
             if alt_titles_header:
-                next_tag = alt_titles_header.find_next_sibling(u'div', {'class': 'spaceit_pad'})
+                next_tag = alt_titles_header.find_next_sibling('div', {'class': 'spaceit_pad'})
                 while True:
-                    if next_tag is None or not next_tag.find(u'span', {'class': 'dark_text'}):
+                    if next_tag is None or not next_tag.find('span', {'class': 'dark_text'}):
                         # not a language node, break.
                         break
                     # get language and remove the node.
-                    language = next_tag.find(u'span').text[:-1]
-                    utilities.extract_tags(next_tag.find_all(u'span', {'class': 'dark_text'}))
-                    names = next_tag.text.strip().split(u', ')
-                    media_info[u'alternative_titles'][language] = names
-                    next_tag = next_tag.find_next_sibling(u'div', {'class': 'spaceit_pad'})
+                    language = next_tag.find('span').text[:-1]
+                    utilities.extract_tags(next_tag.find_all('span', {'class': 'dark_text'}))
+                    names = next_tag.text.strip().split(', ')
+                    media_info['alternative_titles'][language] = names
+                    next_tag = next_tag.find_next_sibling('div', {'class': 'spaceit_pad'})
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             try:
-                type_tag = info_panel_first.find(text=u'Type:').parent.parent
-                utilities.extract_tags(type_tag.find_all(u'span', {'class': 'dark_text'}))
-                media_info[u'type'] = type_tag.text.strip()
+                type_tag = info_panel_first.find(text='Type:').parent.parent
+                utilities.extract_tags(type_tag.find_all('span', {'class': 'dark_text'}))
+                media_info['type'] = type_tag.text.strip()
             except AttributeError:
                 type_tag = [x for x in info_panel_first.find_all('div') if 'Type:' in x.text][0]
-                media_info[u'type'] = type_tag.text.split(':')[-1].strip()
+                media_info['type'] = type_tag.text.split(':')[-1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             status_tag = [x for x in media_page.find_all('span')if 'Status:' in x.text][0].parent
-            media_info[u'status'] = status_tag.text.split(':')[1].strip()
+            media_info['status'] = status_tag.text.split(':')[1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            media_info[u'genres'] = self.parse_genres(media_page_original)
+            media_info['genres'] = self.parse_genres(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -359,34 +356,34 @@ class Media(Base):
             # utilities.extract_tags(score_tag.find_all())
             score_point = score_tag.find('span', {'itemprop': 'ratingValue'}).text
             try:
-                media_info[u'score'] = (decimal.Decimal(score_point), num_users)
+                media_info['score'] = (decimal.Decimal(score_point), num_users)
             except (InvalidOperation, AttributeError):
                 score_tag = media_page_original.find('span', {'itemprop': 'ratingValue'})
-                media_info[u'score'] = (decimal.Decimal(score_tag.text), num_users)
+                media_info['score'] = (decimal.Decimal(score_tag.text), num_users)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            media_info[u'rank'] = self.parse_rank(media_page_original)
+            media_info['rank'] = self.parse_rank(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            media_info[u'popularity'] = self.parse_popularity(media_page_original)
+            media_info['popularity'] = self.parse_popularity(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            media_info[u'members'] = self.parse_members(media_page_original)
+            media_info['members'] = self.parse_members(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            media_info[u'favorites'] = self.parse_favorites(media_page_original)
+            media_info['favorites'] = self.parse_favorites(media_page_original)
 
         except:
             if not self.session.suppress_parse_exceptions:
@@ -394,27 +391,27 @@ class Media(Base):
 
         try:
             # get popular tags.
-            tags_header = media_page.find(u'h2', text=u'Popular Tags')
+            tags_header = media_page.find('h2', text='Popular Tags')
             try:
-                tags_tag = tags_header.find_next_sibling(u'span')
-                media_info[u'popular_tags'] = {}
+                tags_tag = tags_header.find_next_sibling('span')
+                media_info['popular_tags'] = {}
                 for tag_link in tags_tag.find_all('a'):
                     tag = self.session.tag(tag_link.text)
                     num_people = int(re.match(r'(?P<people>[0-9]+) people',
                                               tag_link.get('title')).group('people'))
-                    media_info[u'popular_tags'][tag] = num_people
+                    media_info['popular_tags'][tag] = num_people
             except AttributeError:
                 tags_tag = media_page_original.find('span', text='Genres:').parent
-                media_info[u'popular_tags'] = {}
+                media_info['popular_tags'] = {}
                 for tag_link in tags_tag.find_all('a'):
                     tag = self.session.tag(tag_link.text.lower())
                     try:
                         num_people = int(re.match(r'(?P<people>[0-9]+) people',
                                                   tag_link.get('title')).group('people'))
-                        media_info[u'popular_tags'][tag] = num_people
+                        media_info['popular_tags'][tag] = num_people
                     except (TypeError, AttributeError):
                         tag_num = tag_link.get('href').split('=')[-1]
-                        media_info[u'popular_tags'][tag] = tag_num
+                        media_info['popular_tags'][tag] = tag_num
 
         except:
             if not self.session.suppress_parse_exceptions:
@@ -475,7 +472,7 @@ class Media(Base):
         :return: media synopsis.
 
         """
-        synopsis_elt = [x for x in media_page.find_all(u'h2')
+        synopsis_elt = [x for x in media_page.find_all('h2')
                         if "Synopsis" in x.text][0].parent
         # filter the text between 2 h2-tag
         temp_synopsis_elt = []
@@ -488,7 +485,7 @@ class Media(Base):
                 temp_synopsis_elt.append(x)
         synopsis_elt = ''.join(temp_synopsis_elt)
         try:
-            utilities.extract_tags(synopsis_elt.find_all(u'h2'))
+            utilities.extract_tags(synopsis_elt.find_all('h2'))
             result = synopsis_elt.text.strip()
         except AttributeError:
             # the current synopsis_elt may not contain any h2-tag
@@ -516,19 +513,19 @@ class Media(Base):
         media_info = self.parse_sidebar(media_page, media_page_original)
 
         try:
-            media_info[u'synopsis'] = self.parse_synopsis(media_page)
+            media_info['synopsis'] = self.parse_synopsis(media_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            related_title = media_page.find(u'h2', text=u'Related ' + self.__class__.__name__)
+            related_title = media_page.find('h2', text='Related ' + self.__class__.__name__)
             if related_title:
                 related_elt = related_title.parent
-                utilities.extract_tags(related_elt.find_all(u'h2'))
+                utilities.extract_tags(related_elt.find_all('h2'))
                 related = {}
-                for link in related_elt.find_all(u'a'):
-                    href = link.get(u'href').replace(u'http://myanimelist.net', '')
+                for link in related_elt.find_all('a'):
+                    href = link.get('href').replace('http://myanimelist.net', '')
                     if not re.match(r'/(anime|manga)', href):
                         break
                     curr_elt = link.previous_sibling
@@ -542,14 +539,14 @@ class Media(Base):
                             raise MalformedAnimePageError(self.id, related_elt,
                                                           message=err_msg)
                         if isinstance(curr_elt, bs4.NavigableString):
-                            type_match = re.match(u'(?P<type>[a-zA-Z\ \-]+):', curr_elt)
+                            type_match = re.match('(?P<type>[a-zA-Z\ \-]+):', curr_elt)
                             if type_match:
-                                related_type = type_match.group(u'type')
+                                related_type = type_match.group('type')
                                 break
                         curr_elt = curr_elt.previous_sibling
                     title = link.text
                     # parse link: may be manga or anime.
-                    href_parts = href.split(u'/')
+                    href_parts = href.split('/')
                     # sometimes links on MAL are broken, of the form /anime//
                     if href_parts[2] == '':
                         continue
@@ -560,13 +557,13 @@ class Media(Base):
                         related[related_type] = [new_obj]
                     else:
                         related[related_type].append(new_obj)
-                media_info[u'related'] = related
+                media_info['related'] = related
             else:
-                media_info[u'related'] = None
+                media_info['related'] = None
 
             # check once again using a single function if the first method found none
-            if media_info[u'related'] is None:
-                media_info[u'related'] = self.parse_related_media(media_page_original)
+            if media_info['related'] is None:
+                media_info['related'] = self.parse_related_media(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -584,7 +581,7 @@ class Media(Base):
 
         """
         media_info = self.parse_sidebar(media_page)
-        verb_progressive = self.consuming_verb + u'ing'
+        verb_progressive = self.consuming_verb + 'ing'
         status_stats = {
             verb_progressive: 0,
             'completed': 0,
@@ -593,51 +590,51 @@ class Media(Base):
             'plan_to_' + self.consuming_verb: 0
         }
         try:
-            consuming_elt = media_page.find(u'span', {'class': 'dark_text'},
+            consuming_elt = media_page.find('span', {'class': 'dark_text'},
                                             text=verb_progressive.capitalize())
             if consuming_elt:
-                verb_progressive_num = consuming_elt.nextSibling.strip().replace(u',', '')
+                verb_progressive_num = consuming_elt.nextSibling.strip().replace(',', '')
                 status_stats[verb_progressive] = int(verb_progressive_num)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            completed_elt = media_page.find(u'span', {'class': 'dark_text'}, text="Completed:")
+            completed_elt = media_page.find('span', {'class': 'dark_text'}, text="Completed:")
             if completed_elt:
-                completed_num = completed_elt.nextSibling.strip().replace(u',', '')
-                status_stats[u'completed'] = int(completed_num)
+                completed_num = completed_elt.nextSibling.strip().replace(',', '')
+                status_stats['completed'] = int(completed_num)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            on_hold_elt = media_page.find(u'span', {'class': 'dark_text'}, text="On-Hold:")
+            on_hold_elt = media_page.find('span', {'class': 'dark_text'}, text="On-Hold:")
             if on_hold_elt:
-                status_stats[u'on_hold'] = int(on_hold_elt.nextSibling.strip().replace(u',', ''))
+                status_stats['on_hold'] = int(on_hold_elt.nextSibling.strip().replace(',', ''))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            dropped_elt = media_page.find(u'span', {'class': 'dark_text'}, text="Dropped:")
+            dropped_elt = media_page.find('span', {'class': 'dark_text'}, text="Dropped:")
             if dropped_elt:
-                status_stats[u'dropped'] = int(dropped_elt.nextSibling.strip().replace(u',', ''))
+                status_stats['dropped'] = int(dropped_elt.nextSibling.strip().replace(',', ''))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            planning_elt = media_page.find(u'span', {'class': 'dark_text'},
+            planning_elt = media_page.find('span', {'class': 'dark_text'},
                                            text="Plan to " + self.consuming_verb.capitalize() + ":")
             if planning_elt:
-                status_stats[u'plan_to_' + self.consuming_verb] = int(
-                    planning_elt.nextSibling.strip().replace(u',', ''))
+                status_stats['plan_to_' + self.consuming_verb] = int(
+                    planning_elt.nextSibling.strip().replace(',', ''))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        media_info[u'status_stats'] = status_stats
+        media_info['status_stats'] = status_stats
 
         score_stats = {
             1: 0,
@@ -652,22 +649,22 @@ class Media(Base):
             10: 0
         }
         try:
-            score_stats_header = media_page.find(u'h2', text='Score Stats')
+            score_stats_header = media_page.find('h2', text='Score Stats')
             if score_stats_header:
-                score_stats_table = score_stats_header.find_next_sibling(u'table')
+                score_stats_table = score_stats_header.find_next_sibling('table')
                 if score_stats_table:
                     score_stats = {}
-                    score_rows = score_stats_table.find_all(u'tr')
-                    for i in xrange(len(score_rows)):
-                        score_value = int(score_rows[i].find(u'td').text)
-                        score_value_num = score_rows[i].find(u'small').text.replace(u'(u', '')
-                        score_value_num = score_value_num.replace(u' votes)', '')
+                    score_rows = score_stats_table.find_all('tr')
+                    for i in range(len(score_rows)):
+                        score_value = int(score_rows[i].find('td').text)
+                        score_value_num = score_rows[i].find('small').text.replace('(u', '')
+                        score_value_num = score_value_num.replace(' votes)', '')
                         score_stats[score_value] = int(score_value_num)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        media_info[u'score_stats'] = score_stats
+        media_info['score_stats'] = score_stats
 
         return media_info
 
@@ -684,46 +681,44 @@ class Media(Base):
         media_info = self.parse_sidebar(character_page, character_page_original)
 
         try:
-            character_title = filter(lambda x: u'Characters' in x.text,
-                                     character_page.find_all(u'h2'))
-            media_info[u'characters'] = {}
+            character_title = [x for x in character_page.find_all('h2') if 'Characters' in x.text]
+            media_info['characters'] = {}
             if character_title:
                 character_title = character_title[0]
-                curr_elt = character_title.find_next_sibling(u'table')
+                curr_elt = character_title.find_next_sibling('table')
                 while curr_elt:
-                    curr_row = curr_elt.find(u'tr')
+                    curr_row = curr_elt.find('tr')
                     # character in second col.
-                    character_col = curr_row.find_all(u'td', recursive=False)[1]
-                    character_link = character_col.find(u'a')
-                    character_name = ' '.join(reversed(character_link.text.split(u', ')))
-                    link_parts = character_link.get(u'href').split(u'/')
+                    character_col = curr_row.find_all('td', recursive=False)[1]
+                    character_link = character_col.find('a')
+                    character_name = ' '.join(reversed(character_link.text.split(', ')))
+                    link_parts = character_link.get('href').split('/')
                     # of the form /character/7373/Holo
                     char_id = int(link_parts[2])
                     character = self.session.character(char_id).set({'name': character_name})
-                    role = character_col.find(u'small').text
-                    media_info[u'characters'][character] = {'role': role}
-                    curr_elt = curr_elt.find_next_sibling(u'table')
-            if media_info[u'characters'] == {}:
-                character_title = filter(lambda x: u'Characters' in x.text,
-                                         character_page_original.find_all(u'h2'))
-                tables = character_title[0].findNextSiblings(u'table')
+                    role = character_col.find('small').text
+                    media_info['characters'][character] = {'role': role}
+                    curr_elt = curr_elt.find_next_sibling('table')
+            if media_info['characters'] == {}:
+                character_title = [x for x in character_page_original.find_all('h2') if 'Characters' in x.text]
+                tables = character_title[0].findNextSiblings('table')
                 for table in tables:
                     # one table only contain one row which contain 2 cell, which are photo , text
                     # get second cell
                     character_col = table.find_all('td')[1]
                     # find link in that cell
-                    character_link = character_col.find(u'a')
+                    character_link = character_col.find('a')
                     # find char name and reverse it
-                    character_name = ' '.join(reversed(character_link.text.split(u', ')))
+                    character_name = ' '.join(reversed(character_link.text.split(', ')))
                     # get role which written in small-tag
                     role = character_col.find('small').text
                     # get link and split with splash
                     # of the form /character/7373/Holo
-                    link_parts = character_link.get(u'href').split(u'/')
+                    link_parts = character_link.get('href').split('/')
                     # create object
                     char_id = int(link_parts[2])
                     character = self.session.character(char_id).set({'name': character_name})
-                    media_info[u'characters'][character] = {'role': role}
+                    media_info['characters'][character] = {'role': role}
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -738,7 +733,7 @@ class Media(Base):
 
         """
         media_page = self.session.session.get(
-            u'http://myanimelist.net/' + self.__class__.__name__.lower() + u'/' + str(self.id)).text
+            'http://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(self.id)).text
         media_page_original = bs4.BeautifulSoup(media_page, 'lxml')
         self.set(self.parse(utilities.get_clean_dom(media_page), media_page_original))
         return self
@@ -750,10 +745,10 @@ class Media(Base):
         :return: current media object.
 
         """
-        stats_page = self.session.session.get(u'http://myanimelist.net/' +
-                                              self.__class__.__name__.lower() + u'/' +
-                                              str(self.id) + u'/' +
-                                              utilities.urlencode(self.title) + u'/stats').text
+        stats_page = self.session.session.get('http://myanimelist.net/' +
+                                              self.__class__.__name__.lower() + '/' +
+                                              str(self.id) + '/' +
+                                              utilities.urlencode(self.title) + '/stats').text
         self.set(self.parse_stats(utilities.get_clean_dom(stats_page)))
         return self
 
@@ -764,9 +759,9 @@ class Media(Base):
         :return: current media object.
 
         """
-        character_page_url = (u'http://myanimelist.net/' + self.__class__.__name__.lower() +
-                              u'/' + str(self.id) + u'/' + utilities.urlencode(self.title) +
-                              u'/characters')
+        character_page_url = ('http://myanimelist.net/' + self.__class__.__name__.lower() +
+                              '/' + str(self.id) + '/' + utilities.urlencode(self.title) +
+                              '/characters')
         characters_page = self.session.session.get(character_page_url).text
         characters_page_original = bs4.BeautifulSoup(characters_page, 'lxml')
         self.set(self.parse_characters(utilities.get_clean_dom(characters_page),
@@ -774,19 +769,19 @@ class Media(Base):
         return self
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def title(self):
         """Get Media's title."""
         return self._title
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def picture(self):
         """URL of media's primary pictures."""
         return self._picture
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def alternative_titles(self):
         """Alternative titles dict.
 
@@ -796,25 +791,25 @@ class Media(Base):
         return self._alternative_titles
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def type(self):
         """Type of this media, e.g. 'TV' or 'Manga' or 'Movie'."""
         return self._type
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def status(self):
         """Publication status, e.g. 'Finished Airing'."""
         return self._status
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def genres(self):
         """A list of :class:`myanimelist.genre.Genre` objects associated with this media."""
         return self._genres
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def score(self):
         """get media score.
 
@@ -826,31 +821,31 @@ class Media(Base):
         return self._score
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def rank(self):
         """Score rank."""
         return self._rank
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def popularity(self):
         """Popularity rank."""
         return self._popularity
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def members(self):
         """Number of members."""
         return self._members
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def favorites(self):
         """Number of users who favourited this media."""
         return self._favorites
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def popular_tags(self):
         """get Media tags.
 
@@ -860,13 +855,13 @@ class Media(Base):
         return self._popular_tags
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def synopsis(self):
         """Media synopsis."""
         return self._synopsis
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def related(self):
         """Related media dict.
 
@@ -876,7 +871,7 @@ class Media(Base):
         return self._related
 
     @property
-    @loadable(u'load_characters')
+    @loadable('load_characters')
     def characters(self):
         """Character dict.
 
@@ -886,7 +881,7 @@ class Media(Base):
         return self._characters
 
     @property
-    @loadable(u'load_stats')
+    @loadable('load_stats')
     def status_stats(self):
         """Get status statistics dict.
 
@@ -895,7 +890,7 @@ class Media(Base):
         return self._status_stats
 
     @property
-    @loadable(u'load_stats')
+    @loadable('load_stats')
     def score_stats(self):
         """Score statistics dict.
 

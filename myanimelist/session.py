@@ -6,19 +6,19 @@
 import requests
 
 try:  # python2
-    import anime
-    import manga
-    import character
-    import person
-    import user
-    import club
-    import genre
-    import tag
-    import publication
-    import producer
-    import anime_list
-    import manga_list
-    from base import Error
+    from . import anime
+    from . import manga
+    from . import character
+    from . import person
+    from . import user
+    from . import club
+    from . import genre
+    from . import tag
+    from . import publication
+    from . import producer
+    from . import anime_list
+    from . import manga_list
+    from .base import Error
 except ImportError:  # python3
     from . import anime
     from . import manga
@@ -114,7 +114,7 @@ class Session(object):
         if self.session is None:
             return False
 
-        panel_url = u'http://myanimelist.net/panel.php'
+        panel_url = 'http://myanimelist.net/panel.php'
         panel = self.session.get(panel_url)
 
         if 'Logout' in panel.content:
@@ -140,7 +140,7 @@ class Session(object):
             'sublogin': 'Login'
         }
         self.session.headers.update(mal_headers)
-        self.session.post(u'http://myanimelist.net/login.php', data=mal_payload)
+        self.session.post('http://myanimelist.net/login.php', data=mal_payload)
         return self
 
     def anime(self, anime_id):

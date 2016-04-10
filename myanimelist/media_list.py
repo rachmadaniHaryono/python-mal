@@ -6,13 +6,13 @@ import abc
 import collections
 import decimal
 import datetime
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import bs4
 
 try:
-    import utilities
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 except ImportError:
     from . import utilities
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
@@ -26,9 +26,7 @@ class InvalidMediaListError(InvalidBaseError):
     pass
 
 
-class MediaList(Base, collections.Mapping):
-    __metaclass__ = abc.ABCMeta
-
+class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
     __id_attribute = "username"
 
     def __getitem__(self, media):
@@ -47,7 +45,7 @@ class MediaList(Base, collections.Mapping):
     def __init__(self, session, user_name):
         super(MediaList, self).__init__(session)
         self.username = user_name
-        if not isinstance(self.username, unicode) or len(self.username) < 1:
+        if not isinstance(self.username, str) or len(self.username) < 1:
             raise InvalidMediaListError(self.username)
         self._list = None
         self._stats = None
@@ -65,12 +63,12 @@ class MediaList(Base, collections.Mapping):
     # a list with status ints as indices and status texts as values.
     @property
     def user_status_terms(self):
-        statuses = collections.defaultdict(lambda: u'Unknown')
-        statuses[1] = self.verb.capitalize() + u'ing'
-        statuses[2] = u'Completed'
-        statuses[3] = u'On-Hold'
-        statuses[4] = u'Dropped'
-        statuses[6] = u'Plan to ' + self.verb.capitalize()
+        statuses = collections.defaultdict(lambda: 'Unknown')
+        statuses[1] = self.verb.capitalize() + 'ing'
+        statuses[2] = 'Completed'
+        statuses[3] = 'On-Hold'
+        statuses[4] = 'Dropped'
+        statuses[6] = 'Plan to ' + self.verb.capitalize()
         return statuses
 
     def parse_entry_media_attributes(self, soup):
@@ -138,44 +136,44 @@ class MediaList(Base, collections.Mapping):
         """
         # parse the media object first.
         media_attrs = self.parse_entry_media_attributes(soup)
-        media_id = media_attrs[u'id']
-        del media_attrs[u'id']
+        media_id = media_attrs['id']
+        del media_attrs['id']
         media = getattr(self.session, self.type)(media_id).set(media_attrs)
 
         entry_info = {}
         try:
-            entry_info[u'started'] = utilities.parse_profile_date(soup.find(u'my_start_date').text)
+            entry_info['started'] = utilities.parse_profile_date(soup.find('my_start_date').text)
         except ValueError:
-            entry_info[u'started'] = None
+            entry_info['started'] = None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'finished'] = utilities.parse_profile_date(soup.find(u'my_finish_date').text)
+            entry_info['finished'] = utilities.parse_profile_date(soup.find('my_finish_date').text)
         except ValueError:
-            entry_info[u'finished'] = None
+            entry_info['finished'] = None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'status'] = self.user_status_terms[int(soup.find(u'my_status').text)]
+            entry_info['status'] = self.user_status_terms[int(soup.find('my_status').text)]
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'score'] = int(soup.find(u'my_score').text)
+            entry_info['score'] = int(soup.find('my_score').text)
             # if user hasn't set a score, set it to None to indicate as such.
-            if entry_info[u'score'] == 0:
-                entry_info[u'score'] = None
+            if entry_info['score'] == 0:
+                entry_info['score'] = None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'last_updated'] = datetime.datetime.fromtimestamp(int(soup.find(u'my_last_updated').text))
+            entry_info['last_updated'] = datetime.datetime.fromtimestamp(int(soup.find('my_last_updated').text))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -192,40 +190,40 @@ class MediaList(Base, collections.Mapping):
         stats = {}
         for row in soup.children:
             try:
-                key = row.name.replace(u'user_', u'')
-                if key == u'id':
+                key = row.name.replace('user_', '')
+                if key == 'id':
                     stats[key] = int(row.text)
-                elif key == u'name':
+                elif key == 'name':
                     stats[key] = row.text
-                elif key == self.verb + u'ing':
+                elif key == self.verb + 'ing':
                     try:
                         stats[key] = int(row.text)
                     except ValueError:
                         stats[key] = 0
-                elif key == u'completed':
+                elif key == 'completed':
                     try:
                         stats[key] = int(row.text)
                     except ValueError:
                         stats[key] = 0
-                elif key == u'onhold':
+                elif key == 'onhold':
                     try:
                         stats['on_hold'] = int(row.text)
                     except ValueError:
                         stats[key] = 0
-                elif key == u'dropped':
+                elif key == 'dropped':
                     try:
                         stats[key] = int(row.text)
                     except ValueError:
                         stats[key] = 0
-                elif key == u'planto' + self.verb:
+                elif key == 'planto' + self.verb:
                     try:
-                        stats[u'plan_to_' + self.verb] = int(row.text)
+                        stats['plan_to_' + self.verb] = int(row.text)
                     except ValueError:
                         stats[key] = 0
                 # for some reason, MAL doesn't substitute 'read' in for manga for the verb here
-                elif key == u'days_spent_watching':
+                elif key == 'days_spent_watching':
                     try:
-                        stats[u'days_spent'] = decimal.Decimal(row.text)
+                        stats['days_spent'] = decimal.Decimal(row.text)
                     except decimal.InvalidOperation:
                         stats[key] = decimal.Decimal(0)
             except:
@@ -244,37 +242,37 @@ class MediaList(Base, collections.Mapping):
 
         bad_username_elt = list_page.find('error')
         if bad_username_elt:
-            raise InvalidMediaListError(self.username, message=u"Invalid username when fetching " + self.type + " list")
+            raise InvalidMediaListError(self.username, message="Invalid username when fetching " + self.type + " list")
 
         stats_elt = list_page.find('myinfo')
         if not stats_elt:
             raise MalformedMediaListPageError(self.username, html,
                                               message="Could not find stats element in " + self.type + " list")
 
-        list_info[u'stats'] = self.parse_stats(stats_elt)
+        list_info['stats'] = self.parse_stats(stats_elt)
 
-        list_info[u'list'] = {}
+        list_info['list'] = {}
         for row in list_page.find_all(self.type):
             (media, entry) = self.parse_entry(row)
-            list_info[u'list'][media] = entry
+            list_info['list'][media] = entry
 
         return list_info
 
     def load(self):
-        media_list = self.session.session.get(u'http://myanimelist.net/malappinfo.php?' + urllib.urlencode(
+        media_list = self.session.session.get('http://myanimelist.net/malappinfo.php?' + urllib.parse.urlencode(
             {'u': self.username, 'status': 'all', 'type': self.type})).text
         self.set(self.parse(media_list))
         return self
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def list(self):
         return self._list
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def stats(self):
         return self._stats
 
     def section(self, status):
-        return {k: self.list[k] for k in self.list if self.list[k][u'status'] == status}
+        return {k: self.list[k] for k in self.list if self.list[k]['status'] == status}
