@@ -15,7 +15,7 @@ class testMangaClass(TestCase):
 
         self.monster = self.session.manga(1)
         self.mystery = self.session.genre(7)
-        self.mystery_tag = self.session.tag(u'mystery')
+        self.mystery_tag = self.session.tag('mystery')
         self.urasawa = self.session.person(1867)
         self.original = self.session.publication(1)
         self.heinemann = self.session.character(6123)
@@ -23,7 +23,7 @@ class testMangaClass(TestCase):
 
         self.holic = self.session.manga(10)
         self.supernatural = self.session.genre(37)
-        self.supernatural_tag = self.session.tag(u'supernatural')
+        self.supernatural_tag = self.session.tag('supernatural')
         self.clamp = self.session.person(1877)
         self.bessatsu = self.session.publication(450)
         self.doumeki = self.session.character(567)
@@ -31,14 +31,14 @@ class testMangaClass(TestCase):
 
         self.naruto = self.session.manga(11)
         self.shounen = self.session.genre(27)
-        self.action_tag = self.session.tag(u'action')
+        self.action_tag = self.session.tag('action')
         self.kishimoto = self.session.person(1879)
         self.shonen_jump_weekly = self.session.publication(83)
         self.ebizou = self.session.character(31825)
 
         self.tomoyo_after = self.session.manga(3941)
         self.drama = self.session.genre(8)
-        self.romance_tag = self.session.tag(u'romance')
+        self.romance_tag = self.session.tag('romance')
         self.sumiyoshi = self.session.person(3830)
         self.dragon_age = self.session.publication(98)
         self.kanako = self.session.character(21227)
@@ -78,43 +78,43 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.monster, myanimelist.manga.Manga)
 
     def testTitle(self):
-        self.assertEqual(self.monster.title, u'Monster')
-        self.assertEqual(self.holic.title, u'xxxHOLiC')
-        self.assertEqual(self.naruto.title, u'Naruto')
-        self.assertEqual(self.tomoyo_after.title, u'Clannad: Tomoyo After')
-        self.assertEqual(self.judos.title, u'Judos')
+        self.assertEqual(self.monster.title, 'Monster')
+        self.assertEqual(self.holic.title, 'xxxHOLiC')
+        self.assertEqual(self.naruto.title, 'Naruto')
+        self.assertEqual(self.tomoyo_after.title, 'Clannad: Tomoyo After')
+        self.assertEqual(self.judos.title, 'Judos')
 
     def testPicture(self):
-        self.assertIsInstance(self.holic.picture, unicode)
-        self.assertIsInstance(self.naruto.picture, unicode)
-        self.assertIsInstance(self.monster.picture, unicode)
-        self.assertIsInstance(self.tomoyo_after.picture, unicode)
-        self.assertIsInstance(self.judos.picture, unicode)
+        self.assertIsInstance(self.holic.picture, str)
+        self.assertIsInstance(self.naruto.picture, str)
+        self.assertIsInstance(self.monster.picture, str)
+        self.assertIsInstance(self.tomoyo_after.picture, str)
+        self.assertIsInstance(self.judos.picture, str)
 
     def testAlternativeTitGreater(self):
-        self.assertIn(u'Japanese', self.monster.alternative_titles)
-        self.assertIsInstance(self.monster.alternative_titles[u'Japanese'], list)
+        self.assertIn('Japanese', self.monster.alternative_titles)
+        self.assertIsInstance(self.monster.alternative_titles['Japanese'], list)
         # http://myanimelist.net/manga/1/Monster
         # japanese alternative title for monster manga is 'MONSTER'
-        self.assertIn(u'MONSTER', self.monster.alternative_titles[u'Japanese'])
-        self.assertIn(u'Synonyms', self.holic.alternative_titles)
-        self.assertIsInstance(self.holic.alternative_titles[u'Synonyms'], list)
-        self.assertIn(u'xxxHolic Cage', self.holic.alternative_titles[u'Synonyms'])
-        self.assertIn(u'Japanese', self.naruto.alternative_titles)
-        self.assertIsInstance(self.naruto.alternative_titles[u'Japanese'], list)
-        self.assertIn(u'NARUTO\u2015\u30ca\u30eb\u30c8\u2015',
-                      self.naruto.alternative_titles[u'Japanese'])
-        self.assertIn(u'English', self.tomoyo_after.alternative_titles)
-        self.assertIsInstance(self.tomoyo_after.alternative_titles[u'English'], list)
-        self.assertIn(u'Tomoyo After ~Dear Shining Memories~', self.tomoyo_after.alternative_titles[u'English'])
-        self.assertIn(u'Synonyms', self.judos.alternative_titles)
-        self.assertIsInstance(self.judos.alternative_titles[u'Synonyms'], list)
-        self.assertIn(u'Juudouzu', self.judos.alternative_titles[u'Synonyms'])
+        self.assertIn('MONSTER', self.monster.alternative_titles['Japanese'])
+        self.assertIn('Synonyms', self.holic.alternative_titles)
+        self.assertIsInstance(self.holic.alternative_titles['Synonyms'], list)
+        self.assertIn('xxxHolic Cage', self.holic.alternative_titles['Synonyms'])
+        self.assertIn('Japanese', self.naruto.alternative_titles)
+        self.assertIsInstance(self.naruto.alternative_titles['Japanese'], list)
+        self.assertIn('NARUTO\u2015\u30ca\u30eb\u30c8\u2015',
+                      self.naruto.alternative_titles['Japanese'])
+        self.assertIn('English', self.tomoyo_after.alternative_titles)
+        self.assertIsInstance(self.tomoyo_after.alternative_titles['English'], list)
+        self.assertIn('Tomoyo After ~Dear Shining Memories~', self.tomoyo_after.alternative_titles['English'])
+        self.assertIn('Synonyms', self.judos.alternative_titles)
+        self.assertIsInstance(self.judos.alternative_titles['Synonyms'], list)
+        self.assertIn('Juudouzu', self.judos.alternative_titles['Synonyms'])
 
     def testTypes(self):
-        self.assertEqual(self.monster.type, u'Manga')
-        self.assertEqual(self.tomoyo_after.type, u'Manga')
-        self.assertEqual(self.judos.type, u'Manga')
+        self.assertEqual(self.monster.type, 'Manga')
+        self.assertEqual(self.tomoyo_after.type, 'Manga')
+        self.assertEqual(self.judos.type, 'Manga')
 
     def testVolumes(self):
         self.assertEqual(self.holic.volumes, 19)
@@ -132,10 +132,10 @@ class testMangaClass(TestCase):
         self.assertEqual(self.judos.chapters, 21)
 
     def testStatus(self):
-        self.assertEqual(self.holic.status, u'Finished')
-        self.assertEqual(self.tomoyo_after.status, u'Finished')
-        self.assertEqual(self.monster.status, u'Finished')
-        self.assertEqual(self.naruto.status, u'Finished')
+        self.assertEqual(self.holic.status, 'Finished')
+        self.assertEqual(self.tomoyo_after.status, 'Finished')
+        self.assertEqual(self.monster.status, 'Finished')
+        self.assertEqual(self.naruto.status, 'Finished')
 
     def testPublished(self):
         self.assertEqual(self.holic.published, (datetime.date(month=2, day=24, year=2003),
@@ -170,23 +170,23 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.holic.authors, dict)
         self.assertGreater(self.holic.authors, 0)
         self.assertIn(self.clamp, self.holic.authors)
-        self.assertEqual(self.holic.authors[self.clamp], u'Story & Art')
+        self.assertEqual(self.holic.authors[self.clamp], 'Story & Art')
         self.assertIsInstance(self.tomoyo_after.authors, dict)
         self.assertGreater(self.tomoyo_after.authors, 0)
         self.assertIn(self.sumiyoshi, self.tomoyo_after.authors)
-        self.assertEqual(self.tomoyo_after.authors[self.sumiyoshi], u'Art')
+        self.assertEqual(self.tomoyo_after.authors[self.sumiyoshi], 'Art')
         self.assertIsInstance(self.naruto.authors, dict)
         self.assertGreater(self.naruto.authors, 0)
         self.assertIn(self.kishimoto, self.naruto.authors)
-        self.assertEqual(self.naruto.authors[self.kishimoto], u'Story & Art')
+        self.assertEqual(self.naruto.authors[self.kishimoto], 'Story & Art')
         self.assertIsInstance(self.monster.authors, dict)
         self.assertGreater(self.monster.authors, 0)
         self.assertIn(self.urasawa, self.monster.authors)
-        self.assertEqual(self.monster.authors[self.urasawa], u'Story & Art')
+        self.assertEqual(self.monster.authors[self.urasawa], 'Story & Art')
         self.assertIsInstance(self.judos.authors, dict)
         self.assertGreater(self.judos.authors, 0)
         self.assertIn(self.kondou, self.judos.authors)
-        self.assertEqual(self.judos.authors[self.kondou], u'Story & Art')
+        self.assertEqual(self.judos.authors[self.kondou], 'Story & Art')
 
     def testSerialization(self):
         self.assertIsInstance(self.holic.serialization, myanimelist.publication.Publication)
@@ -299,29 +299,29 @@ class testMangaClass(TestCase):
         self.assertGreater(len(self.judos.popular_tags), 0)
 
     def testSynopsis(self):
-        self.assertIsInstance(self.holic.synopsis, unicode)
+        self.assertIsInstance(self.holic.synopsis, str)
         self.assertGreater(self.holic.synopsis, 0)
-        self.assertIn(u'Watanuki', self.holic.synopsis)
-        self.assertIsInstance(self.monster.synopsis, unicode)
+        self.assertIn('Watanuki', self.holic.synopsis)
+        self.assertIsInstance(self.monster.synopsis, str)
         self.assertGreater(self.monster.synopsis, 0)
-        self.assertIn(u'Tenma', self.monster.synopsis)
-        self.assertIsInstance(self.naruto.synopsis, unicode)
+        self.assertIn('Tenma', self.monster.synopsis)
+        self.assertIsInstance(self.naruto.synopsis, str)
         self.assertGreater(self.naruto.synopsis, 0)
-        self.assertIn(u'Hokage', self.naruto.synopsis)
-        self.assertIsInstance(self.tomoyo_after.synopsis, unicode)
+        self.assertIn('Hokage', self.naruto.synopsis)
+        self.assertIsInstance(self.tomoyo_after.synopsis, str)
         self.assertGreater(self.tomoyo_after.synopsis, 0)
-        self.assertIn(u'Clannad', self.tomoyo_after.synopsis)
-        self.assertIsInstance(self.judos.synopsis, unicode)
+        self.assertIn('Clannad', self.tomoyo_after.synopsis)
+        self.assertIsInstance(self.judos.synopsis, str)
         self.assertGreater(self.judos.synopsis, 0)
-        self.assertIn(u'hardcore', self.judos.synopsis)
+        self.assertIn('hardcore', self.judos.synopsis)
 
     def testRelated(self):
         self.assertIsInstance(self.holic.related, dict)
         self.assertIn('Sequel', self.holic.related)
-        self.assertIn(self.holic_sequel, self.holic.related[u'Sequel'])
+        self.assertIn(self.holic_sequel, self.holic.related['Sequel'])
         self.assertIsInstance(self.monster.related, dict)
         self.assertIn('Side story', self.monster.related)
-        self.assertIn(self.monster_side_story, self.monster.related[u'Side story'])
+        self.assertIn(self.monster_side_story, self.monster.related['Side story'])
 
     def testCharacters(self):
         self.assertIsInstance(self.holic.characters, dict)

@@ -39,48 +39,48 @@ class testCharacterClass(TestCase):
         self.assertIsInstance(self.maria, myanimelist.character.Character)
 
     def testName(self):
-        self.assertEqual(self.spike.name, u'Spike Spiegel')
-        self.assertEqual(self.ed.name, u'Edward Elric')
-        self.assertEqual(self.maria.name, u'Maria')
+        self.assertEqual(self.spike.name, 'Spike Spiegel')
+        self.assertEqual(self.ed.name, 'Edward Elric')
+        self.assertEqual(self.maria.name, 'Maria')
 
     def testFullName(self):
-        self.assertEqual(self.spike.full_name, u'Spike  Spiegel')
+        self.assertEqual(self.spike.full_name, 'Spike  Spiegel')
         self.assertEqual(self.ed.full_name,
-                         u'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
-        self.assertEqual(self.maria.full_name, u'Maria')
+                         'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
+        self.assertEqual(self.maria.full_name, 'Maria')
 
     def testJapaneseName(self):
-        self.assertEqual(self.spike.name_jpn, u'スパイク・スピーゲル')
-        self.assertEqual(self.ed.name_jpn, u'エドワード・エルリック')
-        self.assertEqual(self.maria.name_jpn, u'マリア')
+        self.assertEqual(self.spike.name_jpn, 'スパイク・スピーゲル')
+        self.assertEqual(self.ed.name_jpn, 'エドワード・エルリック')
+        self.assertEqual(self.maria.name_jpn, 'マリア')
 
     def testDescription(self):
-        self.assertIsInstance(self.spike.description, unicode)
+        self.assertIsInstance(self.spike.description, str)
         self.assertGreater(len(self.spike.description), 0)
-        self.assertIsInstance(self.ed.description, unicode)
+        self.assertIsInstance(self.ed.description, str)
         self.assertGreater(len(self.ed.description), 0)
-        self.assertIsInstance(self.maria.description, unicode)
+        self.assertIsInstance(self.maria.description, str)
         self.assertGreater(len(self.maria.description), 0)
 
     def testPicture(self):
-        self.assertIsInstance(self.spike.picture, unicode)
+        self.assertIsInstance(self.spike.picture, str)
         self.assertGreater(len(self.spike.picture), 0)
-        self.assertIsInstance(self.ed.picture, unicode)
+        self.assertIsInstance(self.ed.picture, str)
         self.assertGreater(len(self.ed.picture), 0)
-        self.assertIsInstance(self.maria.picture, unicode)
+        self.assertIsInstance(self.maria.picture, str)
         self.assertGreater(len(self.maria.picture), 0)
 
     def testPictures(self):
         self.assertIsInstance(self.spike.pictures, list)
         self.assertGreater(len(self.spike.pictures), 0)
         for p in self.spike.pictures:
-            self.assertIsInstance(p, unicode)
-            self.assertTrue(p.startswith(u'http://'))
+            self.assertIsInstance(p, str)
+            self.assertTrue(p.startswith('http://'))
         self.assertIsInstance(self.ed.pictures, list)
         self.assertGreater(len(self.ed.pictures), 0)
         for p in self.spike.pictures:
-            self.assertIsInstance(p, unicode)
-            self.assertTrue(p.startswith(u'http://'))
+            self.assertIsInstance(p, str)
+            self.assertTrue(p.startswith('http://'))
         self.assertIsInstance(self.maria.pictures, list)
 
     def testAnimeography(self):

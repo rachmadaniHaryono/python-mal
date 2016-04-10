@@ -19,7 +19,7 @@ class testAnimeClass(TestCase):
         self.hex = self.session.character(94717)
         self.hex_va = self.session.person(5766)
         self.bebop_side_story = self.session.anime(5)
-        self.space_tag = self.session.tag(u'space')
+        self.space_tag = self.session.tag('space')
 
         self.spicy_wolf = self.session.anime(2966)
         self.kadokawa = self.session.producer(352)
@@ -27,7 +27,7 @@ class testAnimeClass(TestCase):
         self.holo = self.session.character(7373)
         self.holo_va = self.session.person(70)
         self.spicy_wolf_sequel = self.session.anime(6007)
-        self.adventure_tag = self.session.tag(u'adventure')
+        self.adventure_tag = self.session.tag('adventure')
 
         self.space_dandy = self.session.anime(20057)
         self.funi = self.session.producer(102)
@@ -86,40 +86,40 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.bebop, myanimelist.anime.Anime)
 
     def testTitle(self):
-        self.assertEqual(self.bebop.title, u'Cowboy Bebop')
-        self.assertEqual(self.spicy_wolf.title, u'Ookami to Koushinryou')
-        self.assertEqual(self.space_dandy.title, u'Space☆Dandy')
-        self.assertEqual(self.prisma.title, u'Fate/kaleid liner Prisma☆Illya: Undoukai de Dance!')
+        self.assertEqual(self.bebop.title, 'Cowboy Bebop')
+        self.assertEqual(self.spicy_wolf.title, 'Ookami to Koushinryou')
+        self.assertEqual(self.space_dandy.title, 'Space☆Dandy')
+        self.assertEqual(self.prisma.title, 'Fate/kaleid liner Prisma☆Illya: Undoukai de Dance!')
 
     def testPicture(self):
-        self.assertIsInstance(self.spicy_wolf.picture, unicode)
-        self.assertIsInstance(self.space_dandy.picture, unicode)
-        self.assertIsInstance(self.bebop.picture, unicode)
-        self.assertIsInstance(self.totoro.picture, unicode)
-        self.assertIsInstance(self.prisma.picture, unicode)
+        self.assertIsInstance(self.spicy_wolf.picture, str)
+        self.assertIsInstance(self.space_dandy.picture, str)
+        self.assertIsInstance(self.bebop.picture, str)
+        self.assertIsInstance(self.totoro.picture, str)
+        self.assertIsInstance(self.prisma.picture, str)
 
     def testAlternativeTitles(self):
-        self.assertIn(u'Japanese', self.bebop.alternative_titles)
-        self.assertIsInstance(self.bebop.alternative_titles[u'Japanese'], list)
-        self.assertIn(u'カウボーイビバップ', self.bebop.alternative_titles[u'Japanese'])
+        self.assertIn('Japanese', self.bebop.alternative_titles)
+        self.assertIsInstance(self.bebop.alternative_titles['Japanese'], list)
+        self.assertIn('カウボーイビバップ', self.bebop.alternative_titles['Japanese'])
 
-        self.assertIn(u'English', self.spicy_wolf.alternative_titles)
-        self.assertIsInstance(self.spicy_wolf.alternative_titles[u'English'], list)
-        self.assertIn(u'Spice and Wolf', self.spicy_wolf.alternative_titles[u'English'])
+        self.assertIn('English', self.spicy_wolf.alternative_titles)
+        self.assertIsInstance(self.spicy_wolf.alternative_titles['English'], list)
+        self.assertIn('Spice and Wolf', self.spicy_wolf.alternative_titles['English'])
 
-        self.assertIn(u'Japanese', self.space_dandy.alternative_titles)
-        self.assertIsInstance(self.space_dandy.alternative_titles[u'Japanese'], list)
-        self.assertIn(u'スペース☆ダンディ', self.space_dandy.alternative_titles[u'Japanese'])
+        self.assertIn('Japanese', self.space_dandy.alternative_titles)
+        self.assertIsInstance(self.space_dandy.alternative_titles['Japanese'], list)
+        self.assertIn('スペース☆ダンディ', self.space_dandy.alternative_titles['Japanese'])
 
-        self.assertIn(u'Japanese', self.prisma.alternative_titles)
-        self.assertIsInstance(self.prisma.alternative_titles[u'Japanese'], list)
-        self.assertIn(u'Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!',
-                      self.prisma.alternative_titles[u'Japanese'])
+        self.assertIn('Japanese', self.prisma.alternative_titles)
+        self.assertIsInstance(self.prisma.alternative_titles['Japanese'], list)
+        self.assertIn('Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!',
+                      self.prisma.alternative_titles['Japanese'])
 
     def testTypes(self):
-        self.assertEqual(self.bebop.type, u'TV')
-        self.assertEqual(self.totoro.type, u'Movie')
-        self.assertEqual(self.prisma.type, u'OVA')
+        self.assertEqual(self.bebop.type, 'TV')
+        self.assertEqual(self.totoro.type, 'Movie')
+        self.assertEqual(self.prisma.type, 'OVA')
 
     def testEpisodes(self):
         self.assertEqual(self.spicy_wolf.episodes, 13)
@@ -129,11 +129,11 @@ class testAnimeClass(TestCase):
         self.assertEqual(self.prisma.episodes, 1)
 
     def testStatus(self):
-        self.assertEqual(self.spicy_wolf.status, u'Finished Airing')
-        self.assertEqual(self.totoro.status, u'Finished Airing')
-        self.assertEqual(self.bebop.status, u'Finished Airing')
-        self.assertEqual(self.space_dandy.status, u'Finished Airing')
-        self.assertEqual(self.prisma.status, u'Finished Airing')
+        self.assertEqual(self.spicy_wolf.status, 'Finished Airing')
+        self.assertEqual(self.totoro.status, 'Finished Airing')
+        self.assertEqual(self.bebop.status, 'Finished Airing')
+        self.assertEqual(self.space_dandy.status, 'Finished Airing')
+        self.assertEqual(self.prisma.status, 'Finished Airing')
 
     def testAired(self):
         self.assertEqual(self.spicy_wolf.aired, 
@@ -190,11 +190,11 @@ class testAnimeClass(TestCase):
         self.assertIn(self.fantasy, self.prisma.genres)
 
     def testDuration(self):
-        self.assertEquals(self.spicy_wolf.duration.total_seconds(), 1440)
-        self.assertEquals(self.totoro.duration.total_seconds(), 5160)
-        self.assertEquals(self.space_dandy.duration.total_seconds(), 1440)
-        self.assertEquals(self.bebop.duration.total_seconds(), 1440)
-        self.assertEquals(self.prisma.duration.total_seconds(), 1500)
+        self.assertEqual(self.spicy_wolf.duration.total_seconds(), 1440)
+        self.assertEqual(self.totoro.duration.total_seconds(), 5160)
+        self.assertEqual(self.space_dandy.duration.total_seconds(), 1440)
+        self.assertEqual(self.bebop.duration.total_seconds(), 1440)
+        self.assertEqual(self.prisma.duration.total_seconds(), 1500)
 
     def testScore(self):
         self.assertIsInstance(self.spicy_wolf.score, tuple)
@@ -271,89 +271,89 @@ class testAnimeClass(TestCase):
         self.assertGreater(self.prisma.favorites, 0)
 
     def testSynopsis(self):
-        self.assertIsInstance(self.spicy_wolf.synopsis, unicode)
+        self.assertIsInstance(self.spicy_wolf.synopsis, str)
         self.assertGreater(len(self.spicy_wolf.synopsis), 0)
-        self.assertIn(u'Holo', self.spicy_wolf.synopsis)
+        self.assertIn('Holo', self.spicy_wolf.synopsis)
         # check if background-part not synopsis
-        self.assertNotIn(u'No background information has been added to this title.',
+        self.assertNotIn('No background information has been added to this title.',
                          self.spicy_wolf.synopsis)
 
-        self.assertIsInstance(self.bebop.synopsis, unicode)
+        self.assertIsInstance(self.bebop.synopsis, str)
         self.assertGreater(len(self.bebop.synopsis), 0)
-        self.assertIn(u'Spike', self.bebop.synopsis)
-        self.assertIsInstance(self.space_dandy.synopsis, unicode)
+        self.assertIn('Spike', self.bebop.synopsis)
+        self.assertIsInstance(self.space_dandy.synopsis, str)
         self.assertGreater(len(self.space_dandy.synopsis), 0)
-        self.assertIn(u'dandy', self.space_dandy.synopsis)
-        self.assertIsInstance(self.totoro.synopsis, unicode)
+        self.assertIn('dandy', self.space_dandy.synopsis)
+        self.assertIsInstance(self.totoro.synopsis, str)
         self.assertGreater(len(self.totoro.synopsis), 0)
-        self.assertIn(u'Satsuki', self.totoro.synopsis)
-        self.assertIsInstance(self.prisma.synopsis, unicode)
+        self.assertIn('Satsuki', self.totoro.synopsis)
+        self.assertIsInstance(self.prisma.synopsis, str)
         self.assertGreater(len(self.prisma.synopsis), 0)
-        self.assertIn(u'Illya', self.prisma.synopsis)
+        self.assertIn('Illya', self.prisma.synopsis)
 
     def testRelated(self):
         self.assertIsInstance(self.spicy_wolf.related, dict)
-        self.assertIn(u'Sequel', self.spicy_wolf.related)
-        self.assertIn(self.spicy_wolf_sequel, self.spicy_wolf.related[u'Sequel'])
+        self.assertIn('Sequel', self.spicy_wolf.related)
+        self.assertIn(self.spicy_wolf_sequel, self.spicy_wolf.related['Sequel'])
         self.assertIsInstance(self.bebop.related, dict)
         self.assertIn('Side story', self.bebop.related)
-        self.assertIn(self.bebop_side_story, self.bebop.related[u'Side story'])
+        self.assertIn(self.bebop_side_story, self.bebop.related['Side story'])
 
     def testCharacters(self):
         self.assertIsInstance(self.spicy_wolf.characters, dict)
         self.assertGreater(len(self.spicy_wolf.characters), 0)
         self.assertIn(self.holo, self.spicy_wolf.characters)
-        self.assertEqual(self.spicy_wolf.characters[self.holo][u'role'], 'Main')
-        self.assertIn(self.holo_va, self.spicy_wolf.characters[self.holo][u'voice_actors'])
+        self.assertEqual(self.spicy_wolf.characters[self.holo]['role'], 'Main')
+        self.assertIn(self.holo_va, self.spicy_wolf.characters[self.holo]['voice_actors'])
 
         self.assertIsInstance(self.bebop.characters, dict)
         self.assertGreater(len(self.bebop.characters), 0)
 
         self.assertIn(self.hex, self.bebop.characters)
-        self.assertEqual(self.bebop.characters[self.hex][u'role'], 'Supporting')
-        self.assertIn(self.hex_va, self.bebop.characters[self.hex][u'voice_actors'])
+        self.assertEqual(self.bebop.characters[self.hex]['role'], 'Supporting')
+        self.assertIn(self.hex_va, self.bebop.characters[self.hex]['voice_actors'])
         self.assertIsInstance(self.space_dandy.characters, dict)
         self.assertGreater(len(self.space_dandy.characters), 0)
         self.assertIn(self.toaster, self.space_dandy.characters)
-        self.assertEqual(self.space_dandy.characters[self.toaster][u'role'], 'Supporting')
-        self.assertIn(self.toaster_va, self.space_dandy.characters[self.toaster][u'voice_actors'])
+        self.assertEqual(self.space_dandy.characters[self.toaster]['role'], 'Supporting')
+        self.assertIn(self.toaster_va, self.space_dandy.characters[self.toaster]['voice_actors'])
         self.assertIsInstance(self.totoro.characters, dict)
         self.assertGreater(len(self.totoro.characters), 0)
         self.assertIn(self.satsuki, self.totoro.characters)
-        self.assertEqual(self.totoro.characters[self.satsuki][u'role'], 'Main')
-        self.assertIn(self.satsuki_va, self.totoro.characters[self.satsuki][u'voice_actors'])
+        self.assertEqual(self.totoro.characters[self.satsuki]['role'], 'Main')
+        self.assertIn(self.satsuki_va, self.totoro.characters[self.satsuki]['voice_actors'])
         self.assertIsInstance(self.prisma.characters, dict)
         self.assertGreater(len(self.prisma.characters), 0)
         self.assertIn(self.ilya, self.prisma.characters)
-        self.assertEqual(self.prisma.characters[self.ilya][u'role'], 'Main')
-        self.assertIn(self.ilya_va, self.prisma.characters[self.ilya][u'voice_actors'])
+        self.assertEqual(self.prisma.characters[self.ilya]['role'], 'Main')
+        self.assertIn(self.ilya_va, self.prisma.characters[self.ilya]['voice_actors'])
 
     def testVoiceActors(self):
         self.assertIsInstance(self.spicy_wolf.voice_actors, dict)
         self.assertGreater(len(self.spicy_wolf.voice_actors), 0)
         self.assertIn(self.holo_va, self.spicy_wolf.voice_actors)
-        self.assertEqual(self.spicy_wolf.voice_actors[self.holo_va][u'role'], 'Main')
-        self.assertEqual(self.spicy_wolf.voice_actors[self.holo_va][u'character'], self.holo)
+        self.assertEqual(self.spicy_wolf.voice_actors[self.holo_va]['role'], 'Main')
+        self.assertEqual(self.spicy_wolf.voice_actors[self.holo_va]['character'], self.holo)
         self.assertIsInstance(self.bebop.voice_actors, dict)
         self.assertGreater(len(self.bebop.voice_actors), 0)
         self.assertIn(self.hex_va, self.bebop.voice_actors)
-        self.assertEqual(self.bebop.voice_actors[self.hex_va][u'role'], 'Supporting')
-        self.assertEqual(self.bebop.voice_actors[self.hex_va][u'character'], self.hex)
+        self.assertEqual(self.bebop.voice_actors[self.hex_va]['role'], 'Supporting')
+        self.assertEqual(self.bebop.voice_actors[self.hex_va]['character'], self.hex)
         self.assertIsInstance(self.space_dandy.voice_actors, dict)
         self.assertGreater(len(self.space_dandy.voice_actors), 0)
         self.assertIn(self.toaster_va, self.space_dandy.voice_actors)
-        self.assertEqual(self.space_dandy.voice_actors[self.toaster_va][u'role'], 'Supporting')
-        self.assertEqual(self.space_dandy.voice_actors[self.toaster_va][u'character'], self.toaster)
+        self.assertEqual(self.space_dandy.voice_actors[self.toaster_va]['role'], 'Supporting')
+        self.assertEqual(self.space_dandy.voice_actors[self.toaster_va]['character'], self.toaster)
         self.assertIsInstance(self.totoro.voice_actors, dict)
         self.assertGreater(len(self.totoro.voice_actors), 0)
         self.assertIn(self.satsuki_va, self.totoro.voice_actors)
-        self.assertEqual(self.totoro.voice_actors[self.satsuki_va][u'role'], 'Main')
-        self.assertEqual(self.totoro.voice_actors[self.satsuki_va][u'character'], self.satsuki)
+        self.assertEqual(self.totoro.voice_actors[self.satsuki_va]['role'], 'Main')
+        self.assertEqual(self.totoro.voice_actors[self.satsuki_va]['character'], self.satsuki)
         self.assertIsInstance(self.prisma.voice_actors, dict)
         self.assertGreater(len(self.prisma.voice_actors), 0)
         self.assertIn(self.ilya_va, self.prisma.voice_actors)
-        self.assertEqual(self.prisma.voice_actors[self.ilya_va][u'role'], 'Main')
-        self.assertEqual(self.prisma.voice_actors[self.ilya_va][u'character'], self.ilya)
+        self.assertEqual(self.prisma.voice_actors[self.ilya_va]['role'], 'Main')
+        self.assertEqual(self.prisma.voice_actors[self.ilya_va]['character'], self.ilya)
 
     def testNoVoiceActors(self):
         self.assertIsInstance(self.non_non_biyori.voice_actors, dict)
@@ -364,31 +364,31 @@ class testAnimeClass(TestCase):
         self.assertIsInstance(self.spicy_wolf.staff, dict)
         self.assertGreater(len(self.spicy_wolf.staff), 0)
         self.assertIn(self.session.person(472), self.spicy_wolf.staff)
-        self.assertIn(u'Producer', self.spicy_wolf.staff[self.session.person(472)])
+        self.assertIn('Producer', self.spicy_wolf.staff[self.session.person(472)])
         self.assertIsInstance(self.bebop.staff, dict)
         self.assertGreater(len(self.bebop.staff), 0)
         self.assertIn(self.session.person(12221), self.bebop.staff)
-        self.assertIn(u'Inserted Song Performance', self.bebop.staff[self.session.person(12221)])
+        self.assertIn('Inserted Song Performance', self.bebop.staff[self.session.person(12221)])
         self.assertIsInstance(self.space_dandy.staff, dict)
         self.assertGreater(len(self.space_dandy.staff), 0)
         self.assertIn(self.session.person(10127), self.space_dandy.staff)
 
-        for x in [u'Theme Song Composition', u'Theme Song Lyrics', u'Theme Song Performance']:
+        for x in ['Theme Song Composition', 'Theme Song Lyrics', 'Theme Song Performance']:
             self.assertIn(x, self.space_dandy.staff[self.session.person(10127)])
         self.assertIsInstance(self.totoro.staff, dict)
         self.assertGreater(len(self.totoro.staff), 0)
         self.assertIn(self.session.person(1870), self.totoro.staff)
-        for x in [u'Director', u'Script', u'Storyboard']:
+        for x in ['Director', 'Script', 'Storyboard']:
             self.assertIn(x, self.totoro.staff[self.session.person(1870)])
         self.assertIsInstance(self.prisma.staff, dict)
         self.assertGreater(len(self.prisma.staff), 0)
         self.assertIn(self.session.person(10617), self.prisma.staff)
-        self.assertIn(u'ADR Director', self.prisma.staff[self.session.person(10617)])
+        self.assertIn('ADR Director', self.prisma.staff[self.session.person(10617)])
 
     def testPopularTags(self):
         self.assertGreater(len(self.bebop.popular_tags), 0)
         self.assertIn(self.space_tag, self.bebop.popular_tags)
         self.assertGreater(len(self.spicy_wolf.popular_tags), 0)
         self.assertIn(self.adventure_tag, self.spicy_wolf.popular_tags)
-        self.assertEquals(len(self.non_tagged_anime.popular_tags), 1)
+        self.assertEqual(len(self.non_tagged_anime.popular_tags), 1)
 

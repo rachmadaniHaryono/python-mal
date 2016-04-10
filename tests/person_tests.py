@@ -16,7 +16,7 @@ class testPersonClass(TestCase):
         self.hiroshi_kamiya = self.session.person(118)
 
         # test voice role
-        self.hk_name = u'Hiroshi Kamiya'
+        self.hk_name = 'Hiroshi Kamiya'
         self.hk_anime = self.session.anime(15605)  # Brothers Conflict
         self.hk_char = self.session.character(80873)  # Juli
         self.hk_role = 'Supporting'

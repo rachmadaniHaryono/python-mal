@@ -14,17 +14,17 @@ class testSessionClass(TestCase):
     def setUpClass(self):
         # see if our environment has credentials.
         if 'MAL_USERNAME' and 'MAL_PASSWORD' in os.environ:
-            self.username = os.environ[u'MAL_USERNAME']
-            self.password = os.environ[u'MAL_PASSWORD']
+            self.username = os.environ['MAL_USERNAME']
+            self.password = os.environ['MAL_PASSWORD']
         else:
             # rely on a flat textfile in project root.
-            with open(u'credentials.txt', 'r') as cred_file:
-                line = cred_file.read().strip().split(u'\n')[0]
-                self.username, self.password = line.strip().split(u',')
+            with open('credentials.txt', 'r') as cred_file:
+                line = cred_file.read().strip().split('\n')[0]
+                self.username, self.password = line.strip().split(',')
 
         self.session = myanimelist.session.Session(self.username, self.password)
         self.logged_in_session = myanimelist.session.Session(self.username, self.password).login()
-        self.fake_session = myanimelist.session.Session(u'no-username', 'no-password')
+        self.fake_session = myanimelist.session.Session('no-username', 'no-password')
 
     def testLoggedIn(self):
         self.assertFalse(self.fake_session.logged_in())
