@@ -7,6 +7,11 @@ try:
 except ImportError:
     from .base import Base, MalformedPageError, InvalidBaseError
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 
 class MalformedTagPageError(MalformedPageError):
     """Error when parsing tag page."""
@@ -30,12 +35,8 @@ class Tag(Base):
         super(Tag, self).__init__(session)
         self.name = name
         is_name_string = False
-        try:
-            if isinstance(self.name, unicode):
-                is_name_string = True
-        except NameError:
-            if isinstance(self.name, str):
-                is_name_string = True
+        if isinstance(self.name, unicode) or isinstance(self.name, str):
+            is_name_string = True
         if not is_name_string or len(self.name) < 1:
             raise InvalidTagError(self.name)
 

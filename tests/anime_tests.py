@@ -7,6 +7,12 @@ import datetime
 import myanimelist.session
 import myanimelist.anime
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
 
 class testAnimeClass(TestCase):
     @classmethod
@@ -88,20 +94,26 @@ class testAnimeClass(TestCase):
     def testTitle(self):
         self.assertEqual(self.bebop.title, 'Cowboy Bebop')
         self.assertEqual(self.spicy_wolf.title, 'Ookami to Koushinryou')
-        self.assertEqual(self.space_dandy.title, 'Space☆Dandy')
-        self.assertEqual(self.prisma.title, 'Fate/kaleid liner Prisma☆Illya: Undoukai de Dance!')
+        if IS_PYTHON3:
+            self.assertEqual(self.space_dandy.title, 'Space☆Dandy')
+            self.assertEqual(self.prisma.title,
+                             'Fate/kaleid liner Prisma☆Illya: Undoukai de Dance!')
+        else:
+            self.assertEqual(self.space_dandy.title,
+                             u'Space☆Dandy')
+            self.assertEqual(self.prisma.title,
+                             u'Fate/kaleid liner Prisma☆Illya: Undoukai de Dance!')
 
     def testPicture(self):
-        self.assertIsInstance(self.spicy_wolf.picture, str)
-        self.assertIsInstance(self.space_dandy.picture, str)
-        self.assertIsInstance(self.bebop.picture, str)
-        self.assertIsInstance(self.totoro.picture, str)
-        self.assertIsInstance(self.prisma.picture, str)
+        self.assertIsInstance(self.spicy_wolf.picture, unicode)
+        self.assertIsInstance(self.space_dandy.picture, unicode)
+        self.assertIsInstance(self.bebop.picture, unicode)
+        self.assertIsInstance(self.totoro.picture, unicode)
+        self.assertIsInstance(self.prisma.picture, unicode)
 
     def testAlternativeTitles(self):
         self.assertIn('Japanese', self.bebop.alternative_titles)
         self.assertIsInstance(self.bebop.alternative_titles['Japanese'], list)
-        self.assertIn('カウボーイビバップ', self.bebop.alternative_titles['Japanese'])
 
         self.assertIn('English', self.spicy_wolf.alternative_titles)
         self.assertIsInstance(self.spicy_wolf.alternative_titles['English'], list)
@@ -109,12 +121,21 @@ class testAnimeClass(TestCase):
 
         self.assertIn('Japanese', self.space_dandy.alternative_titles)
         self.assertIsInstance(self.space_dandy.alternative_titles['Japanese'], list)
-        self.assertIn('スペース☆ダンディ', self.space_dandy.alternative_titles['Japanese'])
 
         self.assertIn('Japanese', self.prisma.alternative_titles)
         self.assertIsInstance(self.prisma.alternative_titles['Japanese'], list)
-        self.assertIn('Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!',
-                      self.prisma.alternative_titles['Japanese'])
+
+
+        if IS_PYTHON3:
+            self.assertIn('カウボーイビバップ', self.bebop.alternative_titles['Japanese'])
+            self.assertIn('スペース☆ダンディ', self.space_dandy.alternative_titles['Japanese'])
+            self.assertIn('Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!',
+                        self.prisma.alternative_titles['Japanese'])
+        else:
+            self.assertIn(u'カウボーイビバップ', self.bebop.alternative_titles['Japanese'])
+            self.assertIn(u'スペース☆ダンディ', self.space_dandy.alternative_titles['Japanese'])
+            self.assertIn(u'Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!',
+                        self.prisma.alternative_titles['Japanese'])
 
     def testTypes(self):
         self.assertEqual(self.bebop.type, 'TV')
@@ -136,12 +157,15 @@ class testAnimeClass(TestCase):
         self.assertEqual(self.prisma.status, 'Finished Airing')
 
     def testAired(self):
-        self.assertEqual(self.spicy_wolf.aired, 
-                         (datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30, year=2008)))
+        self.assertEqual(self.spicy_wolf.aired,
+                         (datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30,
+                                                                                  year=2008)))
         self.assertEqual(self.bebop.aired,
-                         (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24, year=1999)))
+                         (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24,
+                                                                                  year=1999)))
         self.assertEqual(self.space_dandy.aired,
-                         (datetime.date(month=1, day=5, year=2014), datetime.date(month=3, day=27, year=2014)))
+                         (datetime.date(month=1, day=5, year=2014), datetime.date(month=3, day=27,
+                                                                                  year=2014)))
         self.assertEqual(self.totoro.aired, (datetime.date(month=4, day=16, year=1988),))
         self.assertGreaterEqual(self.prisma.aired, (datetime.date(month=3, day=10, year=2014),))
 
@@ -271,23 +295,23 @@ class testAnimeClass(TestCase):
         self.assertGreater(self.prisma.favorites, 0)
 
     def testSynopsis(self):
-        self.assertIsInstance(self.spicy_wolf.synopsis, str)
+        self.assertIsInstance(self.spicy_wolf.synopsis, unicode)
         self.assertGreater(len(self.spicy_wolf.synopsis), 0)
         self.assertIn('Holo', self.spicy_wolf.synopsis)
         # check if background-part not synopsis
         self.assertNotIn('No background information has been added to this title.',
                          self.spicy_wolf.synopsis)
 
-        self.assertIsInstance(self.bebop.synopsis, str)
+        self.assertIsInstance(self.bebop.synopsis, unicode)
         self.assertGreater(len(self.bebop.synopsis), 0)
         self.assertIn('Spike', self.bebop.synopsis)
-        self.assertIsInstance(self.space_dandy.synopsis, str)
+        self.assertIsInstance(self.space_dandy.synopsis, unicode)
         self.assertGreater(len(self.space_dandy.synopsis), 0)
         self.assertIn('dandy', self.space_dandy.synopsis)
-        self.assertIsInstance(self.totoro.synopsis, str)
+        self.assertIsInstance(self.totoro.synopsis, unicode)
         self.assertGreater(len(self.totoro.synopsis), 0)
         self.assertIn('Satsuki', self.totoro.synopsis)
-        self.assertIsInstance(self.prisma.synopsis, str)
+        self.assertIsInstance(self.prisma.synopsis, unicode)
         self.assertGreater(len(self.prisma.synopsis), 0)
         self.assertIn('Illya', self.prisma.synopsis)
 

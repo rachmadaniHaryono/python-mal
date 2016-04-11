@@ -391,29 +391,7 @@ class Media(Base):
                 raise
 
         try:
-            # get popular tags.
-            tags_header = media_page.find('h2', text='Popular Tags')
-            try:
-                tags_tag = tags_header.find_next_sibling('span')
-                media_info['popular_tags'] = {}
-                for tag_link in tags_tag.find_all('a'):
-                    tag = self.session.tag(tag_link.text)
-                    num_people = int(re.match(r'(?P<people>[0-9]+) people',
-                                              tag_link.get('title')).group('people'))
-                    media_info['popular_tags'][tag] = num_people
-            except AttributeError:
-                tags_tag = media_page_original.find('span', text='Genres:').parent
-                media_info['popular_tags'] = {}
-                for tag_link in tags_tag.find_all('a'):
-                    tag = self.session.tag(tag_link.text.lower())
-                    try:
-                        num_people = int(re.match(r'(?P<people>[0-9]+) people',
-                                                  tag_link.get('title')).group('people'))
-                        media_info['popular_tags'][tag] = num_people
-                    except (TypeError, AttributeError):
-                        tag_num = tag_link.get('href').split('=')[-1]
-                        media_info['popular_tags'][tag] = tag_num
-
+            media_info['popular_tags'] = self.parse_popular_tags(media_page_original)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -725,6 +703,38 @@ class Media(Base):
                 raise
 
         return media_info
+
+    def parse_popular_tags(self, media_page):
+        """Parse the DOM and returns media popular tags.
+
+        :type character_page: :class:`bs4.BeautifulSoup`
+        :param character_page: MAL character page's DOM
+
+        :rtype: dict
+        :return: media popular tags.
+
+        """
+        tags_header = media_page.find('h2', text='Popular Tags')
+        result = {}
+        try:
+            tags_tag = tags_header.find_next_sibling('span')
+            for tag_link in tags_tag.find_all('a'):
+                tag = self.session.tag(tag_link.text)
+                num_people = int(re.match(r'(?P<people>[0-9]+) people',
+                                          tag_link.get('title')).group('people'))
+                result[tag] = num_people
+        except AttributeError:
+            tags_tag = media_page.find('span', text='Genres:').parent
+            for tag_link in tags_tag.find_all('a'):
+                tag = self.session.tag(tag_link.text.lower())
+                try:
+                    num_people = int(re.match(r'(?P<people>[0-9]+) people',
+                                              tag_link.get('title')).group('people'))
+                    result[tag] = num_people
+                except (TypeError, AttributeError):
+                    tag_num = tag_link.get('href').split('=')[-1]
+                    result[tag] = tag_num
+        return result
 
     def load(self):
         """Fetche the MAL media page and sets the current media's attributes.

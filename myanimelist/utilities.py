@@ -1,29 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for misc function for other module."""
 import datetime
 import re
 try:
-    import urllib.request
-    import urllib.parse
-    import urllib.error
+    from urllib.parse import urlencode as pyurlencode
 except ImportError:
-    import urllib
+    from urllib import urlencode as pyurlencode
 
 import bs4
 
 
 def fix_bad_html(html):
-    """
-      Fixes for various DOM errors that MAL commits.
-      Yes, I know this is a cardinal sin, but there's really no elegant way to fix this.
+    """Fix for various DOM errors that MAL commits.
+
+    Yes, I know this is a cardinal sin, but there's really no elegant way to fix this.
     """
     # on anime list pages, sometimes tds won't be properly opened.
     html = re.sub(r'[\s]td class=', "<td class=", html)
-    # on anime list pages, if the user doesn't specify progress, MAL will try to close a span it didn't open.
+    # on anime list pages, if the user doesn't specify progress,
+    # MAL will try to close a span it didn't open.
+
     def anime_list_closing_span(match):
         return match.group('count') + '/' + match.group('total') + '</td>'
 
-    html = re.sub(r'(?P<count>[0-9\-]+)</span>/(?P<total>[0-9\-]+)</a></span></td>', anime_list_closing_span, html)
+    html = re.sub(r'(?P<count>[0-9\-]+)</span>/(?P<total>[0-9\-]+)</a></span></td>',
+                  anime_list_closing_span, html)
 
     # on anime info pages, under rating, there's an extra </div> by the "licensing company" note.
     html = html.replace('<small>L</small></sup><small> represents licensing company</small></div>',
@@ -31,28 +33,29 @@ def fix_bad_html(html):
 
     # on manga character pages, sometimes the character info column will have an extra </div>.
     def manga_character_double_closed_div_picture(match):
-        return "<td " + match.group('td_tag') + ">\n\t\t\t<div " + match.group('div_tag') + "><a " + match.group(
-            'a_tag') + "><img " + match.group('img_tag') + "></a></div>\n\t\t\t</td>"
+        return ("<td " + match.group('td_tag') + ">\n\t\t\t<div " + match.group('div_tag') +
+                "><a " + match.group('a_tag') + "><img " + match.group('img_tag') +
+                "></a></div>\n\t\t\t</td>")
 
-    html = re.sub(
-        r"""<td (?P<td_tag>[^>]+)>\n\t\t\t<div (?P<div_tag>[^>]+)><a (?P<a_tag>[^>]+)><img (?P<img_tag>[^>]+)></a></div>\n\t\t\t</div>\n\t\t\t</td>""",
-        manga_character_double_closed_div_picture, html)
+    regex_text = r"""<td (?P<td_tag>[^>]+)>\n\t\t\t"""
+    regex_text += r"""<div (?P<div_tag>[^>]+)><a (?P<a_tag>[^>]+)>"""
+    regex_text += r"""<img (?P<img_tag>[^>]+)></a></div>\n\t\t\t</div>\n\t\t\t</td>"""
+    html = re.sub(regex_text, manga_character_double_closed_div_picture, html)
 
     def manga_character_double_closed_div_character(match):
         return """<a href="/character/""" + match.group('char_link') + """">""" + match.group(
             'char_name') + """</a>\n\t\t\t<div class="spaceit_pad"><small>""" + match.group(
             'role') + """</small></div>"""
 
-    html = re.sub(
-        r"""<a href="/character/(?P<char_link>[^"]+)">(?P<char_name>[^<]+)</a>\n\t\t\t<div class="spaceit_pad"><small>(?P<role>[A-Za-z ]+)</small></div>\n\t\t\t</div>""",
-        manga_character_double_closed_div_character, html)
+    regex_text = r"""<a href="/character/(?P<char_link>[^"]+)">(?P<char_name>[^<]+)</a>\n\t\t\t"""
+    regex_text += """<div class="spaceit_pad">"""
+    regex_text += """<small>(?P<role>[A-Za-z ]+)</small></div>\n\t\t\t</div>"""
+    html = re.sub(regex_text, manga_character_double_closed_div_character, html)
     return html
 
 
 def get_clean_dom(html):
-    """
-      Given raw HTML from a MAL page, return a BeautifulSoup object with cleaned HTML.
-    """
+    """Given raw HTML from a MAL page, return a BeautifulSoup object with cleaned HTML."""
     return bs4.BeautifulSoup(fix_bad_html(html), "html.parser")
 
 
@@ -62,7 +65,7 @@ def urlencode(url):
         utf8_url = {'': url.encode('utf-8').replace(' ', '_')}
     except TypeError:
         utf8_url = {'': url.replace(' ', '_')}
-    return urllib.parse.urlencode(utf8_url)[1:].replace('%2F', '/')
+    return pyurlencode(utf8_url)[1:].replace('%2F', '/')
 
 
 def extract_tags(tags):
@@ -172,7 +175,7 @@ def parse_profile_date(text, suppress=False):
             return datetime.datetime.strptime(text, '%b %Y').date()
         except ValueError:
             pass
-                
+
     except:
         if suppress:
             return None

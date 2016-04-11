@@ -8,11 +8,9 @@ import decimal
 import datetime
 
 try:  # py3
-    import urllib.request
-    import urllib.parse
-    import urllib.error
+    from urllib.parse import urlencode
 except ImportError:  # py2
-    import urllib
+    from urllib import urlencode
 
 import bs4
 
@@ -272,8 +270,11 @@ class MediaList(Base, collections.Mapping):
         return list_info
 
     def load(self):
-        media_list = self.session.session.get('http://myanimelist.net/malappinfo.php?' + urllib.parse.urlencode(
-            {'u': self.username, 'status': 'all', 'type': self.type})).text
+        url = ('http://myanimelist.net/malappinfo.php?' +
+               urlencode({'u': self.username,
+                                       'status': 'all',
+                                       'type': self.type}))
+        media_list = self.session.session.get(url).text
         self.set(self.parse(media_list))
         return self
 
