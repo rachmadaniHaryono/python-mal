@@ -7,6 +7,13 @@ import datetime
 import myanimelist.session
 import myanimelist.manga
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
+
 
 class testMangaClass(TestCase):
     @classmethod
@@ -85,11 +92,11 @@ class testMangaClass(TestCase):
         self.assertEqual(self.judos.title, 'Judos')
 
     def testPicture(self):
-        self.assertIsInstance(self.holic.picture, str)
-        self.assertIsInstance(self.naruto.picture, str)
-        self.assertIsInstance(self.monster.picture, str)
-        self.assertIsInstance(self.tomoyo_after.picture, str)
-        self.assertIsInstance(self.judos.picture, str)
+        self.assertIsInstance(self.holic.picture, unicode)
+        self.assertIsInstance(self.naruto.picture, unicode)
+        self.assertIsInstance(self.monster.picture, unicode)
+        self.assertIsInstance(self.tomoyo_after.picture, unicode)
+        self.assertIsInstance(self.judos.picture, unicode)
 
     def testAlternativeTitGreater(self):
         self.assertIn('Japanese', self.monster.alternative_titles)
@@ -102,8 +109,12 @@ class testMangaClass(TestCase):
         self.assertIn('xxxHolic Cage', self.holic.alternative_titles['Synonyms'])
         self.assertIn('Japanese', self.naruto.alternative_titles)
         self.assertIsInstance(self.naruto.alternative_titles['Japanese'], list)
-        self.assertIn('NARUTO\u2015\u30ca\u30eb\u30c8\u2015',
-                      self.naruto.alternative_titles['Japanese'])
+        if IS_PYTHON3:
+            self.assertIn('NARUTO\u2015\u30ca\u30eb\u30c8\u2015',
+                        self.naruto.alternative_titles['Japanese'])
+        else:
+            self.assertIn(u'NARUTO\u2015\u30ca\u30eb\u30c8\u2015',
+                        self.naruto.alternative_titles['Japanese'])
         self.assertIn('English', self.tomoyo_after.alternative_titles)
         self.assertIsInstance(self.tomoyo_after.alternative_titles['English'], list)
         self.assertIn('Tomoyo After ~Dear Shining Memories~', self.tomoyo_after.alternative_titles['English'])
@@ -313,23 +324,23 @@ class testMangaClass(TestCase):
 
     def testSynopsis(self):
         """test manga synopsis."""
-        self.assertIsInstance(self.holic.synopsis, str)
+        self.assertIsInstance(self.holic.synopsis, unicode)
         self.assertGreater(len(self.holic.synopsis), 0)
         self.assertIn('Watanuki', self.holic.synopsis)
 
-        self.assertIsInstance(self.monster.synopsis, str)
+        self.assertIsInstance(self.monster.synopsis, unicode)
         self.assertGreater(len(self.monster.synopsis), 0)
         self.assertIn('Tenma', self.monster.synopsis)
 
-        self.assertIsInstance(self.naruto.synopsis, str)
+        self.assertIsInstance(self.naruto.synopsis, unicode)
         self.assertGreater(len(self.naruto.synopsis), 0)
         self.assertIn('Hokage', self.naruto.synopsis)
 
-        self.assertIsInstance(self.tomoyo_after.synopsis, str)
+        self.assertIsInstance(self.tomoyo_after.synopsis, unicode)
         self.assertGreater(len(self.tomoyo_after.synopsis), 0)
         self.assertIn('Clannad', self.tomoyo_after.synopsis)
 
-        self.assertIsInstance(self.judos.synopsis, str)
+        self.assertIsInstance(self.judos.synopsis, unicode)
         self.assertGreater(len(self.judos.synopsis), 0)
         self.assertIn('hardcore', self.judos.synopsis)
 

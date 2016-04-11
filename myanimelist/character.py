@@ -11,22 +11,28 @@ except ImportError:
     from . import utilities
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
+
 
 class MalformedCharacterPageError(MalformedPageError):
-    """Indicates that a character-related page on MAL has irreparably broken markup in some way.
-    """
+    """Indicates that a character-related page on MAL has irreparably broken markup in some way."""
+
     pass
 
 
 class InvalidCharacterError(InvalidBaseError):
-    """Indicates that the character requested does not exist on MAL.
-    """
+    """Indicates that the character requested does not exist on MAL."""
+
     pass
 
 
 class Character(Base):
-    """Primary interface to character resources on MAL.
-    """
+    """Primary interface to character resources on MAL."""
 
     def __init__(self, session, character_id):
         """Creates a new instance of Character.

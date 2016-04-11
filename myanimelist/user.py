@@ -4,20 +4,25 @@
 import re
 
 try:  # py2
-    import urllib
+    from urllib import urlencode
 
-    import utilities
     from base import Base, MalformedPageError, InvalidBaseError, loadable
+    import utilities
 except ImportError:  # py3
-    import urllib.request
-    import urllib.parse
-    import urllib.error
+    from urllib.parse import urlencode
 
     from . import utilities
     from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 from bs4 import BeautifulSoup
 import bs4
+
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
 
 
 class MalformedUserPageError(MalformedPageError):
@@ -52,8 +57,8 @@ class User(Base):
         :rtype: str
         :return: The given user's username.
         """
-        comments_page = session.session.get(
-            'http://myanimelist.net/comments.php?' + urllib.parse.urlencode({'id': int(user_id)})).text
+        comments_page = session.session.get( 'http://myanimelist.net/comments.php?' +
+                                            urlencode({'id': int(user_id)})).text
         comments_page = bs4.BeautifulSoup(comments_page, 'lxml')
         username_elt = comments_page.find('h1')
         if "'s Comments" not in username_elt.text:
@@ -74,8 +79,14 @@ class User(Base):
         """
         super(User, self).__init__(session)
         self.username = username
-        if not isinstance(self.username, str) or len(self.username) < 1:
+
+        is_name_string = False
+        if isinstance(self.username, unicode) or isinstance(self.username, str):
+            is_name_string = True
+
+        if not is_name_string or len(self.username) < 1:
             raise InvalidUserError(self.username)
+
         self._picture = None
         self._website = None
         self._access_rank = None
@@ -678,7 +689,7 @@ class User(Base):
                             .get('http://myanimelist.net/profile/' +
                                  utilities.urlencode(self.username) +
                                  '/reviews&' +
-                                 urllib.parse.urlencode({'p': page}))
+                                 urlencode({'p': page}))
                             .text)
             parse_result = self.parse_reviews(utilities.get_clean_dom(user_reviews))
             if page == 0:

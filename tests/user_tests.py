@@ -8,6 +8,13 @@ import myanimelist.session
 import myanimelist.user
 
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
+
 class testUserClass(TestCase):
     """class to test user module."""
 
@@ -74,9 +81,9 @@ class testUserClass(TestCase):
         self.assertEqual(self.mona.username, 'monausicaa')
 
     def testPicture(self):
-        self.assertIsInstance(self.shal.picture, str)
+        self.assertIsInstance(self.shal.picture, unicode)
         self.assertEqual(self.shal.picture, 'http://cdn.myanimelist.net/images/userimages/64611.jpg')
-        self.assertIsInstance(self.mona.picture, str)
+        self.assertIsInstance(self.mona.picture, unicode)
 
     def testFavoriteAnime(self):
         self.assertIsInstance(self.shal.favorite_anime, list)
@@ -128,7 +135,7 @@ class testUserClass(TestCase):
 
     def testLocation(self):
         self.assertEqual(self.shal.location, 'Chicago, IL')
-        self.assertIsInstance(self.mona.location, str)
+        self.assertIsInstance(self.mona.location, unicode)
 
     def testWebsite(self):
         self.assertEqual(self.shal.website, 'http://llanim.us')
@@ -227,7 +234,7 @@ class testUserClass(TestCase):
         self.assertEqual(self.archaeon.reviews[self.fate_zero]['media_total'], 13)
         self.assertEqual(self.archaeon.reviews[self.fate_zero]['rating'], 9)
 
-        self.assertIsInstance(self.archaeon.reviews[self.fate_zero]['text'], str)
+        self.assertIsInstance(self.archaeon.reviews[self.fate_zero]['text'], unicode)
         self.assertGreater(len(self.archaeon.reviews[self.fate_zero]['text']), 0)
 
         self.assertIsInstance(self.threger.reviews, dict)
@@ -241,7 +248,7 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.shal.recommendations[self.kanon]['date'], datetime.date)
         self.assertEqual(self.shal.recommendations[self.kanon]['date'],
                          datetime.date(year=2009, month=3, day=13))
-        self.assertIsInstance(self.shal.recommendations[self.kanon]['text'], str)
+        self.assertIsInstance(self.shal.recommendations[self.kanon]['text'], unicode)
         self.assertGreater(len(self.shal.recommendations[self.kanon]['text']), 0)
         self.assertIsInstance(self.mona.recommendations, dict)
         self.assertGreaterEqual(len(self.mona.recommendations), 0)

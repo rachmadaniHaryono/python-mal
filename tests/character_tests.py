@@ -8,6 +8,13 @@ import myanimelist.character
 import myanimelist.user
 
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
+
 class testCharacterClass(TestCase):
     @classmethod
     def setUpClass(self):
@@ -50,10 +57,14 @@ class testCharacterClass(TestCase):
         self.assertEqual(self.maria.full_name, 'Maria')
 
     def testJapaneseName(self):
-        self.assertEqual(self.spike.name_jpn, 'スパイク・スピーゲル')
-        self.assertEqual(self.ed.name_jpn, 'エドワード・エルリック')
-        self.assertEqual(self.maria.name_jpn, 'マリア')
-
+        if IS_PYTHON3:
+            self.assertEqual(self.spike.name_jpn, 'スパイク・スピーゲル')
+            self.assertEqual(self.ed.name_jpn, 'エドワード・エルリック')
+            self.assertEqual(self.maria.name_jpn, 'マリア')
+        else:
+            self.assertEqual(self.spike.name_jpn, u'スパイク・スピーゲル')
+            self.assertEqual(self.ed.name_jpn, u'エドワード・エルリック')
+            self.assertEqual(self.maria.name_jpn, u'マリア')
     def testDescription(self):
         self.assertIsInstance(self.spike.description, str)
         self.assertGreater(len(self.spike.description), 0)
@@ -63,23 +74,23 @@ class testCharacterClass(TestCase):
         self.assertGreater(len(self.maria.description), 0)
 
     def testPicture(self):
-        self.assertIsInstance(self.spike.picture, str)
+        self.assertIsInstance(self.spike.picture, unicode)
         self.assertGreater(len(self.spike.picture), 0)
-        self.assertIsInstance(self.ed.picture, str)
+        self.assertIsInstance(self.ed.picture, unicode)
         self.assertGreater(len(self.ed.picture), 0)
-        self.assertIsInstance(self.maria.picture, str)
+        self.assertIsInstance(self.maria.picture, unicode)
         self.assertGreater(len(self.maria.picture), 0)
 
     def testPictures(self):
         self.assertIsInstance(self.spike.pictures, list)
         self.assertGreater(len(self.spike.pictures), 0)
         for p in self.spike.pictures:
-            self.assertIsInstance(p, str)
+            self.assertIsInstance(p, unicode)
             self.assertTrue(p.startswith('http://'))
         self.assertIsInstance(self.ed.pictures, list)
         self.assertGreater(len(self.ed.pictures), 0)
         for p in self.spike.pictures:
-            self.assertIsInstance(p, str)
+            self.assertIsInstance(p, unicode)
             self.assertTrue(p.startswith('http://'))
         self.assertIsInstance(self.maria.pictures, list)
 
