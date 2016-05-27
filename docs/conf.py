@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# python-mal documentation build configuration file, created by
+# python-mal_crawler documentation build configuration file, created by
 # sphinx-quickstart on Sun Sep 14 15:36:53 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'python-mal'
+project = u'python-mal_crawler'
 copyright = u'2014, Charles Guo'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -199,7 +199,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'python-mal.tex', u'python-mal Documentation',
+  ('index', 'python-mal_crawler.tex', u'python-mal_crawler Documentation',
    u'Charles Guo', 'manual'),
 ]
 
@@ -229,7 +229,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'python-mal', u'python-mal Documentation',
+    ('index', 'python-mal_crawler', u'python-mal_crawler Documentation',
      [u'Charles Guo'], 1)
 ]
 
@@ -243,8 +243,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'python-mal', u'python-mal Documentation',
-   u'Charles Guo', 'python-mal', 'One line description of project.',
+  ('index', 'python-mal_crawler', u'python-mal_crawler Documentation',
+   u'Charles Guo', 'python-mal_crawler', 'One line description of project.',
    'Miscellaneous'),
 ]
 

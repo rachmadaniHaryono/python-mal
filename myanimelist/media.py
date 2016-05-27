@@ -7,6 +7,7 @@ import re
 from . import utilities
 from .base import Base, MalformedPageError, InvalidBaseError, loadable
 from lxml.etree import XPath
+from urllib3 import PoolManager as HttpSocketPool
 
 
 class MalformedMediaPageError(MalformedPageError):
@@ -103,6 +104,7 @@ class Media(Base, metaclass=abc.ABCMeta):
         self._characters = None
         self._score_stats = None
         self._status_stats = None
+        self._http = HttpSocketPool(retries=3)
 
     def parse_sidebar(self, media_page):
         """Parses the DOM and returns media attributes in the sidebar.
