@@ -106,7 +106,7 @@ class testMangaClass(object):
                                                                                      self.holic.alternative_titles[
                                                                                          u'Synonyms']
         assert u'Japanese' in self.naruto.alternative_titles and isinstance(self.naruto.alternative_titles[u'Japanese'],
-                                                                            list) and u'NARUTO -ナルト-' in \
+                                                                            list) and 'NARUTO―ナルト―' in \
                                                                                       self.naruto.alternative_titles[
                                                                                           u'Japanese']
         assert u'English' in self.tomoyo_after.alternative_titles and isinstance(

@@ -65,9 +65,7 @@ class Anime(media.Media):
         :raises: :class:`.InvalidAnimeError`, :class:`.MalformedAnimePageError`
         """
         # if MAL says the series doesn't exist, raise an InvalidAnimeError.
-        # badresult
-        error_tag = anime_page.xpath(".//div[contains(@class,'error')] | .//div[@class='badresult']")
-        if len(error_tag) > 0:
+        if not self._validate_page(anime_page):
             raise InvalidAnimeError(self.id)
 
         title_tag = anime_page.xpath(".//div[@id='contentWrapper']//h1//span")
@@ -144,7 +142,7 @@ class Anime(media.Media):
                     # of the form: /anime/producer/65
                     link_parts = producer_link.get('href').split('/')
                     anime_info['producers'].append(
-                            self.session.producer(int(link_parts[-1])).set({"name": producer_link.text}))
+                            self.session.producer(int(link_parts[-2])).set({"name": producer_link.text}))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

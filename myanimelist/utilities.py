@@ -152,8 +152,13 @@ def parse_profile_date(text, suppress=False):
             return datetime.datetime.strptime(text, "%b %d, %Y %I:%M %p")
         except ValueError:
             pass
+        parsed_date = None
+        try:
+            parsed_date = datetime.datetime.strptime(text, '%b %d, %I:%M %p')
+        except ValueError:
+            parsed_date = datetime.datetime.strptime(text, '%b %d, %Y %I:%M %p')
         # see if it's a month/year pairing.
-        return datetime.datetime.strptime(text, '%b %Y').date()
+        return parsed_date.date() if parsed_date is not None else None
     except:
         if suppress:
             return None

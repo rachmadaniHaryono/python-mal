@@ -130,6 +130,11 @@ class Base(object, metaclass=abc.ABCMeta):
         """
         self.session = session
 
+    @staticmethod
+    def _validate_page(media_page):
+        error_tag = media_page.xpath(".//p[@class='error_code'] | .//div[@class='badresult']")
+        return len(error_tag) is 0
+
     @abc.abstractmethod
     def load(self):
         """A callback to run before any @loadable attributes are returned.

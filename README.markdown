@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/pushrbx/python3-mal.svg)](https://travis-ci.org/pushrbx/python3-mal)
+[![Build Status](https://travis-ci.org/pushrbx/python3-mal.svg)](https://travis-ci.org/pushrbx/python3-mal) [![Build Status](http://ci.pushrbx.net/jenkins/buildStatus/icon?job=Mal Crawler)](http://ci.pushrbx.net/jenkins/job/Mal%20Crawler/)
 
 python3-mal
 ==========
