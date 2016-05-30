@@ -157,7 +157,7 @@ class Session(object):
         token_tag = token_tag[0]
         token = token_tag.get("content")
 
-        # POSTS a login to mal.
+        # POSTS a login to mal_crawler.
         mal_payload = {
             'user_name': self.username,
             'password': self.password,

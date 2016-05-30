@@ -102,9 +102,8 @@ class User(Base):
         user_info = {}
 
         # if MAL says the series doesn't exist, raise an InvalidUserError.
-        error_tag = user_page.xpath(".//div[contains(@class,'error')] | .//div[@class='badresult']")
-        if len(error_tag) > 0:
-            raise InvalidUserError(self.username)
+        if not self._validate_page(user_page):
+            raise InvalidUserError(self.id)
 
         # parse general details.
         general_detail_ul = user_page.find("./body/div[1]/div[3]/div[3]/div[2]/div/div[1]/div/ul[1]")

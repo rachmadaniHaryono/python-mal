@@ -60,8 +60,7 @@ class Manga(media.Media):
         :raises: :class:`.InvalidMangaError`, :class:`.MalformedMangaPageError`
         """
         # if MAL says the series doesn't exist, raise an InvalidMangaError.
-        error_tag = manga_page.xpath(".//div[contains(@class,'error')] | .//div[@class='badresult']")
-        if len(error_tag) > 0:
+        if not self._validate_page(manga_page):
             raise InvalidMangaError(self.id)
 
         title_tag = manga_page.xpath(".//div[@id='contentWrapper']//h1//span")
@@ -159,13 +158,14 @@ class Manga(media.Media):
                 publication_link = serialization_tags[0]
                 link_parts = publication_link.get('href').split('mid=')
                 if len(link_parts) != 1:
+                    # backwards compatibility
                     # of the form /manga.php?mid=1
                     manga_info['serialization'] = self.session.publication(int(link_parts[1])).set(
                         {'name': publication_link.text})
                 else:
-                    # of the form /manga/magazine/83
+                    # of the form /manga/magazine/83/<the_name>
                     link_parts = publication_link.get('href').split('/')
-                    manga_info['serialization'] = self.session.publication(int(link_parts[-1])).set(
+                    manga_info['serialization'] = self.session.publication(int(link_parts[-2])).set(
                         {'name': publication_link.text})
         except:
             if not self.session.suppress_parse_exceptions:

@@ -7,6 +7,7 @@ import re
 from . import utilities
 from .base import Base, MalformedPageError, InvalidBaseError, loadable
 from lxml.etree import XPath
+from urllib3 import PoolManager as HttpSocketPool
 
 
 class MalformedMediaPageError(MalformedPageError):
@@ -103,6 +104,7 @@ class Media(Base, metaclass=abc.ABCMeta):
         self._characters = None
         self._score_stats = None
         self._status_stats = None
+        self._http = HttpSocketPool(retries=3)
 
     def parse_sidebar(self, media_page):
         """Parses the DOM and returns media attributes in the sidebar.
@@ -119,8 +121,7 @@ class Media(Base, metaclass=abc.ABCMeta):
         media_info = {}
 
         # if MAL says the series doesn't exist, raise an InvalidMediaError.
-        error_tag = media_page.xpath(".//div[contains(@class,'error')] | .//div[@class='badresult']")
-        if len(error_tag) > 0:
+        if not self._validate_page(media_page):
             raise InvalidMediaError(self.id)
 
         try:
@@ -192,7 +193,7 @@ class Media(Base, metaclass=abc.ABCMeta):
             type_tag_results = info_panel_first.xpath(".//span[text()[contains(.,'Type:')]]")
             if len(type_tag_results) == 0:
                 raise Exception("Couldnt find type tag.")
-            type_tag = type_tag_results[0].getparent().xpath(".//text()")[-1]
+            type_tag = "".join(type_tag_results[0].getparent().xpath(".//text()")).split(": ")[-1].rstrip()
             media_info['type'] = type_tag.strip()
         except:
             if not self.session.suppress_parse_exceptions:
@@ -222,9 +223,9 @@ class Media(Base, metaclass=abc.ABCMeta):
                 else:
                     link_parts = genre_link.get('href').split("/")
                     if "myanimelist.net" in genre_link.get('href'):
-                        genre = self.session.genre(int(link_parts[-1])).set({'name': genre_link.text})
+                        genre = self.session.genre(int(link_parts[-2])).set({'name': genre_link.text})
                     else:
-                        genre = self.session.genre(int(link_parts[-1])).set({'name': genre_link.text})
+                        genre = self.session.genre(int(link_parts[-2])).set({'name': genre_link.text})
 
                 media_info['genres'].append(genre)
         except:
@@ -233,7 +234,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         try:
             # grab statistics for this media.
-            score_tag_results = info_panel_first.xpath(".//div/span[text()[contains(.,'Score:')]]")
+            score_tag_results = info_panel_first.xpath(".//div[contains(@class,'js-statistics-info')]//span[text()[contains(.,'Score:')]]")
             if len(score_tag_results) == 0:
                 raise Exception("Couldn't find score tag.")
             score = float(utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text)
@@ -423,7 +424,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         try:
             completed_elt = _get_stat_row("Completed:")
-            if completed_elt:
+            if completed_elt is not None:
                 status_stats['completed'] = _get_clean_property_val(completed_elt)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -432,7 +433,7 @@ class Media(Base, metaclass=abc.ABCMeta):
         try:
             # On-Hold:
             on_hold_elt = _get_stat_row("On-Hold:")
-            if on_hold_elt:
+            if on_hold_elt is not None:
                 status_stats['on_hold'] = _get_clean_property_val(on_hold_elt)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -440,7 +441,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         try:
             dropped_elt = _get_stat_row("Dropped:")
-            if dropped_elt:
+            if dropped_elt is not None:
                 status_stats['dropped'] = _get_clean_property_val(dropped_elt)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -473,7 +474,7 @@ class Media(Base, metaclass=abc.ABCMeta):
             temp = media_page.xpath(".//h2[text()[contains(.,'Score Stats')]]/following-sibling::table[1]")
             if len(temp) != 0:
                 score_stats_table = temp[0]
-                if score_stats_table:
+                if score_stats_table is not None:
                     score_stats = {}
                     score_rows = score_stats_table.findall('tr')
                     for i in range(len(score_rows)):
