@@ -386,8 +386,9 @@ class User(Base):
                     temp = data_container.find("./span[1]")
                 if temp is not None:
                     progress = int(temp.text)
-                    total_match = re.match(r'/(?P<total>[0-9]+)', temp.xpath("./following-sibling::text()")[0]) \
-                        .groupdict()
+                    total_match = re.match(r'/(?P<total>[0-9]+)', temp.xpath("./following-sibling::text()")[0])
+                    if total_match is not None:
+                        total_match = total_match.groupdict()
                     if total_match is None:
                         list_update["total"] = None
                     else:

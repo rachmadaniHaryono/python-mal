@@ -170,6 +170,13 @@ class testAnimeClass(object):
         assert isinstance(self.prisma.genres, list) and len(self.prisma.genres) > 0
         assert self.fantasy in self.prisma.genres
 
+    def testRating(self):
+        assert self.spicy_wolf.rating != "Rating:"
+        assert self.spicy_wolf.rating is not None
+        assert self.bebop.rating != "Rating:"
+        assert self.bebop.rating is not None
+        assert self.bebop.rating == "R - 17+ (violence & profanity)"
+
     def testDuration(self):
         assert self.spicy_wolf.duration.total_seconds() == 1440
         assert self.totoro.duration.total_seconds() == 5160
