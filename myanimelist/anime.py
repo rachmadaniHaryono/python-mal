@@ -173,7 +173,7 @@ class Anime(media.Media):
             temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Rating:')]]")
             if len(temp) == 0:
                 raise Exception("Couldn't find duration tag.")
-            rating_tag = temp[0].xpath(".//text()")[-1]
+            rating_tag = temp[0].xpath("../text()")[-1]
             anime_info['rating'] = rating_tag.strip()
         except:
             if not self.session.suppress_parse_exceptions:
