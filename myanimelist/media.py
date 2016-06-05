@@ -219,7 +219,7 @@ class Media(Base, metaclass=abc.ABCMeta):
                 link_parts = genre_link.get('href').split('[]=')
                 if len(link_parts) == 0:
                     link_parts = genre_link.get('href').split('/')
-                    genre = self.session.genre(int(link_parts[-1])).set({'name': genre_link.text})
+                    genre = self.session.genre(int(link_parts[-2])).set({'name': genre_link.text})
                 else:
                     link_parts = genre_link.get('href').split("/")
                     if "myanimelist.net" in genre_link.get('href'):
