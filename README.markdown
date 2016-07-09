@@ -1,10 +1,13 @@
-[![Build Status](https://travis-ci.org/pushrbx/python3-mal.svg)](https://travis-ci.org/pushrbx/python3-mal) [![Build Status](http://ci.pushrbx.net/jenkins/buildStatus/icon?job=Mal Crawler)](http://ci.pushrbx.net/jenkins/job/Mal%20Crawler/)
+Travis Builds: [![Build Status](https://travis-ci.org/pushrbx/python3-mal.svg)](https://travis-ci.org/pushrbx/python3-mal)  
+Jenkins Builds: [![Build Status](http://ci.pushrbx.net/jenkins/buildStatus/icon?job=Mal Crawler)](http://ci.pushrbx.net/jenkins/job/Mal%20Crawler/)    
+
 
 python3-mal
 ==========
 
 Provides programmatic access to MyAnimeList data.
-This is a fork of python-mal. My goal is to improve it and port it to python 3.x.
+This is a fork of python-mal. It uses lxml instead of beautifulsoup, and it's working with python 3.
+There are automatic builds on every sunday to ensure that the package is working fine with the current version of MAL.
 
 Dependencies
 ============
