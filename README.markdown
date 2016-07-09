@@ -7,7 +7,7 @@ python3-mal
 
 Provides programmatic access to MyAnimeList data.
 This is a fork of python-mal. It uses lxml instead of beautifulsoup, and it's working with python 3.
-There are automatic builds on every sunday to ensure that the package is working fine with the current version of MAL.
+There are automatic jenkins builds on every sunday to ensure that the package is working fine with the current version of MAL.
 
 Dependencies
 ============
