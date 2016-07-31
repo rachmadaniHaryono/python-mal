@@ -114,7 +114,7 @@ class testAnimeClass(object):
             self.space_dandy.alternative_titles[u'Japanese'], list) and u'スペース☆ダンディ' in \
                                                                         self.space_dandy.alternative_titles[u'Japanese']
         assert u'Japanese' in self.prisma.alternative_titles and isinstance(self.prisma.alternative_titles[u'Japanese'],
-                                                                            list) and u'Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!' in \
+                                                                            list) and u'Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス！' in \
                                                                                       self.prisma.alternative_titles[
                                                                                           u'Japanese']
 
