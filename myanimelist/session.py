@@ -84,7 +84,7 @@ class Session(object):
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': user_agent,
-            'DNT': 1,
+            'DNT': "1",
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
@@ -129,7 +129,7 @@ class Session(object):
         """
         mal_headers = {
             'Host': 'myanimelist.net',
-            'DNT': 1,
+            'DNT': '1',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
@@ -161,9 +161,9 @@ class Session(object):
         mal_payload = {
             'user_name': self.username,
             'password': self.password,
-            'cookie': 1,
+            'cookie': '1',
             'sublogin': 'Login',
-            'submit': 1,
+            'submit': '1',
             'csrf_token': token
         }
         self.session.headers.update(mal_headers)
