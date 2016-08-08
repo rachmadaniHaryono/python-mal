@@ -139,7 +139,7 @@ class testAnimeClass(object):
 
     def testAired(self):
         assert self.spicy_wolf.aired == (
-            datetime.date(month=1, day=9, year=2008), datetime.date(month=5, day=26, year=2008))
+            datetime.date(month=1, day=9, year=2008), datetime.date(month=3, day=26, year=2008))
         assert self.bebop.aired == (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24, year=1999))
         assert self.space_dandy.aired == (
             datetime.date(month=1, day=5, year=2014), datetime.date(month=3, day=27, year=2014))
