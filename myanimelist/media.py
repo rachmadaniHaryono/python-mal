@@ -204,7 +204,14 @@ class Media(Base):
             for genre_link in genres_tag.find_all('a'):
                 link_parts = genre_link.get('href').split('=')
                 # of the form /anime|manga.php?genre[]=1
-                genre = self.session.genre(int(link_parts[-1])).set({'name': genre_link.text})
+                try:
+                    genre_id = int(link_parts[-1])
+                except:
+                    # for current form
+                    # '/anime/genre/2/Adventure'
+                    genre_id = int(link_parts[-1].split('/genre/')[1].split('/')[0])
+
+                genre = self.session.genre(genre_id).set({'name': genre_link.text})
                 media_info[u'genres'].append(genre)
         except:
             if not self.session.suppress_parse_exceptions:
@@ -290,26 +297,14 @@ class Media(Base):
 
         try:
             # get popular tags.
-            tags_header = media_page.find(u'h2', text=u'Popular Tags')
-            try:
-                tags_tag = tags_header.find_next_sibling(u'span')
-                media_info[u'popular_tags'] = {}
-                for tag_link in tags_tag.find_all('a'):
-                    tag = self.session.tag(tag_link.text)
-                    num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
-                    media_info[u'popular_tags'][tag] = num_people
-            except AttributeError:
-                tags_tag = media_page_original.find('span',text='Genres:').parent
-                media_info[u'popular_tags'] = {}
-                for tag_link in tags_tag.find_all('a'):
-                    tag = self.session.tag(tag_link.text.lower())
-                    try: 
-                        num_people = int(re.match(r'(?P<people>[0-9]+) people', tag_link.get('title')).group('people'))
-                        media_info[u'popular_tags'][tag] = num_people
-                    except TypeError: 
-                        tag_num = tag_link.get('href').split('=')[-1]
-                        media_info[u'popular_tags'][tag] = tag_num
-                
+            tags_tag = media_page.find('span',text='Genres:').parent
+            media_info[u'popular_tags'] = {}
+            for tag_link in tags_tag.find_all('a'):
+                tag = self.session.tag(tag_link.text.lower())
+
+                tag_id = tag_link.get('href').split('/genre/')[1].split('/')[0]
+                media_info['popular_tags'] = tag_id
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

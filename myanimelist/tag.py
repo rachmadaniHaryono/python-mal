@@ -1,26 +1,36 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for media tag."""
 
 from base import Base, MalformedPageError, InvalidBaseError
 
 
 class MalformedTagPageError(MalformedPageError):
+    """Error raised for invalid tag page."""
+
     pass
 
 
 class InvalidTagError(InvalidBaseError):
+    """Error raise when tag is invalid."""
+
     pass
 
 
 class Tag(Base):
+    """tag for myanimelist media."""
+
     _id_attribute = "name"
 
     def __init__(self, session, name):
+        """init func."""
         super(Tag, self).__init__(session)
         self.name = name
-        if not isinstance(self.name, unicode) or len(self.name) < 1:
+        is_name_text = isinstance(self.name, basestring)
+        if not(is_name_text) or len(self.name) < 1:
             raise InvalidTagError(self.name)
 
     def load(self):
+        """load func."""
         # TODO
         pass

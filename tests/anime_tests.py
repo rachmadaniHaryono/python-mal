@@ -146,7 +146,7 @@ class TestAnimeClass(TestCase):
         self.assertEqual(self.prisma.episodes, 1)
 
     def test_status(self):
-        """ test status."""
+        """test status."""
         self.assertEqual(self.spicy_wolf.status, 'Finished Airing')
         self.assertEqual(self.totoro.status, 'Finished Airing')
         self.assertEqual(self.bebop.status, 'Finished Airing')
@@ -155,9 +155,10 @@ class TestAnimeClass(TestCase):
 
     def test_aired(self):
         """test airing date."""
-        self.assertEqual(self.spicy_wolf.aired,
-                         (datetime.date(month=1, day=8, year=2008), datetime.date(month=5, day=30,
-                                                                                  year=2008)))
+        self.assertEqual(
+            self.spicy_wolf.aired,
+            (datetime.date(month=1, day=9, year=2008), datetime.date(month=3, day=26, year=2008))
+        )
         self.assertEqual(self.bebop.aired,
                          (datetime.date(month=4, day=3, year=1998), datetime.date(month=4, day=24,
                                                                                   year=1999)))
