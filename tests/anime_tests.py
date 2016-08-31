@@ -11,54 +11,55 @@ import myanimelist.anime
 class TestAnimeClass(TestCase):
     """test anime parser."""
 
-    def setUpClass(self):
+    @classmethod
+    def setUpClass(cls):
         """set up class."""
-        self.session = myanimelist.session.Session()
-        self.bebop = self.session.anime(1)
-        self.sunrise = self.session.producer(14)
-        self.bandai_visual = self.session.producer(23)
-        self.action = self.session.genre(1)
-        self.hex = self.session.character(94717)
-        self.hex_va = self.session.person(5766)
-        self.bebop_side_story = self.session.anime(5)
-        self.space_tag = self.session.tag('space')
+        cls.session = myanimelist.session.Session()
+        cls.bebop = cls.session.anime(1)
+        cls.sunrise = cls.session.producer(14)
+        cls.bandai_visual = cls.session.producer(23)
+        cls.action = cls.session.genre(1)
+        cls.hex = cls.session.character(94717)
+        cls.hex_va = cls.session.person(5766)
+        cls.bebop_side_story = cls.session.anime(5)
+        cls.space_tag = cls.session.tag('space')
 
-        self.spicy_wolf = self.session.anime(2966)
-        self.kadokawa = self.session.producer(352)
-        self.romance = self.session.genre(22)
-        self.holo = self.session.character(7373)
-        self.holo_va = self.session.person(70)
-        self.spicy_wolf_sequel = self.session.anime(6007)
-        self.adventure_tag = self.session.tag(u'adventure')
+        cls.spicy_wolf = cls.session.anime(2966)
+        cls.kadokawa = cls.session.producer(352)
+        cls.romance = cls.session.genre(22)
+        cls.holo = cls.session.character(7373)
+        cls.holo_va = cls.session.person(70)
+        cls.spicy_wolf_sequel = cls.session.anime(6007)
+        cls.adventure_tag = cls.session.tag(u'adventure')
 
-        self.space_dandy = self.session.anime(20057)
-        self.funi = self.session.producer(102)
-        self.scifi = self.session.genre(24)
-        self.toaster = self.session.character(110427)
-        self.toaster_va = self.session.person(611)
+        cls.space_dandy = cls.session.anime(20057)
+        cls.funi = cls.session.producer(102)
+        cls.scifi = cls.session.genre(24)
+        cls.toaster = cls.session.character(110427)
+        cls.toaster_va = cls.session.person(611)
 
-        self.totoro = self.session.anime(523)
-        self.gkids = self.session.producer(783)
-        self.studio_fantasia = self.session.producer(24)
-        self.supernatural = self.session.genre(37)
-        self.satsuki = self.session.character(267)
-        self.satsuki_va = self.session.person(1104)
+        cls.totoro = cls.session.anime(523)
+        cls.gkids = cls.session.producer(783)
+        cls.studio_fantasia = cls.session.producer(24)
+        cls.supernatural = cls.session.genre(37)
+        cls.satsuki = cls.session.character(267)
+        cls.satsuki_va = cls.session.person(1104)
 
-        self.prisma = self.session.anime(18851)
-        self.silver_link = self.session.producer(300)
-        self.fantasy = self.session.genre(10)
-        self.ilya = self.session.character(503)
-        self.ilya_va = self.session.person(117)
+        cls.prisma = cls.session.anime(18851)
+        cls.silver_link = cls.session.producer(300)
+        cls.fantasy = cls.session.genre(10)
+        cls.ilya = cls.session.character(503)
+        cls.ilya_va = cls.session.person(117)
 
-        self.invalid_anime = self.session.anime(457384754)
-        self.latest_anime = myanimelist.anime.Anime.newest(self.session)
+        cls.invalid_anime = cls.session.anime(457384754)
+        cls.latest_anime = myanimelist.anime.Anime.newest(cls.session)
 
-        self.non_tagged_anime = self.session.anime(10448)
+        cls.non_tagged_anime = cls.session.anime(10448)
         # this anime is not non_tagged but only have one tag(drama)
 
         # test character without va
-        self.non_non_biyori = self.session.anime(17549)
-        self.suguru = self.session.character(88597)
+        cls.non_non_biyori = cls.session.anime(17549)
+        cls.suguru = cls.session.character(88597)
 
     def test_no_id_invalid_anime(self):
         """test for invalid in input."""
