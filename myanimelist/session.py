@@ -3,19 +3,36 @@
 
 import requests
 
-import anime
-import manga
-import character
-import person
-import user
-import club
-import genre
-import tag
-import publication
-import producer
-import anime_list
-import manga_list
-from base import Error
+try:
+    import anime
+    import manga
+    import character
+    import person
+    import user
+    import club
+    import genre
+    import tag
+    import publication
+    import producer
+    import anime_list
+    import manga_list
+    from base import Error
+except ImportError:
+    from . import (
+        anime,
+        manga,
+        character,
+        person,
+        user,
+        club,
+        genre,
+        tag,
+        publication,
+        producer,
+        anime_list,
+        manga_list,
+    )
+    from .base import Error
 
 
 class UnauthorizedError(Error):

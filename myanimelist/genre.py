@@ -1,7 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for genre."""
+try:
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
-from base import Base, MalformedPageError, InvalidBaseError, loadable
 
 
 class MalformedGenrePageError(MalformedPageError):

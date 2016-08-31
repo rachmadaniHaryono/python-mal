@@ -1,7 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for club."""
 
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+try:
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except:
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 
 class MalformedClubPageError(MalformedPageError):

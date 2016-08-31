@@ -127,7 +127,7 @@ class TestAnimeClass(TestCase):
         self.assertIn('カウボーイビバップ', self.bebop.alternative_titles['Japanese'])
         self.assertIn('スペース☆ダンディ', self.space_dandy.alternative_titles['Japanese'])
         self.assertIn(
-            'Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス!',
+            'Fate/kaleid liner プリズマ☆イリヤ 運動会 DE ダンス！',
             self.prisma.alternative_titles['Japanese']
         )
 

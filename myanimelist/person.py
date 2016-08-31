@@ -1,7 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+"""module for person."""
+try:
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from .import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 
 class MalformedPersonPageError(MalformedPageError):

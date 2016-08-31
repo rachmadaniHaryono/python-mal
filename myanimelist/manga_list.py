@@ -1,7 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-import media_list
+"""module for manga list."""
+try:
+    import media_list
+except ImportError:
+    from . import media_list
 
 
 class MangaList(media_list.MediaList):

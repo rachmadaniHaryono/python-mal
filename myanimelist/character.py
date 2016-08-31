@@ -1,12 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for character."""
 
 import re
 
-import bs4
-
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
+try:
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 
 class MalformedCharacterPageError(MalformedPageError):

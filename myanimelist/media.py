@@ -3,12 +3,16 @@
 import abc
 import decimal
 import re
+from decimal import InvalidOperation
 
 import bs4
 
-import utilities
-from base import Base, MalformedPageError, InvalidBaseError, loadable
-from decimal import InvalidOperation
+try:
+    import utilities
+    from base import Base, MalformedPageError, InvalidBaseError, loadable
+except ImportError:
+    from . import utilities
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable
 
 # from anime import MalformedAnimePageError
 
@@ -109,6 +113,40 @@ class Media(Base):
         self._score_stats = None
         self._status_stats = None
 
+    def _get_alternative_titles(self, html_tag):
+        """get alternative_titles from html_tag."""
+        alt_titles_header = html_tag.find(u'h2', text=u'Alternative Titles')
+        result = {}
+
+        if alt_titles_header:
+            next_tag = alt_titles_header.find_next_sibling(u'div', {'class': 'spaceit_pad'})
+            while True:
+                if next_tag is None or not next_tag.find(u'span', {'class': 'dark_text'}):
+                    # not a language node, break.
+                    break
+                # language tag have following form
+                # <div><span>English:</span> english alternative text</div>
+                # when converted into text will have following form
+                # '\nEnglish: Cowboy Bebop\n  '
+                # so split by char ':' and strip whitespace for both vars
+                tag_texts = next_tag.text.split(':', 1)
+                language = tag_texts[0].strip()
+                alt_title = tag_texts[1].strip()
+                # append to result
+                if language not in result:
+                    result[language] = [alt_title]
+                else:
+                    result[language].append(alt_title)
+                # get next tag.
+                next_tag = next_tag.find_next_sibling(u'div', {'class': 'spaceit_pad'})
+
+            # while ended and return result
+            return result
+
+        else:
+            # send empty dict when no alternative titles found.
+            return {}
+
     def parse_sidebar(self, media_page, media_page_original=None):
         """Parses the DOM and returns media attributes in the sidebar.
 
@@ -153,27 +191,14 @@ class Media(Base):
         info_panel_first =  media_page_original.select('div#content table td')[0]
         try:
             picture_tag = info_panel_first.find(u'img')
-            media_info[u'picture'] = picture_tag.get(u'src').decode('utf-8')
+            media_info[u'picture'] = picture_tag.get('src')
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             # assemble alternative titles for this series.
-            media_info[u'alternative_titles'] = {}
-            alt_titles_header = info_panel_first.find(u'h2', text=u'Alternative Titles')
-            if alt_titles_header:
-                next_tag = alt_titles_header.find_next_sibling(u'div', {'class': 'spaceit_pad'})
-                while True:
-                    if next_tag is None or not next_tag.find(u'span', {'class': 'dark_text'}):
-                        # not a language node, break.
-                        break
-                    # get language and remove the node.
-                    language = next_tag.find(u'span').text[:-1]
-                    utilities.extract_tags(next_tag.find_all(u'span', {'class': 'dark_text'}))
-                    names = next_tag.text.strip().split(u', ')
-                    media_info[u'alternative_titles'][language] = names
-                    next_tag = next_tag.find_next_sibling(u'div', {'class': 'spaceit_pad'})
+            media_info[u'alternative_titles'] = self._get_alternative_titles(info_panel_first)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -242,23 +267,29 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
-                utilities.extract_tags(rank_tag.find_all())
-                media_info[u'rank'] = int(rank_tag.text.strip()[1:].replace(u',', ''))
-            except AttributeError:
-                rank_tag = filter(lambda x: 'Ranked:' in x.text, media_page_original.find_all('div', {'class':'spaceit'}))
-                media_info[u'rank'] = int(rank_tag[0].text.split('#')[-1].strip())
+            # find rank-html-tag
+            rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
+            utilities.extract_tags(rank_tag.find_all())
+            # format rank
+            rank = rank_tag.text.strip()[1:].replace(u',', '')
+            rank = rank.split('#')[1].split()[0]
+            # set formatted rank into media info
+            media_info[u'rank'] = int(rank)
 
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            try :
+            try:
+                # find popularity html-tag
                 popularity_tag = info_panel_first.find(text=u'Popularity:').parent.parent
                 utilities.extract_tags(popularity_tag.find_all())
-                media_info[u'popularity'] = int(popularity_tag.text.strip()[1:].replace(u',', ''))
+                # format popularity
+                popularity = popularity_tag.text.strip()[1:].replace(u',', '')
+                popularity = popularity.split('#')[1].split()[0]
+                # set into media info
+                media_info[u'popularity'] = int(popularity)
             except AttributeError :
                 rank_tag = filter(lambda x: 'Popularity' in x.text,
                                   media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
@@ -268,29 +299,38 @@ class Media(Base):
                 raise
 
         try:
-            try :
+            try:
                 members_tag = info_panel_first.find(text=u'Members:').parent.parent
                 utilities.extract_tags(members_tag.find_all())
-                media_info[u'members'] = int(members_tag.text.strip().replace(u',', ''))
-            except AttributeError :
-                members_tag = filter(lambda x: 'Members' in x.text,
-                                  media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
-                media_info[u'members'] = int(members_tag.text.split(':')[-1].strip().replace(u',', ''))
+                members = members_tag.text.split(':')[1].strip()[0].replace(u',', '')
+                media_info[u'members'] = int(members)
+            except AttributeError:
+                members_tag = filter(
+                    lambda x: 'Members' in x.text,
+                    media_page_original.find_all('span', {'class': 'dark_text'})
+                )[0].parent
+                members = members_tag.text.split(':')[-1].strip().replace(u',', '')
+                media_info[u'members'] = int(members)
 
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            try :
+            try:
+                # get html tag
                 favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
                 utilities.extract_tags(favorites_tag.find_all())
-                media_info[u'favorites'] = int(favorites_tag.text.strip().replace(u',', ''))
-            except AttributeError :
-                favorites_tag = filter(lambda x: 'Favorites' in x.text,
-                                  media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
-                media_info[u'favorites'] = int(favorites_tag.text.split(':')[-1].strip().replace(u',', ''))                
-            
+                # format favorites html-tag
+                favorites = favorites_tag.text.split(':').strip().replace(u',', '')
+                media_info[u'favorites'] = int(favorites)
+            except AttributeError:
+                favorites_tag = list(filter(
+                    lambda x: 'Favorites' in x.text,
+                    media_page_original.find_all('span', {'class': 'dark_text'})
+                ))[0].parent
+                favorites = favorites_tag.text.split(':')[-1].strip().replace(u',', '')
+                media_info[u'favorites'] = int(favorites)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

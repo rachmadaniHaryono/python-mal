@@ -1,9 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import utilities
-from base import loadable
-import media
-
+"""manga module."""
+try:
+    from base import loadable
+    import media
+    import utilities
+except ImportError:
+    from .base import loadable
+    from . import (
+        media,
+        utilities,
+    )
 
 class MalformedMangaPageError(media.MalformedMediaPageError):
     """Indicates that a manga-related page on MAL has irreparably broken markup in some way.
