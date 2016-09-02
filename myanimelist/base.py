@@ -3,6 +3,21 @@
 import abc
 import functools
 
+# fix py2 to py3 unicode/str
+try:
+    unicode = unicode
+except NameError:
+    # 'unicode' is undefined, must be Python 3
+    str = str
+    unicode = str
+    bytes = bytes
+    basestring = (str, bytes)
+else:
+    # 'unicode' exists, must be Python 2
+    str = str
+    unicode = unicode
+    bytes = str
+    basestring = basestring
 
 class Error(Exception):
     """Base exception class that takes a message to display upon raising.
@@ -31,11 +46,17 @@ class MalformedPageError(Error):
         if isinstance(id, unicode):
             self.id = id
         else:
-            self.id = str(id).decode(u'utf-8')
+            try:
+                self.id = str(id).decode(u'utf-8')
+            except AttributeError:
+                self.id = str(id)
         if isinstance(html, unicode):
             self.html = html
         else:
-            self.html = str(html).decode(u'utf-8')
+            try:
+                self.html = str(html).decode(u'utf-8')
+            except AttributeError:
+                self.html = str(html)
 
     def __str__(self):
         return "\n".join([
