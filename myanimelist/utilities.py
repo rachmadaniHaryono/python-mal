@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 import datetime
 import re
-import urllib
+try:  # py2
+    from urllib import urlencode as py_urlencode 
+except ImportError:  # py3
+    from urllib.parse import urlencode as py_urlencode
 
 import bs4
 
@@ -52,10 +55,11 @@ def get_clean_dom(html):
 
 
 def urlencode(url):
-    """
-      Given a string, return a string that can be used safely in a MAL url.
-    """
-    return urllib.urlencode({'': url.encode(u'utf-8').replace(' ', '_')})[1:].replace('%2F', '/')
+    """Given a string, return a string that can be used safely in a MAL url."""
+    try:
+        return py_urlencode({'': url.encode(u'utf-8').replace(' ', '_')})[1:].replace('%2F', '/')
+    except TypeError:
+        return py_urlencode({'': url.replace(' ', '_')})[1:].replace('%2F', '/')
 
 
 def extract_tags(tags):
