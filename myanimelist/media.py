@@ -398,29 +398,7 @@ class Media(Base):
         media_info = self.parse_sidebar(media_page, media_page_original)
 
         try:
-            if media_page.find(u'h2', text=u'Synopsis') is not None:
-                synopsis_elt = media_page.find(u'h2', text=u'Synopsis').parent
-            else:
-                # find Synopsis elt not directly
-                synopsis_elt = [x for x in media_page_original.find_all(u'h2') if "Synopsis" in x.text][0].parent
-            # before removing h2 tag, filter the text after the second h2-tag
-            # synopsis_elt = synopsis_elt.split(synopsis_elt.find_all('h2'))[0]
-            # filter the text between 2 h2-tag
-            temp_synopsis_elt = []
-            for x in synopsis_elt.contents[1:]:
-                if type(x) == bs4.element.Tag:
-                    if x.name == 'h2':
-                        break
-                    temp_synopsis_elt.append(x.text)
-                else:
-                    temp_synopsis_elt.append(x)
-            synopsis_elt = ''.join(temp_synopsis_elt)
-            try:
-                utilities.extract_tags(synopsis_elt.find_all(u'h2'))
-                media_info[u'synopsis'] = synopsis_elt.text.strip()
-            except AttributeError:
-                # the current synopsis_elt may not contain any h2-tag
-                media_info[u'synopsis'] = synopsis_elt
+            media_info[u'synopsis'] = media_page.find('span', {'itemprop': 'description'}).text
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

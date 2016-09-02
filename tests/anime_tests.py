@@ -317,7 +317,7 @@ class TestAnimeClass(TestCase):
         self.assertIn('Spike', self.bebop.synopsis)
         self.assertIsInstance(self.space_dandy.synopsis, unicode)
         self.assertGreater(len(self.space_dandy.synopsis), 0)
-        self.assertIn('dandy', self.space_dandy.synopsis)
+        self.assertIn('Dandy', self.space_dandy.synopsis)
         self.assertIsInstance(self.totoro.synopsis, unicode)
         self.assertGreater(len(self.totoro.synopsis), 0)
         self.assertIn('Satsuki', self.totoro.synopsis)
