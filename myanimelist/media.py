@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for media."""
 import abc
 import decimal
 import re
+import warnings
 from decimal import InvalidOperation
 
 import bs4
@@ -331,20 +333,6 @@ class Media(Base):
                 ))[0].parent
                 favorites = favorites_tag.text.split(':')[-1].strip().replace(u',', '')
                 media_info[u'favorites'] = int(favorites)
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
-
-        try:
-            # get popular tags.
-            tags_tag = media_page.find('span',text='Genres:').parent
-            media_info[u'popular_tags'] = {}
-            for tag_link in tags_tag.find_all('a'):
-                tag = self.session.tag(tag_link.text.lower())
-
-                tag_id = tag_link.get('href').split('/genre/')[1].split('/')[0]
-                media_info['popular_tags'] = tag_id
-
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -759,6 +747,10 @@ class Media(Base):
     def popular_tags(self):
         """Tags dict with :class:`myanimelist.tag.Tag` objects as keys, and the number of tags as values.
         """
+        warnings.warn(
+            'Popular tags is not available anymore',
+            DeprecationWarning
+        )
         return self._popular_tags
 
     @property
