@@ -6,6 +6,7 @@ import datetime
 
 import myanimelist.session
 import myanimelist.anime
+from myanimelist.base import unicode
 
 
 class TestAnimeClass(TestCase):
