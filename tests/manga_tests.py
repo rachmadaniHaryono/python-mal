@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module to test manga."""
 
 from unittest import TestCase
 import datetime
@@ -8,90 +9,103 @@ import myanimelist.session
 import myanimelist.manga
 
 
-class testMangaClass(TestCase):
+class TestMangaClass(TestCase):
+    """test manga class."""
+
     @classmethod
-    def setUpClass(self):
-        self.session = myanimelist.session.Session()
+    def setUpClass(cls):
+        """set up class."""
+        cls.session = myanimelist.session.Session()
 
-        self.monster = self.session.manga(1)
-        self.mystery = self.session.genre(7)
-        self.mystery_tag = self.session.tag(u'mystery')
-        self.urasawa = self.session.person(1867)
-        self.original = self.session.publication(1)
-        self.heinemann = self.session.character(6123)
-        self.monster_side_story = self.session.manga(10968)
+        cls.monster = cls.session.manga(1)
+        cls.mystery = cls.session.genre(7)
+        cls.mystery_tag = cls.session.tag(u'mystery')
+        cls.urasawa = cls.session.person(1867)
+        cls.original = cls.session.publication(1)
+        cls.heinemann = cls.session.character(6123)
+        cls.monster_side_story = cls.session.manga(10968)
 
-        self.holic = self.session.manga(10)
-        self.supernatural = self.session.genre(37)
-        self.supernatural_tag = self.session.tag(u'supernatural')
-        self.clamp = self.session.person(1877)
-        self.bessatsu = self.session.publication(450)
-        self.doumeki = self.session.character(567)
-        self.holic_sequel = self.session.manga(46010)
+        cls.holic = cls.session.manga(10)
+        cls.supernatural = cls.session.genre(37)
+        cls.supernatural_tag = cls.session.tag(u'supernatural')
+        cls.clamp = cls.session.person(1877)
+        cls.bessatsu = cls.session.publication(450)
+        cls.doumeki = cls.session.character(567)
+        cls.holic_sequel = cls.session.manga(46010)
 
-        self.naruto = self.session.manga(11)
-        self.shounen = self.session.genre(27)
-        self.action_tag = self.session.tag(u'action')
-        self.kishimoto = self.session.person(1879)
-        self.shonen_jump_weekly = self.session.publication(83)
-        self.ebizou = self.session.character(31825)
+        cls.naruto = cls.session.manga(11)
+        cls.shounen = cls.session.genre(27)
+        cls.action_tag = cls.session.tag(u'action')
+        cls.kishimoto = cls.session.person(1879)
+        cls.shonen_jump_weekly = cls.session.publication(83)
+        cls.ebizou = cls.session.character(31825)
 
-        self.tomoyo_after = self.session.manga(3941)
-        self.drama = self.session.genre(8)
-        self.romance_tag = self.session.tag(u'romance')
-        self.sumiyoshi = self.session.person(3830)
-        self.dragon_age = self.session.publication(98)
-        self.kanako = self.session.character(21227)
+        cls.tomoyo_after = cls.session.manga(3941)
+        cls.drama = cls.session.genre(8)
+        cls.romance_tag = cls.session.tag(u'romance')
+        cls.sumiyoshi = cls.session.person(3830)
+        cls.dragon_age = cls.session.publication(98)
+        cls.kanako = cls.session.character(21227)
 
-        self.judos = self.session.manga(79819)
-        self.action = self.session.genre(1)
-        self.kondou = self.session.person(18765)
+        cls.judos = cls.session.manga(79819)
+        cls.action = cls.session.genre(1)
+        cls.kondou = cls.session.person(18765)
 
-        self.invalid_manga = self.session.manga(457384754)
-        self.latest_manga = myanimelist.manga.Manga.newest(self.session)
+        cls.invalid_manga = cls.session.manga(457384754)
+        cls.latest_manga = myanimelist.manga.Manga.newest(cls.session)
 
-    def testNoIDInvalidManga(self):
+    def test_no_id_invalid_manga(self):
+        """test no id and invalid manga."""
         with self.assertRaises(TypeError):
             self.session.manga()
 
-    def testNoSessionInvalidLatestManga(self):
+    def test_no_session_invalid_latest_manga(self):
+        """test no session."""
         with self.assertRaises(TypeError):
             myanimelist.manga.Manga.newest()
 
-    def testNegativeInvalidManga(self):
+    def test_negative_invalid_manga(self):
+        """test negative manga id."""
         with self.assertRaises(myanimelist.manga.InvalidMangaError):
             self.session.manga(-1)
 
-    def testFloatInvalidManga(self):
+    def test_float_invalid_manga(self):
+        """test float invalid manga id."""
         with self.assertRaises(myanimelist.manga.InvalidMangaError):
             self.session.manga(1.5)
 
-    def testNonExistentManga(self):
+    def test_non_existent_manga(self):
+        """test non existent manga."""
         with self.assertRaises(myanimelist.manga.MalformedMangaPageError):
             self.invalid_manga.load()
 
-    def testLatestManga(self):
+    def test_latest_manga(self):
+        """test latest manga."""
         self.assertIsInstance(self.latest_manga, myanimelist.manga.Manga)
         self.assertGreater(self.latest_manga.id, 79818)
 
-    def testMangaValid(self):
+    def test_manga_valid(self):
+        """test valid manga."""
         self.assertIsInstance(self.monster, myanimelist.manga.Manga)
 
-    def testTitle(self):
+    def test_title(self):
+        """title."""
         self.assertEqual(self.monster.title, u'Monster')
         self.assertEqual(self.holic.title, u'xxxHOLiC')
         self.assertEqual(self.naruto.title, u'Naruto')
         self.assertEqual(self.tomoyo_after.title, u'Clannad: Tomoyo After')
         self.assertEqual(self.judos.title, u'Judos')
 
-    def testPicture(self):
+    def test_picture(self):
+        """test picture."""
         self.assertIsInstance(self.holic.picture, unicode)
         self.assertIsInstance(self.naruto.picture, unicode)
         self.assertIsInstance(self.monster.picture, unicode)
         self.assertIsInstance(self.tomoyo_after.picture, unicode)
         self.assertIsInstance(self.judos.picture, unicode)
 
-    def testAlternativeTitGreater(self):
+    def test_alternative_tit_greater(self):
+        """test alternative_titles."""
         self.assertIn(u'Japanese', self.monster.alternative_titles)
         self.assertIsInstance(self.monster.alternative_titles[u'Japanese'], list)
         # http://myanimelist.net/manga/1/Monster
@@ -110,19 +124,22 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.alternative_titles[u'Synonyms'], list)
         self.assertIn(u'Juudouzu', self.judos.alternative_titles[u'Synonyms'])
 
-    def testTypes(self):
+    def test_types(self):
+        """test type."""
         self.assertEqual(self.monster.type, u'Manga')
         self.assertEqual(self.tomoyo_after.type, u'Manga')
         self.assertEqual(self.judos.type, u'Manga')
 
-    def testVolumes(self):
+    def test_volumes(self):
+        """test volumes."""
         self.assertEqual(self.holic.volumes, 19)
         self.assertEqual(self.monster.volumes, 18)
         self.assertEqual(self.tomoyo_after.volumes, 1)
         self.assertEqual(self.naruto.volumes, 72)
         self.assertEqual(self.judos.volumes, 3)
 
-    def testChapters(self):
+    def test_chapters(self):
+        """test chapters."""
         self.assertEqual(self.holic.chapters, 213)
         self.assertEqual(self.monster.chapters, 162)
         self.assertEqual(self.tomoyo_after.chapters, 4)
@@ -130,13 +147,15 @@ class testMangaClass(TestCase):
         # update from 27-8-2015 judos is finished with 21 chapter
         self.assertEqual(self.judos.chapters, 21)
 
-    def testStatus(self):
+    def test_status(self):
+        """test status."""
         self.assertEqual(self.holic.status, u'Finished')
         self.assertEqual(self.tomoyo_after.status, u'Finished')
         self.assertEqual(self.monster.status, u'Finished')
         self.assertEqual(self.naruto.status, u'Finished')
 
-    def testPublished(self):
+    def test_published(self):
+        """test published."""
         self.assertEqual(self.holic.published, (datetime.date(month=2, day=24, year=2003),
                          datetime.date(month=2, day=9, year=2011)))
         self.assertEqual(self.monster.published, (datetime.date(month=12, day=5, year=1994),
@@ -146,7 +165,8 @@ class testMangaClass(TestCase):
         self.assertEqual(self.tomoyo_after.published, (datetime.date(month=4, day=20, year=2007),
                          datetime.date(month=10, day=20, year=2007)))
 
-    def testGenres(self):
+    def test_genres(self):
+        """test genres."""
         self.assertIsInstance(self.holic.genres, list)
         self.assertGreater(self.holic.genres, 0)
         self.assertIn(self.mystery, self.holic.genres)
@@ -165,7 +185,8 @@ class testMangaClass(TestCase):
         self.assertIn(self.shounen, self.judos.genres)
         self.assertIn(self.action, self.judos.genres)
 
-    def testAuthors(self):
+    def test_authors(self):
+        """test authors."""
         self.assertIsInstance(self.holic.authors, dict)
         self.assertGreater(self.holic.authors, 0)
         self.assertIn(self.clamp, self.holic.authors)
@@ -187,7 +208,8 @@ class testMangaClass(TestCase):
         self.assertIn(self.kondou, self.judos.authors)
         self.assertEqual(self.judos.authors[self.kondou], u'Story & Art')
 
-    def testSerialization(self):
+    def test_serialization(self):
+        """test serialization."""
         self.assertIsInstance(self.holic.serialization, myanimelist.publication.Publication)
         self.assertEqual(self.bessatsu, self.holic.serialization)
         self.assertIsInstance(self.tomoyo_after.serialization, myanimelist.publication.Publication)
@@ -199,7 +221,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.serialization, myanimelist.publication.Publication)
         self.assertEqual(self.shonen_jump_weekly, self.judos.serialization)
 
-    def testScore(self):
+    def test_score(self):
+        """test score."""
         self.assertIsInstance(self.holic.score, tuple)
         self.assertGreater(self.holic.score[0], 0)
         self.assertLess(self.holic.score[0], 10)
@@ -229,7 +252,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.score[1], int)
         self.assertGreater(self.judos.score[1], 0)
 
-    def testRank(self):
+    def test_rank(self):
+        """test rank."""
         self.assertIsInstance(self.holic.rank, int)
         self.assertGreater(self.holic.rank, 0)
         self.assertIsInstance(self.monster.rank, int)
@@ -241,7 +265,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.rank, int)
         self.assertGreater(self.judos.rank, 0)
 
-    def testPopularity(self):
+    def test_popularity(self):
+        """test popularity."""
         self.assertIsInstance(self.holic.popularity, int)
         self.assertGreater(self.holic.popularity, 0)
         self.assertIsInstance(self.monster.popularity, int)
@@ -253,7 +278,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.popularity, int)
         self.assertGreater(self.judos.popularity, 0)
 
-    def testMembers(self):
+    def test_members(self):
+        """test members."""
         self.assertIsInstance(self.holic.members, int)
         self.assertGreater(self.holic.members, 0)
         self.assertIsInstance(self.monster.members, int)
@@ -265,7 +291,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.members, int)
         self.assertGreater(self.judos.members, 0)
 
-    def testFavorites(self):
+    def test_favorites(self):
+        """test favorites."""
         self.assertIsInstance(self.holic.favorites, int)
         self.assertGreater(self.holic.favorites, 0)
         self.assertIsInstance(self.monster.favorites, int)
@@ -277,7 +304,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.favorites, int)
         self.assertGreaterEqual(self.judos.favorites, 0)
 
-    def testPopularTags(self):
+    def test_popular_tags(self):
+        """test popular tags."""
         self.assertIsInstance(self.holic.popular_tags, dict)
         self.assertGreater(self.holic.popular_tags, 0)
         self.assertIn(self.supernatural_tag, self.holic.popular_tags)
@@ -297,7 +325,8 @@ class testMangaClass(TestCase):
         self.assertIsInstance(self.judos.popular_tags, dict)
         self.assertGreater(len(self.judos.popular_tags), 0)
 
-    def testSynopsis(self):
+    def test_synopsis(self):
+        """test synopsis."""
         self.assertIsInstance(self.holic.synopsis, unicode)
         self.assertGreater(self.holic.synopsis, 0)
         self.assertIn(u'Watanuki', self.holic.synopsis)
@@ -314,7 +343,8 @@ class testMangaClass(TestCase):
         self.assertGreater(self.judos.synopsis, 0)
         self.assertIn(u'hardcore', self.judos.synopsis)
 
-    def testRelated(self):
+    def test_related(self):
+        """test related."""
         self.assertIsInstance(self.holic.related, dict)
         self.assertIn('Sequel', self.holic.related)
         self.assertIn(self.holic_sequel, self.holic.related[u'Sequel'])
@@ -322,7 +352,8 @@ class testMangaClass(TestCase):
         self.assertIn('Side story', self.monster.related)
         self.assertIn(self.monster_side_story, self.monster.related[u'Side story'])
 
-    def testCharacters(self):
+    def test_characters(self):
+        """test characters."""
         self.assertIsInstance(self.holic.characters, dict)
         self.assertGreater(self.holic.characters, 0)
         self.assertIn(self.doumeki, self.holic.characters)
