@@ -131,14 +131,19 @@ class Media(Base):
                 # when converted into text will have following form
                 # '\nEnglish: Cowboy Bebop\n  '
                 # so split by char ':' and strip whitespace for both vars
+                # alt title may also splitted by ',',
+                # '\nEnglish: alt_titl1, alt_title2\n  '
+                # but it doesn't clear if there is another way to render that
+                # so split alt title by ',' naively
                 tag_texts = next_tag.text.split(':', 1)
                 language = tag_texts[0].strip()
-                alt_title = tag_texts[1].strip()
+                alt_title = [x.strip() for x in tag_texts[1].strip().split(',')]
+
                 # append to result
                 if language not in result:
-                    result[language] = [alt_title]
+                    result[language] = alt_title
                 else:
-                    result[language].append(alt_title)
+                    result[language].extend(alt_title)
                 # get next tag.
                 next_tag = next_tag.find_next_sibling(u'div', {'class': 'spaceit_pad'})
 
