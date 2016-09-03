@@ -6,10 +6,10 @@ import re
 
 try:
     import utilities
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
+    from base import Base, MalformedPageError, InvalidBaseError, loadable, unicode
 except ImportError:
     from . import utilities
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable, unicode
 
 
 class MalformedCharacterPageError(MalformedPageError):
@@ -91,7 +91,11 @@ class Character(Base):
 
         try:
             picture_tag = info_panel_first.find(u'img')
-            character_info[u'picture'] = picture_tag.get(u'src').decode('utf-8')
+            try:
+                character_info[u'picture'] = picture_tag.get(u'src').decode('utf-8')
+            except AttributeError:
+                character_info[u'picture'] = picture_tag.get(u'src')
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -254,15 +258,22 @@ class Character(Base):
 
         """
         character_info = self.parse_sidebar(picture_page)
-        second_col = \
-            picture_page.find(u'div', {'id': 'content'}).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1]
+        second_col = (picture_page.find(
+            u'div', {'id': 'content'}
+        ).find(u'table').find(u'tr').find_all(u'td', recursive=False)[1])
 
         try:
             picture_table = second_col.find(u'table', recursive=False)
             character_info[u'pictures'] = []
             if picture_table:
-                character_info[u'pictures'] = map(lambda img: img.get(u'src').decode('utf-8'),
-                                                  picture_table.find_all(u'img'))
+                c_pictures = list(map(
+                    lambda img: img.get(u'src'),
+                    picture_table.find_all(u'img')
+                ))
+                try:
+                    character_info[u'pictures'] = [x.decode('utf-8') for x in c_pictures]
+                except AttributeError:
+                    character_info[u'pictures'] = c_pictures
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

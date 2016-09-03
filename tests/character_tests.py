@@ -6,6 +6,7 @@ from unittest import TestCase
 import myanimelist.session
 import myanimelist.character
 import myanimelist.user
+from myanimelist.base import unicode
 
 
 class testCharacterClass(TestCase):
@@ -71,16 +72,17 @@ class testCharacterClass(TestCase):
         self.assertGreater(len(self.maria.picture), 0)
 
     def testPictures(self):
+        """test character picture."""
         self.assertIsInstance(self.spike.pictures, list)
         self.assertGreater(len(self.spike.pictures), 0)
         for p in self.spike.pictures:
             self.assertIsInstance(p, unicode)
-            self.assertTrue(p.startswith(u'http://'))
+            self.assertTrue(p.startswith(u'http://') or p.startswith('https://'))
         self.assertIsInstance(self.ed.pictures, list)
         self.assertGreater(len(self.ed.pictures), 0)
         for p in self.spike.pictures:
             self.assertIsInstance(p, unicode)
-            self.assertTrue(p.startswith(u'http://'))
+            self.assertTrue(p.startswith(u'http://')or p.startswith('https://'))
         self.assertIsInstance(self.maria.pictures, list)
 
     def testAnimeography(self):
