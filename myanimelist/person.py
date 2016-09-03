@@ -57,6 +57,47 @@ class Person(Base):
         self.set(self.parse_pictures(utilities.get_clean_dom(person)))
         return self
 
+    def _get_person_positions(self, person_page):
+        """get person position."""
+        table_siblings = [
+            tag for tag in person_page.select('div.normal_header')
+            if 'Staff Positions' in tag.text
+        ]
+        # only get first table_sibling
+        table_sibling = table_siblings[0]
+        # get position tables
+        position_table = table_sibling.find_next_sibling('table')
+        # return empty dict if no table found
+        if position_table is None:
+            return {}
+        # continue parsing if table found
+        position_tags = position_table.find_all('tr')
+        positions = {}
+        for position_tag in position_tags:
+            a_tags = position_tag.find_all('a')
+
+            # find anime
+            anime_tags = [xx for xx in a_tags if '/anime/' in xx.get('href')]
+            if len(anime_tags) != 0:
+                anime_tag = anime_tags[0]
+            else:
+                continue
+            # ie '/anime/6547/Angel_Beats'
+            anime_id = anime_tag.get('href').split('/')[2]
+            anime_title = anime_tag.text
+            anime_obj = self.session.anime(int(anime_id)).set({'title': anime_title})
+
+            # find the for the said character ie 'main'
+            role_tag = position_tag.find_all('td')[1].find('div').find('small').text.strip()
+
+            try:
+                # append dict to position
+                positions[anime_obj].append(role_tag)
+            except KeyError:
+                positions[anime_obj] = [role_tag]
+
+        return positions
+
     def parse(self, person_page):
         """Parses the DOM and returns person attributes in the main-content area.
 
@@ -85,6 +126,10 @@ class Person(Base):
             else:
                 name_parts = name.split(',')
                 return '{} {}'.format(name_parts[1].strip(), name_parts[0].strip())
+
+        # check if person info is not error  404
+        if person_page.select_one('div.error404'):
+            raise InvalidPersonError(self.id)
 
         # parsing person name
         try:
@@ -142,37 +187,7 @@ class Person(Base):
 
         # parsing person position
         try:
-            table_sibling = [tag for tag in person_page.select('div.normal_header') if 'Anime Staff Positions' in tag.text][0]
-            position_tables = table_sibling.parent.find_all('table')
-            # check if position table only have  1table
-            if len(position_tables) < 2:
-                position_tags = []
-            else:
-                position_tags = position_tables[1].find_all('tr')
-            positions = {}
-            for position_tag in position_tags:
-                a_tags = position_tag.find_all('a')
-
-                # find anime
-                anime_tags = [xx for xx in a_tags if '/anime/' in xx.get('href')]
-                if len(anime_tags) != 0:
-                    anime_tag = anime_tags[0]
-                else:
-                    continue
-                # ie '/anime/6547/Angel_Beats'
-                anime_id = anime_tag.get('href').split('/')[2]
-                anime_title = anime_tag.text
-                anime_obj = self.session.anime(int(anime_id)).set({'title': anime_title})
-
-                # find the for the said character ie 'main'
-                role_tag = position_tag.find_all('td')[1].find('div').find('small').text.strip()
-
-                try:
-                    # append dict to position
-                    positions[anime_obj].append(role_tag)
-                except KeyError:
-                    positions[anime_obj] = [role_tag]
-
+            positions = self._get_person_positions(person_page)
             # add as person attribute only if dict have been changed
             if positions == {}:
                 person_info[u'anime_staff_positions'] = None

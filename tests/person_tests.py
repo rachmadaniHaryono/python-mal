@@ -64,13 +64,14 @@ class testPersonClass(TestCase):
         self.assertIsNone(voice_roles)
 
     def testPersonPosition(self):
+        """test person position."""
         hk_positions = self.hiroshi_kamiya.anime_staff_positions
         self.assertIsInstance(hk_positions, dict)
-        self.assertGreater(hk_positions, 0)
+        self.assertGreater(len(hk_positions), 0)
         self.assertIn(self.hk_anime, hk_positions)
         self.assertIn(self.hk_position, hk_positions[self.hk_anime])
         self.assertIsInstance(hk_positions[self.hk_anime], list)
-        self.assertGreater(hk_positions[self.hk_anime], 0)
+        self.assertGreater(len(hk_positions[self.hk_anime]), 0)
 
     def testNoPersonPosition(self):
         positions = self.nayeli.anime_staff_positions
