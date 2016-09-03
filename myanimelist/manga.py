@@ -91,7 +91,12 @@ class Manga(media.Media):
         try:
             volumes_tag = info_panel_first.find(text=u'Volumes:').parent.parent
             utilities.extract_tags(volumes_tag.find_all(u'span', {'class': 'dark_text'}))
-            manga_info[u'volumes'] = int(volumes_tag.text.strip()) if volumes_tag.text.strip() != 'Unknown' else None
+            manga_volume = volumes_tag.text.split(':')[1].strip()
+            manga_info[u'volumes'] = (
+                int(manga_volume)
+                if volumes_tag.text.strip() != 'Unknown'
+                else None
+            )
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -99,7 +104,12 @@ class Manga(media.Media):
         try:
             chapters_tag = info_panel_first.find(text=u'Chapters:').parent.parent
             utilities.extract_tags(chapters_tag.find_all(u'span', {'class': 'dark_text'}))
-            manga_info[u'chapters'] = int(chapters_tag.text.strip()) if chapters_tag.text.strip() != 'Unknown' else None
+            manga_chapters = chapters_tag.text.split(':')[1].strip()
+            manga_info[u'chapters'] = (
+                int(manga_chapters)
+                if chapters_tag.text.strip() != 'Unknown'
+                else None
+            )
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -156,10 +166,14 @@ class Manga(media.Media):
             publication_link = serialization_tag.find('a')
             manga_info[u'serialization'] = None
             if publication_link:
-                link_parts = publication_link.get('href').split('mid=')
                 # of the form /manga.php?mid=1
-                manga_info[u'serialization'] = self.session.publication(int(link_parts[1])).set(
-                    {'name': publication_link.text})
+                link_parts = publication_link.get('href').split('mid=')
+                # example for link_parts
+                #  ['/manga/magazine/450/Bessatsu_Shounen_Magazine']
+                publication_id = link_parts[0].split('/manga/magazine/')[1].split('/')[0]
+                manga_info[u'serialization'] = self.session.publication(int(publication_id)).set(
+                    {'name': publication_link.text}
+                )
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
