@@ -561,7 +561,10 @@ class Media(Base):
         media_info = self.parse_sidebar(character_page, character_page_original)
 
         try:
-            character_title = filter(lambda x: u'Characters' in x.text, character_page.find_all(u'h2'))
+            character_title = list(filter(
+                lambda x: u'Characters' in x.text,
+                character_page.find_all(u'h2'))
+            )
             media_info[u'characters'] = {}
             if character_title:
                 character_title = character_title[0]

@@ -7,6 +7,7 @@ import datetime
 
 import myanimelist.session
 import myanimelist.manga
+from myanimelist.base import unicode
 
 
 class TestMangaClass(TestCase):
@@ -362,21 +363,21 @@ class TestMangaClass(TestCase):
     def test_characters(self):
         """test characters."""
         self.assertIsInstance(self.holic.characters, dict)
-        self.assertGreater(self.holic.characters, 0)
+        self.assertGreater(len(self.holic.characters), 0)
         self.assertIn(self.doumeki, self.holic.characters)
         self.assertEqual(self.holic.characters[self.doumeki]['role'], 'Main')
 
         self.assertIsInstance(self.monster.characters, dict)
-        self.assertGreater(self.monster.characters, 0)
+        self.assertGreater(len(self.monster.characters), 0)
         self.assertIn(self.heinemann, self.monster.characters)
         self.assertEqual(self.monster.characters[self.heinemann]['role'], 'Main')
 
         self.assertIsInstance(self.naruto.characters, dict)
-        self.assertGreater(self.naruto.characters, 0)
+        self.assertGreater(len(self.naruto.characters), 0)
         self.assertIn(self.ebizou, self.naruto.characters)
         self.assertEqual(self.naruto.characters[self.ebizou]['role'], 'Supporting')
 
         self.assertIsInstance(self.tomoyo_after.characters, dict)
-        self.assertGreater(self.tomoyo_after.characters, 0)
+        self.assertGreater(len(self.tomoyo_after.characters), 0)
         self.assertIn(self.kanako, self.tomoyo_after.characters)
         self.assertEqual(self.tomoyo_after.characters[self.kanako]['role'], 'Supporting')
