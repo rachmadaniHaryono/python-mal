@@ -188,23 +188,27 @@ class TestMangaClass(TestCase):
     def test_authors(self):
         """test authors."""
         self.assertIsInstance(self.holic.authors, dict)
-        self.assertGreater(self.holic.authors, 0)
+        self.assertGreater(len(self.holic.authors), 0)
         self.assertIn(self.clamp, self.holic.authors)
         self.assertEqual(self.holic.authors[self.clamp], u'Story & Art')
+
         self.assertIsInstance(self.tomoyo_after.authors, dict)
-        self.assertGreater(self.tomoyo_after.authors, 0)
+        self.assertGreater(len(self.tomoyo_after.authors), 0)
         self.assertIn(self.sumiyoshi, self.tomoyo_after.authors)
         self.assertEqual(self.tomoyo_after.authors[self.sumiyoshi], u'Art')
+
         self.assertIsInstance(self.naruto.authors, dict)
-        self.assertGreater(self.naruto.authors, 0)
+        self.assertGreater(len(self.naruto.authors), 0)
         self.assertIn(self.kishimoto, self.naruto.authors)
         self.assertEqual(self.naruto.authors[self.kishimoto], u'Story & Art')
+
         self.assertIsInstance(self.monster.authors, dict)
-        self.assertGreater(self.monster.authors, 0)
+        self.assertGreater(len(self.monster.authors), 0)
         self.assertIn(self.urasawa, self.monster.authors)
         self.assertEqual(self.monster.authors[self.urasawa], u'Story & Art')
+
         self.assertIsInstance(self.judos.authors, dict)
-        self.assertGreater(self.judos.authors, 0)
+        self.assertGreater(len(self.judos.authors), 0)
         self.assertIn(self.kondou, self.judos.authors)
         self.assertEqual(self.judos.authors[self.kondou], u'Story & Art')
 
