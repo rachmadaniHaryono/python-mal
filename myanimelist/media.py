@@ -206,13 +206,8 @@ class Media(Base):
                 raise
 
         try:
-            try:
                 type_tag = info_panel_first.find(text=u'Type:').parent.parent
-                utilities.extract_tags(type_tag.find_all(u'span', {'class': 'dark_text'}))
-                media_info[u'type'] = type_tag.text.strip()
-            except AttributeError:
-                type_tag = [x for x in info_panel_first.find_all('div') if 'Type:' in x.text][0]
-                media_info[u'type'] = type_tag.text.split(':')[-1].strip()
+                media_info[u'type'] = type_tag.text.split(':')[1].strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
