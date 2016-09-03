@@ -8,10 +8,10 @@ import bs4
 
 try:
     import utilities
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
+    from base import Base, MalformedPageError, InvalidBaseError, loadable, unicode
 except ImportError:
     from . import utilities
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable, unicode
 
 from bs4 import BeautifulSoup
 
@@ -71,6 +71,7 @@ class User(Base):
         self.username = username
         if not isinstance(self.username, unicode) or len(self.username) < 1:
             raise InvalidUserError(self.username)
+        self._id = None
         self._picture = None
         self._favorite_anime = None
         self._favorite_manga = None
@@ -96,6 +97,80 @@ class User(Base):
         self._clubs = None
         self._friends = None
 
+    def _get_favorite(self, user_page, category):
+        assert category in ['anime', 'manga', 'character', 'people']
+        """get user favorite_anime."""
+        # favorite category
+        if category == 'character':
+            fav_cat = {}
+            # class used when searching category table
+            cls_kw = 'characters'
+        else:
+            fav_cat = []
+            cls_kw = category
+        # find which table/div
+        favorite_table = user_page.select_one('.favorites-list.{}'.format(cls_kw))
+        # return None if no table found
+        if favorite_table is None:
+            return None
+        # parse the table
+        for row in favorite_table.find_all('li'):
+            # parse the link_tags in row
+            link_tags = []
+            for x in row.find_all('a'):
+                try:
+                    if 'image' in x.get('class'):
+                        pass
+                    else:
+                        link_tags.append(x)
+                except TypeError:
+                    # link_tag may not have any class
+                    # but add it nevertheless
+                    link_tags.append(x)
+
+            # process the link
+            link_tag = link_tags[0]  # assumme only the first link is the correct one
+            link = link_tags[0].get('href')
+            link_kw = category
+            # get link keyword
+            if category == 'character':
+                category_id = int(link.split('/{}/'.format(link_kw))[1].split('/')[0])
+                category_info = {'title': link_tag.text}
+                category_obj = getattr(self.session, category)(category_id).set(category_info)
+
+                # process the media
+                # media_link form
+                # '/anime/356/Fate_stay_night'
+                media_link_tag = link_tags[1]  # assume it is the second link
+                media_link = media_link_tag.get('href')
+                media_type = media_link.split('/')[1]
+                media_id = int(media_link.split('/{}/'.format(media_type))[1].split('/')[0])
+                media_info = {'title': media_link_tag.text}
+                media_obj = getattr(self.session, media_type)(media_id).set(media_info)
+
+                # append to result
+                fav_cat[media_obj] = category_obj
+
+            else:
+                link_kw = category
+                # of the form
+                # 'https://myanimelist.net/anime/467/Ghost_in_the_Shell__Stand_Alone_Complex'
+                # 'https://myanimelist.net/character/498/Rin_Toosaka'
+                category_id = int(link.split('/{}/'.format(link_kw))[1].split('/')[0])
+                category_info = {'title': link_tag.text}
+                if category == 'people':
+                    category_obj = getattr(self.session, 'person')(category_id).set(category_info)
+                else:
+                    category_obj = getattr(self.session, category)(category_id).set(category_info)
+
+                # append to result
+                fav_cat.append(category_obj)
+
+        if fav_cat == [] or fav_cat == {}:
+            return None
+        else:
+            return fav_cat
+
     def parse_sidebar(self, user_page):
         """Parses the DOM and returns user attributes in the sidebar.
 
@@ -114,14 +189,25 @@ class User(Base):
             raise InvalidUserError(self.username)
 
         try:
-            username_tag = user_page.select('h1.h1')[0].text.replace("'s Profile", '').strip()
-#             if not username_tag.find(u'div'):
-#                 raise MalformedUserPageError(self.username, user_page, message=u"Could not find title div")
+            pass
+            # username_tag = user_page.select('h1.h1')[0].text.replace("'s Profile", '').strip()
+            """
+            if not username_tag.find(u'div'):
+                raise MalformedUserPageError(
+                    self.username,
+                    user_page,
+                    message=u"Could not find title div"
+                )
+            """
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        info_panel_first = user_page.find(u'div', {u'id': u'content'}).find(u'table').find(u'td')
+        info_panel_div = user_page.find(u'div', {u'id': u'content'})
+        try:
+            info_panel_first = info_panel_div.find(u'table').find(u'td')
+        except AttributeError:
+            info_panel_first = None
 
         try:
             user_info[u'picture'] = user_page.select('div.user-image img')[0].get('src')
@@ -131,90 +217,88 @@ class User(Base):
 
         try:
             # the user ID is always present in the blogfeed link.
-            user_info[u'id'] = [xx.get('href').split('&id=')[1] 
+            user_info[u'id'] = [xx.get('href').split('&id=')[1]
                                 for xx in user_page.select('div.user-profile-sns a')
                                 if '&id=' in xx.get('href')][0]
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        infobar_headers = info_panel_first.find_all(u'div', {u'class': u'normal_header'})
-        if infobar_headers:
-            try:
-                favorite_anime_header = infobar_headers[0]
-                if u'Favorite Anime' in favorite_anime_header.text:
-                    user_info[u'favorite_anime'] = []
-                    favorite_anime_table = favorite_anime_header.nextSibling.nextSibling
-                    if favorite_anime_table.name == u'table':
-                        for row in favorite_anime_table.find_all(u'tr'):
-                            cols = row.find_all(u'td')
-                            anime_link = cols[1].find(u'a')
-                            link_parts = anime_link.get(u'href').split(u'/')
-                            # of the form /anime/467/Ghost_in_the_Shell:_Stand_Alone_Complex
-                            user_info[u'favorite_anime'].append(
-                                self.session.anime(int(link_parts[2])).set({u'title': anime_link.text}))
-            except:
-                if not self.session.suppress_parse_exceptions:
-                    raise
+        # favorite anime
+        try:
+            user_info[u'favorite_anime'] = self._get_favorite(user_page, 'anime')
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
 
-            try:
-                favorite_manga_header = infobar_headers[1]
-                if u'Favorite Manga' in favorite_manga_header.text:
-                    user_info[u'favorite_manga'] = []
-                    favorite_manga_table = favorite_manga_header.nextSibling.nextSibling
-                    if favorite_manga_table.name == u'table':
-                        for row in favorite_manga_table.find_all(u'tr'):
-                            cols = row.find_all(u'td')
-                            manga_link = cols[1].find(u'a')
-                            link_parts = manga_link.get(u'href').split(u'/')
-                            # of the form /manga/467/Ghost_in_the_Shell:_Stand_Alone_Complex
-                            user_info[u'favorite_manga'].append(
-                                self.session.manga(int(link_parts[2])).set({u'title': manga_link.text}))
-            except:
-                if not self.session.suppress_parse_exceptions:
-                    raise
+        try:
+            user_info[u'favorite_manga'] = self._get_favorite(user_page, 'manga')
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
 
-            try:
-                favorite_character_header = infobar_headers[2]
-                if u'Favorite Characters' in favorite_character_header.text:
-                    user_info[u'favorite_characters'] = {}
-                    favorite_character_table = favorite_character_header.nextSibling.nextSibling
-                    if favorite_character_table.name == u'table':
-                        for row in favorite_character_table.find_all(u'tr'):
-                            cols = row.find_all(u'td')
-                            character_link = cols[1].find(u'a')
-                            link_parts = character_link.get(u'href').split(u'/')
-                            # of the form /character/467/Ghost_in_the_Shell:_Stand_Alone_Complex
-                            character = self.session.character(int(link_parts[2])).set({u'title': character_link.text})
+        try:
+            user_info[u'favorite_characters'] = self._get_favorite(user_page, 'character')
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
 
-                            media_link = cols[1].find(u'div').find(u'a')
-                            link_parts = media_link.get(u'href').split(u'/')
-                            # of the form /anime|manga/467
-                            anime = getattr(self.session, link_parts[1])(int(link_parts[2])).set(
-                                {u'title': media_link.text})
+        try:
+            user_info[u'favorite_people'] = self._get_favorite(user_page, 'people')
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
 
-                            user_info[u'favorite_characters'][character] = anime
-            except:
-                if not self.session.suppress_parse_exceptions:
-                    raise
-
-            try:
-                favorite_people_header = infobar_headers[3]
-                if u'Favorite People' in favorite_people_header.text:
-                    user_info[u'favorite_people'] = []
-                    favorite_person_table = favorite_people_header.nextSibling.nextSibling
-                    if favorite_person_table.name == u'table':
-                        for row in favorite_person_table.find_all(u'tr'):
-                            cols = row.find_all(u'td')
-                            person_link = cols[1].find(u'a')
-                            link_parts = person_link.get(u'href').split(u'/')
-                            # of the form /person/467/Ghost_in_the_Shell:_Stand_Alone_Complex
-                            user_info[u'favorite_people'].append(
-                                self.session.person(int(link_parts[2])).set({u'title': person_link.text}))
-            except:
-                if not self.session.suppress_parse_exceptions:
-                    raise
         return user_info
+
+    def _get_last_list_updates(self, section_headings):
+        """last list updates."""
+        # regex for progress text
+        pg_regex = r'(?P<status>[A-Za-z]+)(  at (?P<episodes>[0-9]+)'
+        pg_regex += r' of (?P<total_episodes>[0-9]+))?'
+
+        list_updates_header = list(filter(
+            lambda x: u'Last List Updates' in x.text, section_headings
+        ))
+        last_list_updates = None
+        if list_updates_header:
+            list_updates_header = list_updates_header[0]
+            list_updates_table = list_updates_header.findNext(u'table')
+            if list_updates_table:
+                last_list_updates = {}
+                for row in list_updates_table.find_all(u'tr'):
+                    cols = row.find_all(u'td')
+                    info_col = cols[1]
+                    media_link = info_col.find(u'a')
+                    link_parts = media_link.get(u'href').split(u'/')
+                    # of the form /(anime|manga)/10087/Fate/Zero
+                    if link_parts[1] == u'anime':
+                        media = (
+                            self.session.anime(int(link_parts[2])).set(
+                                {u'title': media_link.text}
+                            )
+                        )
+                    else:
+                        media = (
+                            self.session.manga(int(link_parts[2])).set({u'title': media_link.text})
+                        )
+                    list_update = {}
+                    progress_div = info_col.find(u'div', {u'class': u'spaceit_pad'})
+                    if progress_div:
+                        progress_match = re.match(pg_regex, progress_div.text).groupdict()
+                        list_update[u'status'] = progress_match[u'status']
+                        if progress_match[u'episodes'] is None:
+                            list_update[u'episodes'] = None
+                        else:
+                            list_update[u'episodes'] = int(progress_match[u'episodes'])
+                        if progress_match[u'total_episodes'] is None:
+                            list_update[u'total_episodes'] = None
+                        else:
+                            list_update[u'total_episodes'] = int(progress_match[u'total_episodes'])
+                    time_div = info_col.find(u'div', {u'class': u'lightLink'})
+                    if time_div:
+                        list_update[u'time'] = utilities.parse_profile_date(time_div.text)
+                    last_list_updates[media] = list_update
 
     def parse(self, user_page):
         """Parses the DOM and returns user attributes in the main-content area.
@@ -229,6 +313,17 @@ class User(Base):
         user_info = self.parse_sidebar(user_page)
 
         section_headings = user_page.find_all(u'div', {u'class': u'normal_header'})
+
+        try:
+            access_rank_tag = user_page.select_one('span.profile-team-title')
+            if access_rank_tag:
+                access_rank = access_rank_tag.text.strip()
+            else:
+                access_rank = 'Member'
+            user_info[u'access_rank'] = access_rank
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
 
         # parse general details.
         # we have to work from the bottom up, since there's broken HTML after every header.
@@ -289,13 +384,6 @@ class User(Base):
                     if not self.session.suppress_parse_exceptions:
                         raise
 
-                try:
-                    access_rank = general_table.find(u'td', text=u'Access Rank')
-                    if access_rank:
-                        user_info[u'access_rank'] = access_rank.findNext(u'td').text
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
 
                 try:
                     anime_list_views = general_table.find(u'td', text=u'Anime List Views')
@@ -331,42 +419,7 @@ class User(Base):
                         raise
 
         try:
-            # last list updates.
-            list_updates_header = filter(lambda x: u'Last List Updates' in x.text, section_headings)
-            if list_updates_header:
-                list_updates_header = list_updates_header[0]
-                list_updates_table = list_updates_header.findNext(u'table')
-                if list_updates_table:
-                    user_info[u'last_list_updates'] = {}
-                    for row in list_updates_table.find_all(u'tr'):
-                        cols = row.find_all(u'td')
-                        info_col = cols[1]
-                        media_link = info_col.find(u'a')
-                        link_parts = media_link.get(u'href').split(u'/')
-                        # of the form /(anime|manga)/10087/Fate/Zero
-                        if link_parts[1] == u'anime':
-                            media = self.session.anime(int(link_parts[2])).set({u'title': media_link.text})
-                        else:
-                            media = self.session.manga(int(link_parts[2])).set({u'title': media_link.text})
-                        list_update = {}
-                        progress_div = info_col.find(u'div', {u'class': u'spaceit_pad'})
-                        if progress_div:
-                            progress_match = re.match(
-                                r'(?P<status>[A-Za-z]+)(  at (?P<episodes>[0-9]+) of (?P<total_episodes>[0-9]+))?',
-                                progress_div.text).groupdict()
-                            list_update[u'status'] = progress_match[u'status']
-                            if progress_match[u'episodes'] is None:
-                                list_update[u'episodes'] = None
-                            else:
-                                list_update[u'episodes'] = int(progress_match[u'episodes'])
-                            if progress_match[u'total_episodes'] is None:
-                                list_update[u'total_episodes'] = None
-                            else:
-                                list_update[u'total_episodes'] = int(progress_match[u'total_episodes'])
-                        time_div = info_col.find(u'div', {u'class': u'lightLink'})
-                        if time_div:
-                            list_update[u'time'] = utilities.parse_profile_date(time_div.text)
-                        user_info[u'last_list_updates'][media] = list_update
+            user_info[u'last_list_updates'] = self._get_last_list_updates(section_headings)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -374,7 +427,9 @@ class User(Base):
         lower_section_headings = user_page.find_all(u'h2')
         # anime stats.
         try:
-            anime_stats_header = filter(lambda x: u'Anime Stats' in x.text, lower_section_headings)
+            anime_stats_header = list(filter(
+                lambda x: u'Anime Stats' in x.text, lower_section_headings
+            ))
             if anime_stats_header:
                 anime_stats_header = anime_stats_header[0]
                 anime_stats_table = anime_stats_header.findNext(u'table')
@@ -394,7 +449,9 @@ class User(Base):
 
         try:
             # manga stats.
-            manga_stats_header = filter(lambda x: u'Manga Stats' in x.text, lower_section_headings)
+            manga_stats_header = list(filter(
+                lambda x: u'Manga Stats' in x.text, lower_section_headings
+            ))
             if manga_stats_header:
                 manga_stats_header = manga_stats_header[0]
                 manga_stats_table = manga_stats_header.findNext(u'table')
@@ -413,10 +470,9 @@ class User(Base):
                 raise
 
         try:
-            about_header = filter(lambda x: u'About' in x.text, section_headings)
-            if about_header:
-                about_header = about_header[0]
-                user_info[u'about'] = about_header.findNext(u'div').text.strip()
+            user_desc_tag = user_page.select_one('.profile-about-user table')
+            if user_desc_tag:
+                user_info[u'about'] = user_desc_tag.text.strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

@@ -6,6 +6,7 @@ import datetime
 
 import myanimelist.session
 import myanimelist.user
+from myanimelist.base import basestring, unicode
 
 
 class testUserClass(TestCase):
@@ -63,17 +64,23 @@ class testUserClass(TestCase):
     def testUserValid(self):
         self.assertIsInstance(self.shal, myanimelist.user.User)
 
-    def testId(self):
-        self.assertEqual(self.shal.id, 64611)
-        self.assertEqual(self.mona.id, 244263)
+    def test_id(self):
+        """test user id."""
+        self.assertEqual(self.shal.id, '64611')
+        self.assertIsInstance(self.shal.id, basestring)
+        self.assertEqual(self.mona.id, '244263')
+        self.assertIsInstance(self.mona.id, basestring)
 
     def testUsername(self):
         self.assertEqual(self.shal.username, u'shaldengeki')
         self.assertEqual(self.mona.username, u'monausicaa')
 
-    def testPicture(self):
+    def test_picture(self):
+        """test picture."""
         self.assertIsInstance(self.shal.picture, unicode)
-        self.assertEqual(self.shal.picture, u'http://cdn.myanimelist.net/images/userimages/64611.jpg')
+        shal_pic = self.shal.picture
+        self.assertIn(shal_pic[:7], ['http://', 'https:/'])
+        self.assertEqual(shal_pic[-4:], '.jpg')
         self.assertIsInstance(self.mona.picture, unicode)
 
     def testFavoriteAnime(self):
@@ -213,9 +220,7 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.shal.about, unicode)
         self.assertGreater(len(self.shal.about), 0)
         self.assertIn(u'retiree', self.shal.about)
-        self.assertIsInstance(self.mona.about, unicode)
-        self.assertGreater(len(self.mona.about), 0)
-        self.assertEqual(self.mona.about, u'Nothing yet')
+        self.assertIsNone(self.mona.about)
 
     def testReviews(self):
         self.assertIsInstance(self.shal.reviews, dict)
