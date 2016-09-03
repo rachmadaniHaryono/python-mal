@@ -6,16 +6,20 @@ import abc
 import collections
 import decimal
 import datetime
-import urllib
 
 import bs4
 
-try:
+try:  # py2
     import utilities
-    from base import Base, MalformedPageError, InvalidBaseError, loadable
-except ImportError:
+    from base import Base, MalformedPageError, InvalidBaseError, loadable, unicode
+except ImportError:  # py3
     from . import utilities
-    from .base import Base, MalformedPageError, InvalidBaseError, loadable
+    from .base import Base, MalformedPageError, InvalidBaseError, loadable, unicode
+
+try:  #py2
+    from urllib import urlencode
+except ImportError:  # py3 
+    from urllib.parse import urlencode
 
 class MalformedMediaListPageError(MalformedPageError):
     pass
@@ -260,8 +264,12 @@ class MediaList(Base, collections.Mapping):
         return list_info
 
     def load(self):
-        media_list = self.session.session.get(u'http://myanimelist.net/malappinfo.php?' + urllib.urlencode(
-            {'u': self.username, 'status': 'all', 'type': self.type})).text
+        """load media list."""
+        media_list = self.session.session.get(
+            u'http://myanimelist.net/malappinfo.php?' + urlencode(
+                {'u': self.username, 'status': 'all', 'type': self.type}
+            )
+        ).text
         self.set(self.parse(media_list))
         return self
 
