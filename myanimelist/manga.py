@@ -118,6 +118,7 @@ class Manga(media.Media):
             published_tag = info_panel_first.find(text=u'Published:').parent.parent
             utilities.extract_tags(published_tag.find_all(u'span', {'class': 'dark_text'}))
             published_parts = published_tag.text.strip().split(u' to ')
+            # check if published part only contain start date or also end date.
             if len(published_parts) == 1:
                 # this published once.
                 try:
@@ -125,14 +126,21 @@ class Manga(media.Media):
                 except ValueError:
                     raise MalformedMangaPageError(self.id, published_parts[0],
                                                   message="Could not parse single publish date")
-                manga_info[u'published'] = (published_date,)
+                publish_start = published_date
+                publish_end = None
             else:
                 # two publishing dates.
                 try:
+                    # publish_start may contain redundant word such as
+                    # 'Published: Feb  24, 2003',
+                    if 'Published:' in published_parts[0]:
+                        published_parts[0] = published_parts[0].split('Published:')[1].strip()
                     publish_start = utilities.parse_profile_date(published_parts[0])
                 except ValueError:
-                    raise MalformedMangaPageError(self.id, published_parts[0],
-                                                  message="Could not parse first of two publish dates")
+                    raise MalformedMangaPageError(
+                        self.id, published_parts[0],
+                        message="Could not parse first of two publish dates"
+                    )
                 if published_parts == u'?':
                     # this is still publishing.
                     publish_end = None
@@ -140,9 +148,13 @@ class Manga(media.Media):
                     try:
                         publish_end = utilities.parse_profile_date(published_parts[1])
                     except ValueError:
-                        raise MalformedMangaPageError(self.id, published_parts[1],
-                                                      message="Could not parse second of two publish dates")
-                manga_info[u'published'] = (publish_start, publish_end)
+                        raise MalformedMangaPageError(
+                            self.id,
+                            published_parts[1],
+                            message="Could not parse second of two publish dates"
+                        )
+
+            manga_info[u'published'] = (publish_start, publish_end)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
