@@ -3,6 +3,10 @@
 """module for user."""
 import re
 import urllib
+try:  # py2
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 import bs4
 
@@ -100,19 +104,17 @@ class User(Base):
     def _get_favorite(self, user_page, category):
         assert category in ['anime', 'manga', 'character', 'people']
         """get user favorite_anime."""
-        # favorite category
-        if category == 'character':
-            fav_cat = {}
-            # class used when searching category table
-            cls_kw = 'characters'
-        else:
-            fav_cat = []
-            cls_kw = category
+
+        # set exception for character category
+        fav_cat = {} if category == 'character' else []
+        cls_kw = 'characters' if category == 'character' else category
+
         # find which table/div
         favorite_table = user_page.select_one('.favorites-list.{}'.format(cls_kw))
-        # return None if no table found
+        # check if there is item in table
         if favorite_table is None:
-            return None
+            return fav_cat
+
         # parse the table
         for row in favorite_table.find_all('li'):
             # parse the link_tags in row
@@ -149,7 +151,7 @@ class User(Base):
                 media_obj = getattr(self.session, media_type)(media_id).set(media_info)
 
                 # append to result
-                fav_cat[media_obj] = category_obj
+                fav_cat[category_obj] = media_obj
 
             else:
                 link_kw = category
@@ -166,10 +168,12 @@ class User(Base):
                 # append to result
                 fav_cat.append(category_obj)
 
-        if fav_cat == [] or fav_cat == {}:
-            return None
-        else:
-            return fav_cat
+        if self.username == 'shaldengeki' and category == 'anime' and not fav_cat:
+            from pprint import pprint
+            pprint(fav_cat)
+            import ipdb
+            ipdb.set_trace()
+        return fav_cat
 
     def parse_sidebar(self, user_page):
         """Parses the DOM and returns user attributes in the sidebar.
@@ -203,14 +207,10 @@ class User(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        info_panel_div = user_page.find(u'div', {u'id': u'content'})
         try:
-            info_panel_first = info_panel_div.find(u'table').find(u'td')
-        except AttributeError:
-            info_panel_first = None
-
-        try:
-            user_info[u'picture'] = user_page.select('div.user-image img')[0].get('src')
+            user_pic_tag = user_page.select('div.user-image img')
+            if user_pic_tag:
+                user_info[u'picture'] = user_pic_tag[0].get('src')
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -224,39 +224,30 @@ class User(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        # favorite anime
-        try:
-            user_info[u'favorite_anime'] = self._get_favorite(user_page, 'anime')
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
-
-        try:
-            user_info[u'favorite_manga'] = self._get_favorite(user_page, 'manga')
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
-
-        try:
-            user_info[u'favorite_characters'] = self._get_favorite(user_page, 'character')
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
-
-        try:
-            user_info[u'favorite_people'] = self._get_favorite(user_page, 'people')
-        except:
-            if not self.session.suppress_parse_exceptions:
-                raise
+        # favorite
+        info_kws = ['anime', 'manga', 'character', 'people']
+        for category in info_kws:
+            # key for characater is 'favorite_characters
+            key = (
+                'favorite_{}'.format(category)
+                if category != 'character'
+                else 'favorite_{}s'.format(category)
+            )
+            try:
+                user_info[key] = self._get_favorite(user_page, category)
+            except:
+                if not self.session.suppress_parse_exceptions:
+                    raise
 
         return user_info
 
-    def _get_last_list_updates(self, section_headings):
+    def _get_last_list_updates(self, user_page):
         """last list updates."""
         # regex for progress text
         pg_regex = r'(?P<status>[A-Za-z]+)(  at (?P<episodes>[0-9]+)'
         pg_regex += r' of (?P<total_episodes>[0-9]+))?'
 
+        section_headings = user_page.find_all(u'div', {u'class': u'normal_header'})
         list_updates_header = list(filter(
             lambda x: u'Last List Updates' in x.text, section_headings
         ))
@@ -300,6 +291,32 @@ class User(Base):
                         list_update[u'time'] = utilities.parse_profile_date(time_div.text)
                     last_list_updates[media] = list_update
 
+    def _get_user_stats(self, user_page, stats_type, type_txt):
+        """get user stats."""
+        assert stats_type in ['birthday', 'last_online', 'gender', 'join_date', 'location']
+
+        # get tags and try to filter it
+        user_stats_tag = user_page.select_one('.user-status')
+        stats_tags = [
+            x for x in user_stats_tag.select('li > span')
+            if type_txt in x.text
+        ]
+
+        # return default value if nothing found
+        if not stats_tags:
+            if stats_type == 'gender':
+                return 'Not specified'
+
+        # process the html tag
+        stats_tag = stats_tags[0].parent
+        stats_text = stats_tag.text.split(type_txt)[1].strip()
+
+        # parse the end result based on stats type
+        if stats_type in ['birthday', 'last_online', 'join_date']:
+            return utilities.parse_profile_date(stats_text)
+        else:
+            return stats_text
+
     def parse(self, user_page):
         """Parses the DOM and returns user attributes in the main-content area.
 
@@ -312,8 +329,6 @@ class User(Base):
         """
         user_info = self.parse_sidebar(user_page)
 
-        section_headings = user_page.find_all(u'div', {u'class': u'normal_header'})
-
         try:
             access_rank_tag = user_page.select_one('span.profile-team-title')
             if access_rank_tag:
@@ -325,146 +340,67 @@ class User(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        # parse general details.
-        # we have to work from the bottom up, since there's broken HTML after every header.
-        last_online_elt = user_page.find(u'td', text=u'Last Online')
-        if last_online_elt:
+        # information keywords dict is made with stats_type as its type and  type_txt as the value
+        info_kws = {
+            'birthday': 'Birthday',
+            'last_online': 'Last Online',
+            'gender': 'Gender',
+            'join_date': 'Joined',
+            'location': 'Location',
+        }
+        for key in info_kws:
             try:
-                general_table = last_online_elt.parent.parent
+                user_info[key] = self._get_user_stats(user_page, key, info_kws[key])
             except:
                 if not self.session.suppress_parse_exceptions:
                     raise
 
-            if general_table and general_table.name == u'table':
-                try:
-                    last_online_elt = general_table.find(u'td', text=u'Last Online')
-                    if last_online_elt:
-                        user_info[u'last_online'] = utilities.parse_profile_date(last_online_elt.findNext(u'td').text)
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    gender = general_table.find(u'td', text=u'Gender')
-                    if gender:
-                        user_info[u'gender'] = gender.findNext(u'td').text
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    birthday = general_table.find(u'td', text=u'Birthday')
-                    if birthday:
-                        user_info[u'birthday'] = utilities.parse_profile_date(birthday.findNext(u'td').text)
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    location = general_table.find(u'td', text=u'Location')
-                    if location:
-                        user_info[u'location'] = location.findNext(u'td').text
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    website = general_table.find(u'td', text=u'Website')
-                    if website:
-                        user_info[u'website'] = website.findNext(u'td').text
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    join_date = general_table.find(u'td', text=u'Join Date')
-                    if join_date:
-                        user_info[u'join_date'] = utilities.parse_profile_date(join_date.findNext(u'td').text)
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-
-                try:
-                    anime_list_views = general_table.find(u'td', text=u'Anime List Views')
-                    if anime_list_views:
-                        user_info[u'anime_list_views'] = int(anime_list_views.findNext(u'td').text.replace(',', ''))
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    manga_list_views = general_table.find(u'td', text=u'Manga List Views')
-                    if manga_list_views:
-                        user_info[u'manga_list_views'] = int(manga_list_views.findNext(u'td').text.replace(',', ''))
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    num_comments = general_table.find(u'td', text=u'Comments')
-                    if num_comments:
-                        user_info[u'num_comments'] = int(num_comments.findNext(u'td').text.replace(',', ''))
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
-                try:
-                    num_forum_posts = general_table.find(u'td', text=u'Forum Posts')
-                    if num_forum_posts:
-                        user_info[u'num_forum_posts'] = int(
-                            num_forum_posts.findNext(u'td').text.replace(" (Find All)", "").replace(',', ''))
-                except:
-                    if not self.session.suppress_parse_exceptions:
-                        raise
-
+        # get user site
         try:
-            user_info[u'last_list_updates'] = self._get_last_list_updates(section_headings)
+            user_site_tag = user_page.select_one('.user-profile-sns a')
+            user_site = user_site_tag.text.strip()
+            if user_site_tag and (not user_site.startswith('Recent')) and user_site != 'Blog Feed':
+                user_info[u'website'] = user_site
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        lower_section_headings = user_page.find_all(u'h2')
+        # num forum posts
+        try:
+            num_forum_posts = [
+                x.text for x in user_page.select('.user-status li a')
+                if 'Forum Posts' in x.text
+            ][0].split('Forum Posts')[1].strip().replace(',', '')
+            user_info[u'num_forum_posts'] = int(num_forum_posts)
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+        try:
+            num_comments = user_page.select_one('.user-comments h2').text
+            num_comments = num_comments.split('(')[1].split(')')[0]
+            user_info[u'num_comments'] = int(num_comments)
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+        try:
+            user_info[u'last_list_updates'] = self._get_last_list_updates(user_page)
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
         # anime stats.
         try:
-            anime_stats_header = list(filter(
-                lambda x: u'Anime Stats' in x.text, lower_section_headings
-            ))
-            if anime_stats_header:
-                anime_stats_header = anime_stats_header[0]
-                anime_stats_table = anime_stats_header.findNext(u'table')
-                if anime_stats_table:
-                    user_info[u'anime_stats'] = {}
-                    for row in anime_stats_table.find_all(u'tr'):
-                        cols = row.find_all(u'td')
-                        value = cols[1].text
-                        if cols[1].find(u'span', {u'title': u'Days'}):
-                            value = round(float(value), 1)
-                        else:
-                            value = int(value)
-                        user_info[u'anime_stats'][cols[0].text] = value
+            user_info[u'anime_stats'] = self._get_media_stats(user_page, 'anime')
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             # manga stats.
-            manga_stats_header = list(filter(
-                lambda x: u'Manga Stats' in x.text, lower_section_headings
-            ))
-            if manga_stats_header:
-                manga_stats_header = manga_stats_header[0]
-                manga_stats_table = manga_stats_header.findNext(u'table')
-                if manga_stats_table:
-                    user_info[u'manga_stats'] = {}
-                    for row in manga_stats_table.find_all(u'tr'):
-                        cols = row.find_all(u'td')
-                        value = cols[1].text
-                        if cols[1].find(u'span', {u'title': u'Days'}):
-                            value = round(float(value), 1)
-                        else:
-                            value = int(value)
-                        user_info[u'manga_stats'][cols[0].text] = value
+            user_info[u'manga_stats'] = self._get_media_stats(user_page, 'manga')
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -478,6 +414,25 @@ class User(Base):
                 raise
 
         return user_info
+
+    def _get_media_stats(self, user_page, media_type):
+        """get media stats."""
+        assert media_type in ['manga', 'anime']
+        result = {}
+        media_tag = user_page.select_one('.stats.{}'.format(media_type))
+
+        # get time days for media_type
+        time_tag = media_tag.select_one('span').parent
+        time_text = time_tag.text.split(':')[1].strip()
+        result['Time (Days)'] = round(float(time_text.replace(',', '')), 1)
+
+        # get total entries for media_type
+        entries_tag = [x for x in media_tag.select('li > span') if 'Total Entries' in x.text][0]
+        entries_tag = entries_tag.parent
+        time_text = entries_tag.text.split('Entries')[1].strip()
+        result['Total Entries'] = int(time_text.replace(',', ''))
+
+        return result if result != {} else None
 
     def parse_reviews(self, reviews_page):
         """Parses the DOM and returns user reviews attributes.
@@ -733,7 +688,7 @@ class User(Base):
         review_collection = []
         while True:
             user_reviews = self.session.session.get(u'http://myanimelist.net/profile/' + utilities.urlencode(
-                self.username) + u'/reviews&' + urllib.urlencode({u'p': page})).text
+                self.username) + u'/reviews&' + urlencode({u'p': page})).text
             parse_result = self.parse_reviews(utilities.get_clean_dom(user_reviews))
             if page == 0:
                 # only set attributes once the first time around.
@@ -745,7 +700,7 @@ class User(Base):
 
         # merge the review collections into one review dict, and set it.
         self.set({
-            'reviews': {k: v for d in review_collection for k, v in d.iteritems()}
+            'reviews': {k: v for d in review_collection for k, v in d.items()}
         })
         return self
 

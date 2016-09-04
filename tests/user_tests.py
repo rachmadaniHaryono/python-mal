@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 import datetime
+import warnings
 
 import myanimelist.session
 import myanimelist.user
@@ -85,15 +86,17 @@ class testUserClass(TestCase):
 
     def testFavoriteAnime(self):
         self.assertIsInstance(self.shal.favorite_anime, list)
-        self.assertGreater(len(self.shal.favorite_anime), 0)
+        self.assertGreaterEqual(len(self.shal.favorite_anime), 0)
         self.assertIn(self.gits, self.shal.favorite_anime)
         self.assertIn(self.clannad_as, self.shal.favorite_anime)
+
         self.assertIsInstance(self.mona.favorite_anime, list)
-        self.assertGreater(len(self.mona.favorite_anime), 0)
+        self.assertEqual(len(self.mona.favorite_anime), 0)
 
     def testFavoriteManga(self):
         self.assertIsInstance(self.shal.favorite_manga, list)
         self.assertEqual(len(self.shal.favorite_manga), 0)
+
         self.assertIsInstance(self.mona.favorite_manga, list)
         self.assertGreater(len(self.mona.favorite_manga), 0)
         self.assertIn(self.megami, self.mona.favorite_manga)
@@ -101,7 +104,7 @@ class testUserClass(TestCase):
 
     def testFavoriteCharacters(self):
         self.assertIsInstance(self.shal.favorite_characters, dict)
-        self.assertGreater(len(self.shal.favorite_characters), 0)
+        self.assertGreaterEqual(len(self.shal.favorite_characters), 0)
         self.assertIn(self.tohsaka, self.shal.favorite_characters)
         self.assertIn(self.fujibayashi, self.shal.favorite_characters)
         self.assertEqual(self.shal.favorite_characters[self.tohsaka], self.fsn)
@@ -128,6 +131,7 @@ class testUserClass(TestCase):
     def testBirthday(self):
         self.assertIsInstance(self.shal.birthday, datetime.date)
         self.assertEqual(self.shal.birthday, datetime.date(year=1989, month=11, day=5))
+
         self.assertIsInstance(self.mona.birthday, datetime.date)
         self.assertEqual(self.mona.birthday, datetime.date(year=1991, month=8, day=11))
 
@@ -151,22 +155,23 @@ class testUserClass(TestCase):
         self.assertEqual(self.naruleach.access_rank, u'Anime DB Moderator')
 
     def testAnimeListViews(self):
-        self.assertIsInstance(self.shal.anime_list_views, int)
-        self.assertGreaterEqual(self.shal.anime_list_views, 1767)
-        self.assertIsInstance(self.mona.anime_list_views, int)
-        self.assertGreaterEqual(self.mona.anime_list_views, 1969)
+        warnings.warn(
+            'Anime list test is not available anymore.',
+            DeprecationWarning
+        )
 
     def testMangaListViews(self):
-        self.assertIsInstance(self.shal.manga_list_views, int)
-        self.assertGreaterEqual(self.shal.manga_list_views, 1037)
-        self.assertIsInstance(self.mona.manga_list_views, int)
-        self.assertGreaterEqual(self.mona.manga_list_views, 548)
+        warnings.warn(
+            'Manga list test is not available anymore.',
+            DeprecationWarning
+        )
 
     def testNumComments(self):
         self.assertIsInstance(self.shal.num_comments, int)
-        self.assertGreaterEqual(self.shal.num_comments, 93)
+        self.assertGreaterEqual(self.shal.num_comments, 72)
+
         self.assertIsInstance(self.mona.num_comments, int)
-        self.assertGreaterEqual(self.mona.num_comments, 30)
+        self.assertGreaterEqual(self.mona.num_comments, 24)
 
     def testNumForumPosts(self):
         self.assertIsInstance(self.shal.num_forum_posts, int)
@@ -193,6 +198,7 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.shal.last_list_updates[self.bebop][u'time'], datetime.datetime)
         self.assertEqual(self.shal.last_list_updates[self.bebop][u'time'],
                          datetime.datetime(year=2012, month=8, day=20, hour=11, minute=56, second=0))
+
         self.assertIsInstance(self.mona.last_list_updates, dict)
         self.assertGreater(len(self.mona.last_list_updates), 0)
 
@@ -201,6 +207,7 @@ class testUserClass(TestCase):
         self.assertGreater(len(self.shal.anime_stats), 0)
         self.assertEqual(self.shal.anime_stats[u'Time (Days)'], 38.9)
         self.assertEqual(self.shal.anime_stats[u'Total Entries'], 146)
+
         self.assertIsInstance(self.mona.anime_stats, dict)
         self.assertGreater(len(self.mona.anime_stats), 0)
         self.assertGreaterEqual(self.mona.anime_stats[u'Time (Days)'], 470)
@@ -229,27 +236,18 @@ class testUserClass(TestCase):
         # not using smooched as test because (s)he delete all the review
         self.assertIsInstance(self.smooched.reviews, dict)
         self.assertGreaterEqual(len(self.smooched.reviews), 0)
-        '''
-        self.assertIn(self.sao, self.smooched.reviews)
-        self.assertIsInstance(self.smooched.reviews[self.sao][u'date'], datetime.date)
-        self.assertEqual(self.smooched.reviews[self.sao][u'date'], datetime.date(year=2012, month=7, day=24))
-        self.assertGreaterEqual(self.smooched.reviews[self.sao][u'people_helped'], 259)
-        self.assertGreaterEqual(self.smooched.reviews[self.sao][u'people_total'], 644)
-        self.assertEqual(self.smooched.reviews[self.sao][u'media_consumed'], 13)
-        self.assertEqual(self.smooched.reviews[self.sao][u'media_total'], 25)
-        self.assertEqual(self.smooched.reviews[self.sao][u'rating'], 6)
-        self.assertIsInstance(self.smooched.reviews[self.sao][u'text'], unicode)
-        self.assertGreater(len(self.smooched.reviews[self.sao][u'text']), 0)
-        '''
 
+        # NOTE: may have to change archaeon test to someone with less review to short the test time
         self.assertIsInstance(self.archaeon.reviews, dict)
         self.assertGreaterEqual(len(self.archaeon.reviews), 0)
         self.assertIn(self.fate_zero, self.archaeon.reviews)
-        self.assertIsInstance(self.archaeon.reviews[self.fate_zero][u'date'], datetime.datetime)
-        self.assertEqual(self.archaeon.reviews[self.fate_zero][u'date'],
-                         datetime.datetime(year=2012, month=1, day=14, hour=8, minute=0))
+        self.assertIsInstance(self.archaeon.reviews[self.fate_zero][u'date'], datetime.date)
+        self.assertEqual(
+            self.archaeon.reviews[self.fate_zero][u'date'],
+            datetime.date(year=2012, month=1, day=14)
+        )
         self.assertGreaterEqual(self.archaeon.reviews[self.fate_zero][u'people_helped'], 689)
-        self.assertGreaterEqual(self.archaeon.reviews[self.fate_zero][u'people_total'], None)
+        self.assertIsNone(self.archaeon.reviews[self.fate_zero][u'people_total'])
         self.assertEqual(self.archaeon.reviews[self.fate_zero][u'media_consumed'], 13)
         self.assertEqual(self.archaeon.reviews[self.fate_zero][u'media_total'], 13)
         self.assertEqual(self.archaeon.reviews[self.fate_zero][u'rating'], 9)
@@ -265,14 +263,19 @@ class testUserClass(TestCase):
         self.assertIn(self.kanon, self.shal.recommendations)
         self.assertEqual(self.shal.recommendations[self.kanon][u'anime'], self.clannad_as)
         self.assertIsInstance(self.shal.recommendations[self.kanon][u'date'], datetime.date)
-        self.assertEqual(self.shal.recommendations[self.kanon][u'date'],
-                         datetime.datetime(year=2009, month=3, day=13, hour=5, minute=37))
+        self.assertEqual(
+            self.shal.recommendations[self.kanon][u'date'],
+            datetime.date(year=2009, month=3, day=13)
+        )
         self.assertIsInstance(self.shal.recommendations[self.kanon][u'text'], unicode)
         self.assertGreater(len(self.shal.recommendations[self.kanon][u'text']), 0)
+
         self.assertIsInstance(self.mona.recommendations, dict)
         self.assertGreaterEqual(len(self.mona.recommendations), 0)
+
         self.assertIsInstance(self.naruleach.recommendations, dict)
         self.assertGreaterEqual(len(self.naruleach.recommendations), 0)
+
         self.assertIsInstance(self.threger.recommendations, dict)
         self.assertEqual(len(self.threger.recommendations), 0)
 
