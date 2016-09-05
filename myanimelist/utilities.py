@@ -11,17 +11,22 @@ import bs4
 
 
 def fix_bad_html(html):
-    """
-      Fixes for various DOM errors that MAL commits.
-      Yes, I know this is a cardinal sin, but there's really no elegant way to fix this.
+    """Fix for various DOM errors that MAL commits.
+
+    Yes, I know this is a cardinal sin, but there's really no elegant way to fix this.
     """
     # on anime list pages, sometimes tds won't be properly opened.
     html = re.sub(r'[\s]td class=', "<td class=", html)
-    # on anime list pages, if the user doesn't specify progress, MAL will try to close a span it didn't open.
+    # on anime list pages, if the user doesn't specify progress,
+    # MAL will try to close a span it didn't open.
+
     def anime_list_closing_span(match):
         return match.group(u'count') + '/' + match.group(u'total') + '</td>'
 
-    html = re.sub(r'(?P<count>[0-9\-]+)</span>/(?P<total>[0-9\-]+)</a></span></td>', anime_list_closing_span, html)
+    html = re.sub(
+        r'(?P<count>[0-9\-]+)</span>/(?P<total>[0-9\-]+)</a></span></td>',
+        anime_list_closing_span, html
+    )
 
     # on anime info pages, under rating, there's an extra </div> by the "licensing company" note.
     html = html.replace('<small>L</small></sup><small> represents licensing company</small></div>',
@@ -29,8 +34,10 @@ def fix_bad_html(html):
 
     # on manga character pages, sometimes the character info column will have an extra </div>.
     def manga_character_double_closed_div_picture(match):
-        return "<td " + match.group(u'td_tag') + ">\n\t\t\t<div " + match.group(u'div_tag') + "><a " + match.group(
-            u'a_tag') + "><img " + match.group(u'img_tag') + "></a></div>\n\t\t\t</td>"
+        return "<td " + match.group(u'td_tag') + ">\n\t\t\t<div " + \
+            match.group(u'div_tag') + "><a " + match.group(
+                u'a_tag'
+            ) + "><img " + match.group(u'img_tag') + "></a></div>\n\t\t\t</td>"
 
     html = re.sub(
         r"""<td (?P<td_tag>[^>]+)>\n\t\t\t<div (?P<div_tag>[^>]+)><a (?P<a_tag>[^>]+)><img (?P<img_tag>[^>]+)></a></div>\n\t\t\t</div>\n\t\t\t</td>""",
@@ -48,9 +55,7 @@ def fix_bad_html(html):
 
 
 def get_clean_dom(html):
-    """
-      Given raw HTML from a MAL page, return a BeautifulSoup object with cleaned HTML.
-    """
+    """Given raw HTML from a MAL page, return a BeautifulSoup object with cleaned HTML."""
     return bs4.BeautifulSoup(fix_bad_html(html), "html.parser")
 
 
@@ -63,6 +68,7 @@ def urlencode(url):
 
 
 def extract_tags(tags):
+    """extract tags."""
     map(lambda x: x.extract(), tags)
 
 
@@ -81,15 +87,18 @@ def parse_profile_date(text, suppress=False):
 
         seconds_match = re.match(r'(?P<seconds>[0-9]+) second(s)? ago', text)
         if seconds_match:
-            return datetime.datetime.now() - datetime.timedelta(seconds=int(seconds_match.group(u'seconds')))
+            match_group = seconds_match.group(u'seconds')
+            return datetime.datetime.now() - datetime.timedelta(seconds=int())
 
         minutes_match = re.match(r'(?P<minutes>[0-9]+) minute(s)? ago', text)
         if minutes_match:
-            return datetime.datetime.now() - datetime.timedelta(minutes=int(minutes_match.group(u'minutes')))
+            match_group = minutes_match.group(u'minutes')
+            return datetime.datetime.now() - datetime.timedelta(minutes=int(match_group))
 
         hours_match = re.match(r'(?P<hours>[0-9]+) hour(s)? ago', text)
         if hours_match:
-            return datetime.datetime.now() - datetime.timedelta(hours=int(hours_match.group(u'hours')))
+            match_group = hours_match.group(u'hours')
+            return datetime.datetime.now() - datetime.timedelta(hours=int(match_group))
 
         today_match = re.match(r'Today, (?P<hour>[0-9]+):(?P<minute>[0-9]+) (?P<am>[APM]+)', text)
         if today_match:
@@ -99,10 +108,15 @@ def parse_profile_date(text, suppress=False):
             if am == u'PM' and hour < 12:
                 hour += 12
             today = datetime.date.today()
-            return datetime.datetime(year=today.year, month=today.month, day=today.day, hour=hour, minute=minute,
-                                     second=0)
+            return datetime.datetime(
+                year=today.year, month=today.month, day=today.day,
+                hour=hour, minute=minute, second=0
+            )
 
-        yesterday_match = re.match(r'Yesterday, (?P<hour>[0-9]+):(?P<minute>[0-9]+) (?P<am>[APM]+)', text)
+        yesterday_match = re.match(
+            r'Yesterday, (?P<hour>[0-9]+):(?P<minute>[0-9]+) (?P<am>[APM]+)',
+            text
+        )
         if yesterday_match:
             hour = int(yesterday_match.group(u'hour'))
             minute = int(yesterday_match.group(u'minute'))
@@ -110,8 +124,10 @@ def parse_profile_date(text, suppress=False):
             if am == u'PM' and hour < 12:
                 hour += 12
             yesterday = datetime.date.today() - datetime.timedelta(days=1)
-            return datetime.datetime(year=yesterday.year, month=yesterday.month, day=yesterday.day, hour=hour,
-                                     minute=minute, second=0)
+            return datetime.datetime(
+                year=yesterday.year, month=yesterday.month, day=yesterday.day,
+                hour=hour, minute=minute, second=0
+            )
 
         # see if it's datetime
         try:
@@ -169,7 +185,7 @@ def parse_profile_date(text, suppress=False):
             return datetime.datetime.strptime(text, '%b %Y').date()
         except ValueError:
             pass
-                
+
     except:
         if suppress:
             return None
