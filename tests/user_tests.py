@@ -49,6 +49,10 @@ class testUserClass(TestCase):
 
         self.archaeon = self.session.user(u'Archaeon')
 
+        # NOTE 
+        # shal account look like can't automatically get favorites list if not loading first
+        self.shal.load()
+
     def testNoIDInvalidUser(self):
         with self.assertRaises(TypeError):
             self.session.user()
@@ -88,12 +92,10 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.mona.picture, unicode)
 
     def testFavoriteAnime(self):
-        """
         self.assertIsInstance(self.shal.favorite_anime, list)
-        self.assertGreaterEqual(len(self.shal.favorite_anime), 0)
+        self.assertGreater(len(self.shal.favorite_anime), 0)
         self.assertIn(self.gits, self.shal.favorite_anime)
         self.assertIn(self.clannad_as, self.shal.favorite_anime)
-        """
 
         self.assertIsInstance(self.mona.favorite_anime, list)
         self.assertGreaterEqual(len(self.mona.favorite_anime), 0)
@@ -108,14 +110,12 @@ class testUserClass(TestCase):
         self.assertIn(self.chobits, self.mona.favorite_manga)
 
     def testFavoriteCharacters(self):
-        """
         self.assertIsInstance(self.shal.favorite_characters, dict)
-        self.assertGreaterEqual(len(self.shal.favorite_characters), 0)
+        self.assertGreater(len(self.shal.favorite_characters), 0)
         self.assertIn(self.tohsaka, self.shal.favorite_characters)
         self.assertIn(self.fujibayashi, self.shal.favorite_characters)
         self.assertEqual(self.shal.favorite_characters[self.tohsaka], self.fsn)
         self.assertEqual(self.shal.favorite_characters[self.fujibayashi], self.clannad_movie)
-        """
 
         self.assertIsInstance(self.mona.favorite_characters, dict)
         self.assertGreater(len(self.mona.favorite_characters), 0)
