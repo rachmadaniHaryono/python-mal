@@ -313,55 +313,6 @@ class User(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-    def _get_last_list_updates2(self, user_page):
-        """last list updates."""
-        # regex for progress text
-        pg_regex = r'(?P<status>[A-Za-z]+)(  at (?P<episodes>[0-9]+)'
-        pg_regex += r' of (?P<total_episodes>[0-9]+))?'
-        section_headings = user_page.find_all(u'div', {u'class': u'normal_header'})
-        list_updates_header = list(filter(
-            lambda x: u'Last List Updates' in x.text, section_headings
-        ))
-        last_list_updates = None
-        if list_updates_header:
-            list_updates_header = list_updates_header[0]
-            list_updates_table = list_updates_header.findNext(u'table')
-            if list_updates_table:
-                last_list_updates = {}
-                for row in list_updates_table.find_all(u'tr'):
-                    cols = row.find_all(u'td')
-                    info_col = cols[1]
-                    media_link = info_col.find(u'a')
-                    link_parts = media_link.get(u'href').split(u'/')
-                    # of the form /(anime|manga)/10087/Fate/Zero
-                    if link_parts[1] == u'anime':
-                        media = (
-                            self.session.anime(int(link_parts[2])).set(
-                                {u'title': media_link.text}
-                            )
-                        )
-                    else:
-                        media = (
-                            self.session.manga(int(link_parts[2])).set({u'title': media_link.text})
-                        )
-                    list_update = {}
-                    progress_div = info_col.find(u'div', {u'class': u'spaceit_pad'})
-                    if progress_div:
-                        progress_match = re.match(pg_regex, progress_div.text).groupdict()
-                        list_update[u'status'] = progress_match[u'status']
-                        if progress_match[u'episodes'] is None:
-                            list_update[u'episodes'] = None
-                        else:
-                            list_update[u'episodes'] = int(progress_match[u'episodes'])
-                        if progress_match[u'total_episodes'] is None:
-                            list_update[u'total_episodes'] = None
-                        else:
-                            list_update[u'total_episodes'] = int(progress_match[u'total_episodes'])
-                    time_div = info_col.find(u'div', {u'class': u'lightLink'})
-                    if time_div:
-                        list_update[u'time'] = utilities.parse_profile_date(time_div.text)
-                    last_list_updates[media] = list_update
-
     def _get_user_stats(self, user_page, stats_type, type_txt):
         """get user stats."""
         assert stats_type in ['birthday', 'last_online', 'gender', 'join_date', 'location']
