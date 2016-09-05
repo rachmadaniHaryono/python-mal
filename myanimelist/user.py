@@ -21,20 +21,20 @@ from bs4 import BeautifulSoup
 
 
 class MalformedUserPageError(MalformedPageError):
-    """Indicates that a user-related page on MAL has irreparably broken markup in some way.
-    """
+    """Indicates that a user-related page on MAL has irreparably broken markup in some way."""
+
     pass
 
 
 class InvalidUserError(InvalidBaseError):
-    """Indicates that the user requested does not exist on MAL.
-    """
+    """Indicates that the user requested does not exist on MAL."""
+
     pass
 
 
 class User(Base):
-    """Primary interface to user resources on MAL.
-    """
+    """Primary interface to user resources on MAL."""
+
     _id_attribute = "username"
 
     @staticmethod
@@ -61,7 +61,7 @@ class User(Base):
         return username_elt.text.replace("'s Comments", "")
 
     def __init__(self, session, username):
-        """Creates a new instance of User.
+        """Create a new instance of User.
 
         :type session: :class:`myanimelist.session.Session`
         :param session: A valid MAL session
@@ -168,11 +168,6 @@ class User(Base):
                 # append to result
                 fav_cat.append(category_obj)
 
-        if self.username == 'shaldengeki' and category == 'anime' and not fav_cat:
-            from pprint import pprint
-            pprint(fav_cat)
-            import ipdb
-            ipdb.set_trace()
         return fav_cat
 
     def parse_sidebar(self, user_page):
@@ -241,12 +236,88 @@ class User(Base):
 
         return user_info
 
-    def _get_last_list_updates(self, user_page):
+    @staticmethod
+    def _parse_update_media_status(status):
+        """parse status and return the episode."""
+        result = {}
+        # parse score
+        try:
+            score = int(status.lower().split('scored')[1])
+            result['score'] = score
+        except ValueError:
+            pass  # user don't give score
+        # parse detail
+        detail = status.lower().split('scored')[0].strip()
+        media_status = ' '.join(detail.split('/')[0].rsplit()[:-1])
+        media_status = media_status.title()
+        try:
+            episode = int(detail.split('/')[0].rsplit()[-1])  # for manga and anime
+        except ValueError:
+            episode = 0
+        try:
+            total_episode = int(detail.split('/')[1].split()[0])
+        except (IndexError, ValueError):
+            total_episode = 0
+        # assign to result
+        result[u'status'] = media_status
+        result[u'episodes'] = episode
+        result[u'total_episodes'] = total_episode
+        return result
+
+    def _parse_media_on_update_list(self, user_page, mode='anime'):
+        """parse media on update list.
+
+        it create a list of dicts in following format:
+        {<media>:{
+            'status':<status>,
+            'episodes': <episodes>,
+            'total_episodes': <total_episodes>,
+            'time': <time>,
+
+        }}
+        it is only helper function for _parse_last_list_updates func.
+        """
+        return media_list
+
+    def _parse_last_list_updates(self, user_page):
+        """parse user last media update (manga and anime)."""
+        try:
+            divs_zip = []
+            for mode in ['anime', 'manga']:
+                divs = user_page.select('div.updates.{}'.format(mode))[0].select('div')
+                divs_zip.append((mode, divs))
+
+            media_list = {}
+            for mode, divs in divs_zip:
+                for div in divs:
+                    # parse the media
+                    try:
+                        media_link_tag = div.select('a')[0]
+                    except IndexError:
+                        continue
+                    media_link = media_link_tag.get('href')
+                    media_id = int(media_link.split('/{}/'.format(mode))[1].split('/')[0])
+                    media_title = media_link_tag.text
+                    media = getattr(self.session, mode)(media_id).set({'title': media_title})
+                    # stats
+                    status_tag = div.select('div')[-1]
+                    status = status_tag.text
+                    # update_date
+                    date_tag = div.select('div span')[0]
+                    update_date = utilities.parse_profile_date(date_tag.text)
+                    media_list[media] = self._parse_update_media_status(status)  # first media list dict
+                    media_list[media]['time'] = update_date  # add more key and item
+
+            return media_list
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+    def _get_last_list_updates2(self, user_page):
         """last list updates."""
         # regex for progress text
         pg_regex = r'(?P<status>[A-Za-z]+)(  at (?P<episodes>[0-9]+)'
         pg_regex += r' of (?P<total_episodes>[0-9]+))?'
-
         section_headings = user_page.find_all(u'div', {u'class': u'normal_header'})
         list_updates_header = list(filter(
             lambda x: u'Last List Updates' in x.text, section_headings
@@ -385,7 +456,7 @@ class User(Base):
                 raise
 
         try:
-            user_info[u'last_list_updates'] = self._get_last_list_updates(user_page)
+            user_info[u'last_list_updates'] = self._parse_last_list_updates(user_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -665,7 +736,7 @@ class User(Base):
         return user_info
 
     def load(self):
-        """Fetches the MAL user page and sets the current user's attributes.
+        """Fetch the MAL user page and sets the current user's attributes.
 
         :rtype: :class:`.User`
         :return: Current user object.
