@@ -219,10 +219,6 @@ class User(Base):
             if not self.session.suppress_parse_exceptions:
                 raise
 
-        # update favorite category
-        user_favorites = self._parse_favorites_category(user_page)
-        user_info.update(user_favorites)
-
         return user_info
 
     def _parse_favorites_category(self, user_page):
@@ -441,6 +437,11 @@ class User(Base):
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
+
+        # update favorite category
+        user_favorites = self._parse_favorites_category(user_page)
+        user_info.update(user_favorites)
+
 
         return user_info
 
