@@ -62,7 +62,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         """
         media_type = cls.__name__.lower()
-        p = session.session.get('http://myanimelist.net/' + media_type + '.php?o=9&c[]=a&c[]=d&cv=2&w=1').text
+        p = session.session.get('https://myanimelist.net/' + media_type + '.php?o=9&c[]=a&c[]=d&cv=2&w=1').text
         soup = utilities.get_clean_dom(p)
         latest_entry = utilities.css_select_first("div.hoverinfo", soup)
         if latest_entry is None:
@@ -537,7 +537,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         """
         media_page = self.session.session.get(
-                'http://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(self.id)).text
+                'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(self.id)).text
         self.set(self.parse(utilities.get_clean_dom(media_page)))
         return self
 
@@ -548,7 +548,7 @@ class Media(Base, metaclass=abc.ABCMeta):
         :return: current media object.
 
         """
-        stats_page = self.session.session.get('http://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
+        stats_page = self.session.session.get('https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
                 self.id) + '/' + utilities.urlencode(self.title) + '/stats').text
         self.set(self.parse_stats(utilities.get_clean_dom(stats_page)))
         return self
@@ -561,7 +561,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         """
         characters_page = self.session.session.get(
-                'http://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
+                'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
                         self.id) + '/' + utilities.urlencode(self.title) + '/characters').text
         self.set(self.parse_characters(utilities.get_clean_dom(characters_page)))
         return self

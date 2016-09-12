@@ -71,9 +71,9 @@ class testCharacterClass(object):
 
     def testPictures(self):
         assert isinstance(self.spike.pictures, list) and len(self.spike.pictures) > 0 and all(
-            map(lambda p: isinstance(p, str) and p.startswith(u'http://'), self.spike.pictures))
+            map(lambda p: isinstance(p, str) and p.startswith(u'https://'), self.spike.pictures))
         assert isinstance(self.ed.pictures, list) and len(self.ed.pictures) > 0 and all(
-            map(lambda p: isinstance(p, str) and p.startswith(u'http://'), self.ed.pictures))
+            map(lambda p: isinstance(p, str) and p.startswith(u'https://'), self.ed.pictures))
         assert isinstance(self.maria.pictures, list)
 
     def testAnimeography(self):
