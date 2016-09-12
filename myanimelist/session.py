@@ -108,7 +108,7 @@ class Session(object):
         if self.session is None:
             return False
 
-        panel_url = 'http://myanimelist.net/panel.php'
+        panel_url = 'https://myanimelist.net/panel.php'
         panel = self.session.get(panel_url)
         html = ht.fromstring(panel.content.decode("utf-8"))
 
@@ -138,7 +138,7 @@ class Session(object):
             'User-Agent': 'iMAL-iOS',
         }
 
-        panel_url = 'http://myanimelist.net'
+        panel_url = 'https://myanimelist.net'
         # set the session cookies:
         r = self.session.get(panel_url)
 
@@ -169,7 +169,7 @@ class Session(object):
         self.session.headers.update(mal_headers)
         if "MALHLOGSESSID" in cookies.keys():
             self.session.cookies = cookies
-        r = self.session.post('http://myanimelist.net/login.php', data=mal_payload)
+        r = self.session.post('https://myanimelist.net/login.php', data=mal_payload)
         # remove content type:
         self.session.headers.pop("Content-Type")
         return self
