@@ -8,6 +8,7 @@ import myanimelist.session
 import myanimelist.character
 import myanimelist.user
 
+from six import string_types
 
 class testCharacterClass(TestCase):
     @classmethod
@@ -64,11 +65,11 @@ class testCharacterClass(TestCase):
         self.assertGreater(len(self.maria.description), 0)
 
     def testPicture(self):
-        self.assertIsInstance(self.spike.picture, unicode)
+        self.assertIsInstance(self.spike.picture, string_types)
         self.assertGreater(len(self.spike.picture), 0)
-        self.assertIsInstance(self.ed.picture, unicode)
+        self.assertIsInstance(self.ed.picture, string_types)
         self.assertGreater(len(self.ed.picture), 0)
-        self.assertIsInstance(self.maria.picture, unicode)
+        self.assertIsInstance(self.maria.picture, string_types)
         self.assertGreater(len(self.maria.picture), 0)
 
     def testPictures(self):
@@ -76,12 +77,12 @@ class testCharacterClass(TestCase):
         self.assertIsInstance(self.spike.pictures, list)
         self.assertGreater(len(self.spike.pictures), 0)
         for p in self.spike.pictures:
-            self.assertIsInstance(p, unicode)
+            self.assertIsInstance(p, string_types)
             self.assertTrue(p.startswith(u'http://') or p.startswith('https://'))
         self.assertIsInstance(self.ed.pictures, list)
         self.assertGreater(len(self.ed.pictures), 0)
         for p in self.spike.pictures:
-            self.assertIsInstance(p, unicode)
+            self.assertIsInstance(p, string_types)
             self.assertTrue(p.startswith(u'http://')or p.startswith('https://'))
         self.assertIsInstance(self.maria.pictures, list)
 

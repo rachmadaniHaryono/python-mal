@@ -17,6 +17,7 @@ except ImportError:
 
 import bs4
 from bs4 import BeautifulSoup
+from six import string_types
 
 
 class MalformedUserPageError(MalformedPageError):
@@ -75,7 +76,7 @@ class User(Base):
         self.username = username
 
         is_name_string = False
-        if isinstance(self.username, unicode) or isinstance(self.username, str):
+        if isinstance(self.username, string_types):
             is_name_string = True
 
         if not is_name_string or len(self.username) < 1:
