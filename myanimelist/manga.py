@@ -106,7 +106,7 @@ class Manga(media.Media):
             utilities.extract_tags(chapters_tag.find_all(u'span', {'class': 'dark_text'}))
             chapters_tag_text = chapters_tag.text
             if ':' in chapters_tag_text:
-                chapters_tag_text.split(':')[1]
+                chapters_tag_text = chapters_tag_text.split(':')[1]
             manga_chapters = chapters_tag_text.strip()
             manga_info[u'chapters'] = (
                 int(manga_chapters)

@@ -269,17 +269,11 @@ class Media(Base):
                 raise
 
         try:
-            # find rank-html-tag
-            rank_tag = info_panel_first.find(text=u'Ranked:').parent.parent
-            utilities.extract_tags(rank_tag.find_all())
-            # format rank
-            rank = rank_tag.text.strip()[1:].replace(u',', '')
-            if '#' in rank:
-                rank = rank.split('#')[1]
-            rank = rank.strip()
-            # set formatted rank into media info
-            media_info[u'rank'] = int(rank)
-
+            rank_tag = [x for x in media_page.select('span.dark_text') if 'Ranked:' in x.text][0]
+            ranking = (
+                rank_tag.parent.text.split(':')[1].replace(',', '').split('#')[1].split()[0]
+                .strip())
+            media_info[u'rank'] = int(ranking)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -304,21 +298,11 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                members_tag = info_panel_first.find(text=u'Members:').parent.parent
-                utilities.extract_tags(members_tag.find_all())
-                members_tag_text = members_tag.text
-                if ':' in members_tag_text:
-                    members_tag_text.split(':')[1]
-                members = members_tag_text.strip()[0].replace(u',', '')
-                media_info[u'members'] = int(members)
-            except AttributeError:
-                members_tag = filter(
-                    lambda x: 'Members' in x.text,
-                    media_page_original.find_all('span', {'class': 'dark_text'})
-                )[0].parent
-                members = members_tag.text.split(':')[-1].strip().replace(u',', '')
-                media_info[u'members'] = int(members)
+            members_tag = [
+                x for x in media_page.select('span.dark_text')
+                if 'Members:' in x.text][0]
+            members = members_tag.parent.text.split(':')[1].strip().replace(',', '')
+            media_info[u'members'] = int(members)
 
         except:
             if not self.session.suppress_parse_exceptions:
