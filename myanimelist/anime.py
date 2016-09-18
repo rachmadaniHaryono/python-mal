@@ -100,7 +100,7 @@ class Anime(media.Media):
         :raises: :class:`.InvalidAnimeError`, :class:`.MalformedAnimePageError`
         """
         # if MAL says the series doesn't exist, raise an InvalidAnimeError.
-        error_tag = anime_page.find(u'div', {'class': 'badresult'})
+        error_tag = anime_page.find('div', {'class': 'badresult'})
         if error_tag:
             raise InvalidAnimeError(self.id)
 
@@ -336,40 +336,40 @@ class Anime(media.Media):
         return self._aired
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def producers(self):
         """A list of :class:`myanimelist.producer.Producer` objects involved in this anime."""
         return self._producers
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def duration(self):
         """The duration of an episode of this anime as a :class:`datetime.timedelta`."""
         return self._duration
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def rating(self):
         """The MPAA rating given to this anime."""
         return self._rating
 
     @property
-    @loadable(u'load_characters')
+    @loadable('load_characters')
     def voice_actors(self):
-        """A voice actors.
+        """Voice actors in anime.
 
-        dict with :class:`myanimelist.person.Person` objects of the voice actors as keys,
-        and dicts containing info about the roles played,
+        A VA dict with :class:`myanimelist.person.Person` objects of the voice actors as keys,
+        and dicts containing info about the roles played.
         e.g. {'role': 'Main', 'character': myanimelist.character.Character(1)} as values.
         """
         return self._voice_actors
 
     @property
-    @loadable(u'load_characters')
+    @loadable('load_characters')
     def staff(self):
-        """A staff dict.
+        """Staff in Anime.
 
-        with :class:`myanimelist.person.Person` objects of the staff members as keys,
+        A staff dict with :class:`myanimelist.person.Person` objects of the staff as keys,
         and lists containing the various duties performed by staff members as values.
         """
         return self._staff

@@ -16,7 +16,7 @@ class testPersonClass(TestCase):
         self.hiroshi_kamiya = self.session.person(118)
 
         # test voice role
-        self.hk_name = u'Hiroshi Kamiya'
+        self.hk_name = 'Hiroshi Kamiya'
         self.hk_anime = self.session.anime(15605)  # Brothers Conflict
         self.hk_char = self.session.character(80873)  # Juli
         self.hk_role = 'Supporting'
@@ -41,8 +41,11 @@ class testPersonClass(TestCase):
 
     def testNonExistentPerson(self):
         with self.assertRaises(myanimelist.person.InvalidPersonError):
-            pe = self.session.person(4973204723047)
-            pe.load()
+            person_short = self.session.person(49732)  # for short int
+            person_short.load()
+        with self.assertRaises(myanimelist.person.InvalidPersonError):
+            person_long = self.session.person(4973204723047)  # for long int
+            person_long.load()
 
     def testPersonValid(self):
         self.assertIsInstance(self.hiroshi_kamiya, myanimelist.person.Person)
@@ -66,8 +69,10 @@ class testPersonClass(TestCase):
     def testPersonPosition(self):
         """test person position."""
         hk_positions = self.hiroshi_kamiya.anime_staff_positions
+
         self.assertIsInstance(hk_positions, dict)
         self.assertGreater(len(hk_positions), 0)
+
         self.assertIn(self.hk_anime, hk_positions)
         self.assertIn(self.hk_position, hk_positions[self.hk_anime])
         self.assertIsInstance(hk_positions[self.hk_anime], list)

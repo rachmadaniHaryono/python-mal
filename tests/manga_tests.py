@@ -11,6 +11,13 @@ from six import string_types
 import myanimelist.session
 import myanimelist.manga
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
+
 
 class TestMangaClass(TestCase):
     """test manga class."""
@@ -220,7 +227,7 @@ class TestMangaClass(TestCase):
         self.assertIsInstance(self.judos.authors, dict)
         self.assertGreater(len(self.judos.authors), 0)
         self.assertIn(self.kondou, self.judos.authors)
-        self.assertEqual(self.judos.authors[self.kondou], u'Story & Art')
+        self.assertEqual(self.judos.authors[self.kondou], 'Story & Art')
 
     def test_serialization(self):
         """test serialization."""
@@ -351,10 +358,10 @@ class TestMangaClass(TestCase):
         """test related."""
         self.assertIsInstance(self.holic.related, dict)
         self.assertIn('Sequel', self.holic.related)
-        self.assertIn(self.holic_sequel, self.holic.related[u'Sequel'])
+        self.assertIn(self.holic_sequel, self.holic.related['Sequel'])
         self.assertIsInstance(self.monster.related, dict)
         self.assertIn('Side story', self.monster.related)
-        self.assertIn(self.monster_side_story, self.monster.related[u'Side story'])
+        self.assertIn(self.monster_side_story, self.monster.related['Side story'])
 
     def test_characters(self):
         """test characters."""

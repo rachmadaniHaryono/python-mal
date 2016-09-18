@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""module for misc function for other module."""
 import datetime
 import re
 try:  # py2
@@ -19,7 +20,6 @@ def fix_bad_html(html):
     html = re.sub(r'[\s]td class=', "<td class=", html)
     # on anime list pages, if the user doesn't specify progress,
     # MAL will try to close a span it didn't open.
-
     def anime_list_closing_span(match):
         return match.group(u'count') + '/' + match.group(u'total') + '</td>'
 
@@ -39,18 +39,20 @@ def fix_bad_html(html):
                 u'a_tag'
             ) + "><img " + match.group(u'img_tag') + "></a></div>\n\t\t\t</td>"
 
-    html = re.sub(
-        r"""<td (?P<td_tag>[^>]+)>\n\t\t\t<div (?P<div_tag>[^>]+)><a (?P<a_tag>[^>]+)><img (?P<img_tag>[^>]+)></a></div>\n\t\t\t</div>\n\t\t\t</td>""",
-        manga_character_double_closed_div_picture, html)
+    regex_text = r"""<td (?P<td_tag>[^>]+)>\n\t\t\t"""
+    regex_text += r"""<div (?P<div_tag>[^>]+)><a (?P<a_tag>[^>]+)>"""
+    regex_text += r"""<img (?P<img_tag>[^>]+)></a></div>\n\t\t\t</div>\n\t\t\t</td>"""
+    html = re.sub(regex_text, manga_character_double_closed_div_picture, html)
 
     def manga_character_double_closed_div_character(match):
-        return """<a href="/character/""" + match.group(u'char_link') + """">""" + match.group(
-            u'char_name') + """</a>\n\t\t\t<div class="spaceit_pad"><small>""" + match.group(
-            u'role') + """</small></div>"""
+        return """<a href="/character/""" + match.group('char_link') + """">""" + match.group(
+            'char_name') + """</a>\n\t\t\t<div class="spaceit_pad"><small>""" + match.group(
+            'role') + """</small></div>"""
 
-    html = re.sub(
-        r"""<a href="/character/(?P<char_link>[^"]+)">(?P<char_name>[^<]+)</a>\n\t\t\t<div class="spaceit_pad"><small>(?P<role>[A-Za-z ]+)</small></div>\n\t\t\t</div>""",
-        manga_character_double_closed_div_character, html)
+    regex_text = r"""<a href="/character/(?P<char_link>[^"]+)">(?P<char_name>[^<]+)</a>\n\t\t\t"""
+    regex_text += """<div class="spaceit_pad">"""
+    regex_text += """<small>(?P<role>[A-Za-z ]+)</small></div>\n\t\t\t</div>"""
+    html = re.sub(regex_text, manga_character_double_closed_div_character, html)
     return html
 
 
@@ -68,8 +70,7 @@ def urlencode(url):
 
 
 def extract_tags(tags):
-    """extract tags."""
-    map(lambda x: x.extract(), tags)
+    list(map(lambda x: x.extract(), tags))
 
 
 def parse_profile_date(text, suppress=False):
@@ -80,9 +81,9 @@ def parse_profile_date(text, suppress=False):
       Otherwise, returns a datetime.date object.
     """
     try:
-        if text == u"Unknown" or text == u"?" or text == u"Not available":
+        if text == "Unknown" or text == "?" or text == "Not available":
             return None
-        if text == u"Now":
+        if text == "Now":
             return datetime.datetime.now()
 
         seconds_match = re.match(r'(?P<seconds>[0-9]+) second(s)? ago', text)
@@ -102,10 +103,10 @@ def parse_profile_date(text, suppress=False):
 
         today_match = re.match(r'Today, (?P<hour>[0-9]+):(?P<minute>[0-9]+) (?P<am>[APM]+)', text)
         if today_match:
-            hour = int(today_match.group(u'hour'))
-            minute = int(today_match.group(u'minute'))
-            am = today_match.group(u'am')
-            if am == u'PM' and hour < 12:
+            hour = int(today_match.group('hour'))
+            minute = int(today_match.group('minute'))
+            am = today_match.group('am')
+            if am == 'PM' and hour < 12:
                 hour += 12
             today = datetime.date.today()
             return datetime.datetime(
@@ -118,10 +119,10 @@ def parse_profile_date(text, suppress=False):
             text
         )
         if yesterday_match:
-            hour = int(yesterday_match.group(u'hour'))
-            minute = int(yesterday_match.group(u'minute'))
-            am = yesterday_match.group(u'am')
-            if am == u'PM' and hour < 12:
+            hour = int(yesterday_match.group('hour'))
+            minute = int(yesterday_match.group('minute'))
+            am = yesterday_match.group('am')
+            if am == 'PM' and hour < 12:
                 hour += 12
             yesterday = datetime.date.today() - datetime.timedelta(days=1)
             return datetime.datetime(

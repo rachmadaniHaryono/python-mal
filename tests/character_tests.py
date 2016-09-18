@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from unittest import TestCase
 
 import myanimelist.session
 import myanimelist.character
 import myanimelist.user
-from myanimelist.base import unicode
 
 
 class testCharacterClass(TestCase):
@@ -40,27 +40,27 @@ class testCharacterClass(TestCase):
         self.assertIsInstance(self.maria, myanimelist.character.Character)
 
     def testName(self):
-        self.assertEqual(self.spike.name, u'Spike Spiegel')
-        self.assertEqual(self.ed.name, u'Edward Elric')
-        self.assertEqual(self.maria.name, u'Maria')
+        self.assertEqual(self.spike.name, 'Spike Spiegel')
+        self.assertEqual(self.ed.name, 'Edward Elric')
+        self.assertEqual(self.maria.name, 'Maria')
 
     def testFullName(self):
-        self.assertEqual(self.spike.full_name, u'Spike  Spiegel')
+        self.assertEqual(self.spike.full_name, 'Spike  Spiegel')
         self.assertEqual(self.ed.full_name,
-                         u'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
-        self.assertEqual(self.maria.full_name, u'Maria')
+                         'Edward "Ed, Fullmetal Alchemist, Hagane no shounen, Chibi, Pipsqueak" Elric')
+        self.assertEqual(self.maria.full_name, 'Maria')
 
     def testJapaneseName(self):
-        self.assertEqual(self.spike.name_jpn, u'スパイク・スピーゲル')
-        self.assertEqual(self.ed.name_jpn, u'エドワード・エルリック')
-        self.assertEqual(self.maria.name_jpn, u'マリア')
+        self.assertEqual(self.spike.name_jpn, 'スパイク・スピーゲル')
+        self.assertEqual(self.ed.name_jpn, 'エドワード・エルリック')
+        self.assertEqual(self.maria.name_jpn, 'マリア')
 
     def testDescription(self):
-        self.assertIsInstance(self.spike.description, unicode)
+        self.assertIsInstance(self.spike.description, str)
         self.assertGreater(len(self.spike.description), 0)
-        self.assertIsInstance(self.ed.description, unicode)
+        self.assertIsInstance(self.ed.description, str)
         self.assertGreater(len(self.ed.description), 0)
-        self.assertIsInstance(self.maria.description, unicode)
+        self.assertIsInstance(self.maria.description, str)
         self.assertGreater(len(self.maria.description), 0)
 
     def testPicture(self):

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""module for anime list."""
+"""Module for anime list."""
 
 try:
     import media_list
@@ -39,25 +39,25 @@ class AnimeList(media_list.MediaList):
         anime, entry_info = super(AnimeList, self).parse_entry(soup)
 
         try:
-            entry_info[u'episodes_watched'] = int(soup.find('my_watched_episodes').text)
+            entry_info['episodes_watched'] = int(soup.find('my_watched_episodes').text)
         except ValueError:
-            entry_info[u'episodes_watched'] = 0
+            entry_info['episodes_watched'] = 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'rewatching'] = bool(soup.find('my_rewatching').text)
+            entry_info['rewatching'] = bool(soup.find('my_rewatching').text)
         except ValueError:
-            entry_info[u'rewatching'] = False
+            entry_info['rewatching'] = False
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            entry_info[u'episodes_rewatched'] = int(soup.find('my_rewatching_ep').text)
+            entry_info['episodes_rewatched'] = int(soup.find('my_rewatching_ep').text)
         except ValueError:
-            entry_info[u'episodes_rewatched'] = 0
+            entry_info['episodes_rewatched'] = 0
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -67,14 +67,14 @@ class AnimeList(media_list.MediaList):
     def parse_section_columns(self, columns):
         column_names = super(AnimeList, self).parse_section_columns(columns)
         for i, column in enumerate(columns):
-            if u'Type' in column.text:
-                column_names[u'type'] = i
-            elif u'Progress' in column.text:
-                column_names[u'progress'] = i
-            elif u'Tags' in column.text:
-                column_names[u'tags'] = i
-            elif u'Started' in column.text:
-                column_names[u'started'] = i
-            elif u'Finished' in column.text:
-                column_names[u'finished'] = i
+            if 'Type' in column.text:
+                column_names['type'] = i
+            elif 'Progress' in column.text:
+                column_names['progress'] = i
+            elif 'Tags' in column.text:
+                column_names['tags'] = i
+            elif 'Started' in column.text:
+                column_names['started'] = i
+            elif 'Finished' in column.text:
+                column_names['finished'] = i
         return column_names

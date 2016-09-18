@@ -28,10 +28,10 @@ class Manga(media.Media):
     """Primary interface to manga resources on MAL.
     """
     _status_terms = [
-        u'Unknown',
-        u'Publishing',
-        u'Finished',
-        u'Not yet published'
+        'Unknown',
+        'Publishing',
+        'Finished',
+        'Not yet published'
     ]
     _consuming_verb = "read"
 
@@ -55,6 +55,28 @@ class Manga(media.Media):
         self._authors = None
         self._serialization = None
 
+    def parse_serialization(self, manga_page):
+        """Parse the DOM and returns manga serialization.
+
+        :type manga_page: :class:`bs4.BeautifulSoup`
+        :param manga_page: MAL manga page's DOM
+
+        :return: publication obj
+        """
+        result = None
+        info_panel_first = manga_page.find('div', {'id': 'content'}).find('table').find('td')
+        serialization_tag = info_panel_first.find(text='Serialization:').parent.parent
+        publication_link = serialization_tag.find('a')
+        if publication_link:
+            link_parts = publication_link.get('href').split('mid=')
+            # of the form /manga.php?mid=1
+            # e.g. link_parts
+            # [u'/manga/magazine/1/Big_Comic_Original']
+            pub_id = int(link_parts[0].split('/')[-2])
+            pub_dict = {'name': publication_link.text}
+            result = self.session.publication(pub_id).set(pub_dict)
+        return result
+
     def parse_sidebar(self, manga_page, manga_page_original=None):
         """Parses the DOM and returns manga attributes in the sidebar.
 
@@ -70,12 +92,12 @@ class Manga(media.Media):
         :raises: :class:`.InvalidMangaError`, :class:`.MalformedMangaPageError`
         """
         # if MAL says the series doesn't exist, raise an InvalidMangaError.
-        error_tag = manga_page.find(u'div', {'class': 'badresult'})
+        error_tag = manga_page.find('div', {'class': 'badresult'})
         if error_tag:
             raise InvalidMangaError(self.id)
 
         try:
-            title_tag = manga_page.find(u'span', {'itemprop': 'name'})
+            title_tag = manga_page.find('span', {'itemprop': 'name'})
             if not title_tag:
                 # otherwise, raise a MalformedMangaPageError.
                 raise MalformedMangaPageError(self.id, manga_page, message="Could not find title")
@@ -86,7 +108,7 @@ class Manga(media.Media):
         # otherwise, begin parsing.
         manga_info = super(Manga, self).parse_sidebar(manga_page, manga_page_original)
 
-        info_panel_first = manga_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
+        info_panel_first = manga_page.find('div', {'id': 'content'}).find('table').find('td')
 
         try:
             volumes_tag = [
@@ -163,15 +185,15 @@ class Manga(media.Media):
                 raise
 
         try:
-            authors_tag = info_panel_first.find(text=u'Authors:').parent.parent
-            utilities.extract_tags(authors_tag.find_all(u'span', {'class': 'dark_text'}))
-            manga_info[u'authors'] = {}
+            authors_tag = info_panel_first.find(text='Authors:').parent.parent
+            utilities.extract_tags(authors_tag.find_all('span', {'class': 'dark_text'}))
+            manga_info['authors'] = {}
             for author_link in authors_tag.find_all('a'):
                 link_parts = author_link.get('href').split('/')
                 # of the form /people/1867/Naoki_Urasawa
                 person = self.session.person(int(link_parts[2])).set({'name': author_link.text})
                 role = author_link.nextSibling.replace(' (', '').replace(')', '')
-                manga_info[u'authors'][person] = role
+                manga_info['authors'][person] = role
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -196,21 +218,21 @@ class Manga(media.Media):
         return manga_info
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def volumes(self):
         """The number of volumes in this manga.
         """
         return self._volumes
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def chapters(self):
         """The number of chapters in this manga.
         """
         return self._chapters
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def published(self):
         """A tuple(2) containing up to two :class:`datetime.date` objects representing the start and end dates of this manga's publishing.
 
@@ -225,14 +247,14 @@ class Manga(media.Media):
         return self._published
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def authors(self):
         """An author dict with :class:`myanimelist.person.Person` objects of the authors as keys, and strings describing the duties of these authors as values.
         """
         return self._authors
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def serialization(self):
         """The :class:`myanimelist.publication.Publication` involved in the first serialization of this manga.
         """

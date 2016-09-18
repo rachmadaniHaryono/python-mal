@@ -13,6 +13,12 @@ from six import string_types
 import myanimelist.session
 import myanimelist.anime
 
+try:
+    unicode
+    IS_PYTHON3 = False
+except NameError:
+    unicode = str
+    IS_PYTHON3 = True
 
 class TestAnimeClass(TestCase):
     """test anime parser."""
@@ -394,8 +400,8 @@ class TestAnimeClass(TestCase):
         self.assertIsInstance(self.prisma.voice_actors, dict)
         self.assertGreater(len(self.prisma.voice_actors), 0)
         self.assertIn(self.ilya_va, self.prisma.voice_actors)
-        self.assertEqual(self.prisma.voice_actors[self.ilya_va][u'role'], 'Main')
-        self.assertEqual(self.prisma.voice_actors[self.ilya_va][u'character'], self.ilya)
+        self.assertEqual(self.prisma.voice_actors[self.ilya_va]['role'], 'Main')
+        self.assertEqual(self.prisma.voice_actors[self.ilya_va]['character'], self.ilya)
 
     def test_no_voice_actors(self):
         """test no voice actors."""
@@ -408,26 +414,26 @@ class TestAnimeClass(TestCase):
         self.assertIsInstance(self.spicy_wolf.staff, dict)
         self.assertGreater(len(self.spicy_wolf.staff), 0)
         self.assertIn(self.session.person(472), self.spicy_wolf.staff)
-        self.assertIn(u'Producer', self.spicy_wolf.staff[self.session.person(472)])
+        self.assertIn('Producer', self.spicy_wolf.staff[self.session.person(472)])
         self.assertIsInstance(self.bebop.staff, dict)
         self.assertGreater(len(self.bebop.staff), 0)
         self.assertIn(self.session.person(12221), self.bebop.staff)
-        self.assertIn(u'Inserted Song Performance', self.bebop.staff[self.session.person(12221)])
+        self.assertIn('Inserted Song Performance', self.bebop.staff[self.session.person(12221)])
         self.assertIsInstance(self.space_dandy.staff, dict)
         self.assertGreater(len(self.space_dandy.staff), 0)
         self.assertIn(self.session.person(10127), self.space_dandy.staff)
 
-        for x in [u'Theme Song Composition', u'Theme Song Lyrics', u'Theme Song Performance']:
+        for x in ['Theme Song Composition', 'Theme Song Lyrics', 'Theme Song Performance']:
             self.assertIn(x, self.space_dandy.staff[self.session.person(10127)])
         self.assertIsInstance(self.totoro.staff, dict)
         self.assertGreater(len(self.totoro.staff), 0)
         self.assertIn(self.session.person(1870), self.totoro.staff)
-        for x in [u'Director', u'Script', u'Storyboard']:
+        for x in ['Director', 'Script', 'Storyboard']:
             self.assertIn(x, self.totoro.staff[self.session.person(1870)])
         self.assertIsInstance(self.prisma.staff, dict)
         self.assertGreater(len(self.prisma.staff), 0)
         self.assertIn(self.session.person(10617), self.prisma.staff)
-        self.assertIn(u'ADR Director', self.prisma.staff[self.session.person(10617)])
+        self.assertIn('ADR Director', self.prisma.staff[self.session.person(10617)])
 
     def test_popular_tags(self):
         """test popular tags."""

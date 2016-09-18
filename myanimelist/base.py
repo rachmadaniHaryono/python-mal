@@ -2,22 +2,7 @@
 # -*- coding: utf-8 -*-
 import abc
 import functools
-
-# fix py2 to py3 unicode/str
-try:
-    unicode = unicode
-except NameError:
-    # 'unicode' is undefined, must be Python 3
-    str = str
-    unicode = str
-    bytes = bytes
-    basestring = (str, bytes)
-else:
-    # 'unicode' exists, must be Python 2
-    str = str
-    unicode = unicode
-    bytes = str
-    basestring = basestring
+from six import string_types
 
 class Error(Exception):
     """Base exception class that takes a message to display upon raising.
@@ -34,7 +19,7 @@ class Error(Exception):
         self.message = message
 
     def __str__(self):
-        return unicode(self.message) if self.message is not None else u""
+        return str(self.message) if self.message is not None else ""
 
 
 class MalformedPageError(Error):
@@ -43,14 +28,14 @@ class MalformedPageError(Error):
 
     def __init__(self, id, html, message=None):
         super(MalformedPageError, self).__init__(message=message)
-        if isinstance(id, unicode):
+        if isinstance(id, str):
             self.id = id
         else:
             try:
                 self.id = str(id).decode(u'utf-8')
             except AttributeError:
                 self.id = str(id)
-        if isinstance(html, unicode):
+        if isinstance(html, string_types):
             self.html = html
         else:
             try:
@@ -63,7 +48,7 @@ class MalformedPageError(Error):
             super(MalformedPageError, self).__str__(),
             "ID: " + self.id,
             "HTML: " + self.html
-        ]).encode(u'utf-8')
+        ]).encode('utf-8')
 
 
 class InvalidBaseError(Error):
@@ -77,7 +62,7 @@ class InvalidBaseError(Error):
     def __str__(self):
         return "\n".join([
             super(InvalidBaseError, self).__str__(),
-            "ID: " + unicode(self.id)
+            "ID: " + str(self.id)
         ])
 
 
@@ -106,24 +91,38 @@ def loadable(func_name):
     return inner
 
 
+def with_metaclass(mcls):
+    """decorator for metaclass."""
+    def decorator(cls):
+        body = vars(cls).copy()
+        # clean out class body
+        body.pop('__dict__', None)
+        body.pop('__weakref__', None)
+        return mcls(cls.__name__, cls.__bases__, body)
+    return decorator
+
+
+@with_metaclass(abc.ABCMeta)
 class Base(object):
-    """Abstract base class for MAL resources. Provides autoloading, auto-setting functionality for other MAL objects.
+    """Abstract base class for MAL resources.
+
+    Provides autoloading, auto-setting functionality for other MAL objects.
     """
-    __metaclass__ = abc.ABCMeta
 
     """Attribute name for primary reference key to this object.
-    When an attribute by the name given by _id_attribute is passed into set(), set() doesn't prepend an underscore for load()ing.
+    When an attribute by the name given by _id_attribute is passed into set(),
+    set() doesn't prepend an underscore for load()ing.
     """
     _id_attribute = "id"
 
     def __repr__(self):
-        return u"".join([
+        return "".join([
             "<",
             self.__class__.__name__,
             " ",
             self._id_attribute,
             ": ",
-            unicode(getattr(self, self._id_attribute)),
+            str(getattr(self, self._id_attribute)),
             ">"
         ])
 
@@ -175,5 +174,5 @@ class Base(object):
             if key == self._id_attribute:
                 setattr(self, self._id_attribute, attr_dict[key])
             else:
-                setattr(self, u"_" + key, attr_dict[key])
+                setattr(self, "_" + key, attr_dict[key])
         return self

@@ -34,6 +34,6 @@ class Tag(Base):
             raise InvalidTagError(self.name)
 
     def load(self):
-        """load func."""
+        """load all information from tag."""
         # TODO
         pass

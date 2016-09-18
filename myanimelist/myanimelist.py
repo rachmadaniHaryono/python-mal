@@ -1,17 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""myanimelist module."""
 
-import httplib
+try:
+    import http.client as client_
+except ImportError:
+    import httplib as client_
 
-# causes httplib to return the partial response from a server in case the read fails to be complete.
+
 def patch_http_response_read(func):
+    """cause httplib to return the partial response from a server.
+
+    it is in case the read fails to be complete.
+    """
     def inner(*args):
         try:
             return func(*args)
-        except httplib.IncompleteRead, e:
+        except client_.IncompleteRead as e:
             return e.partial
 
     return inner
 
 
-httplib.HTTPResponse.read = patch_http_response_read(httplib.HTTPResponse.read)
+client_.HTTPResponse.read = patch_http_response_read(client_.HTTPResponse.read)

@@ -29,6 +29,6 @@ class Producer(Base):
         pass
 
     @property
-    @loadable(u'load')
+    @loadable('load')
     def name(self):
         return self._name
