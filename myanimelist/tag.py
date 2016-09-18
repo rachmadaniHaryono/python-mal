@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """module for media tag."""
-
+from six import string_types
 try:
     from base import Base, MalformedPageError, InvalidBaseError
 except ImportError:
@@ -29,7 +29,7 @@ class Tag(Base):
         """init func."""
         super(Tag, self).__init__(session)
         self.name = name
-        is_name_text = isinstance(self.name, str)
+        is_name_text = isinstance(self.name, string_types)
         if not(is_name_text) or len(self.name) < 1:
             raise InvalidTagError(self.name)
 

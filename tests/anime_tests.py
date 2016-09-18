@@ -1,13 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """test module for anime parser."""
+
+from __future__ import unicode_literals
+
 from unittest import TestCase
 import datetime
 import warnings
 
+from six import string_types
+
 import myanimelist.session
 import myanimelist.anime
-from myanimelist.base import unicode
 
 
 class TestAnimeClass(TestCase):
@@ -106,11 +110,11 @@ class TestAnimeClass(TestCase):
 
     def test_picture(self):
         """test picture."""
-        self.assertIsInstance(self.spicy_wolf.picture, unicode)
-        self.assertIsInstance(self.space_dandy.picture, unicode)
-        self.assertIsInstance(self.bebop.picture, unicode)
-        self.assertIsInstance(self.totoro.picture, unicode)
-        self.assertIsInstance(self.prisma.picture, unicode)
+        self.assertIsInstance(self.spicy_wolf.picture, string_types)
+        self.assertIsInstance(self.space_dandy.picture, string_types)
+        self.assertIsInstance(self.bebop.picture, string_types)
+        self.assertIsInstance(self.totoro.picture, string_types)
+        self.assertIsInstance(self.prisma.picture, string_types)
 
     def test_alternative_titles(self):
         """test alternative title."""
@@ -126,6 +130,7 @@ class TestAnimeClass(TestCase):
 
         self.assertIn('Japanese', self.prisma.alternative_titles)
         self.assertIsInstance(self.prisma.alternative_titles['Japanese'], list)
+
         self.assertIn('カウボーイビバップ', self.bebop.alternative_titles['Japanese'])
         self.assertIn('スペース☆ダンディ', self.space_dandy.alternative_titles['Japanese'])
         self.assertIn(
@@ -305,23 +310,23 @@ class TestAnimeClass(TestCase):
 
     def test_synopsis(self):
         """test synopsis."""
-        self.assertIsInstance(self.spicy_wolf.synopsis, unicode)
+        self.assertIsInstance(self.spicy_wolf.synopsis, string_types)
         self.assertGreater(len(self.spicy_wolf.synopsis), 0)
         self.assertIn('Holo', self.spicy_wolf.synopsis)
         # check if background-part not synopsis
         self.assertNotIn('No background information has been added to this title.',
                          self.spicy_wolf.synopsis)
 
-        self.assertIsInstance(self.bebop.synopsis, unicode)
+        self.assertIsInstance(self.bebop.synopsis, string_types)
         self.assertGreater(len(self.bebop.synopsis), 0)
         self.assertIn('Spike', self.bebop.synopsis)
-        self.assertIsInstance(self.space_dandy.synopsis, unicode)
+        self.assertIsInstance(self.space_dandy.synopsis, string_types)
         self.assertGreater(len(self.space_dandy.synopsis), 0)
         self.assertIn('Dandy', self.space_dandy.synopsis)
-        self.assertIsInstance(self.totoro.synopsis, unicode)
+        self.assertIsInstance(self.totoro.synopsis, string_types)
         self.assertGreater(len(self.totoro.synopsis), 0)
         self.assertIn('Satsuki', self.totoro.synopsis)
-        self.assertIsInstance(self.prisma.synopsis, unicode)
+        self.assertIsInstance(self.prisma.synopsis, string_types)
         self.assertGreater(len(self.prisma.synopsis), 0)
         self.assertIn('Illya', self.prisma.synopsis)
 

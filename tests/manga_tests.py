@@ -6,9 +6,10 @@ from unittest import TestCase
 import datetime
 import warnings
 
+from six import string_types
+
 import myanimelist.session
 import myanimelist.manga
-from myanimelist.base import unicode
 
 
 class TestMangaClass(TestCase):
@@ -100,11 +101,11 @@ class TestMangaClass(TestCase):
 
     def test_picture(self):
         """test picture."""
-        self.assertIsInstance(self.holic.picture, unicode)
-        self.assertIsInstance(self.naruto.picture, unicode)
-        self.assertIsInstance(self.monster.picture, unicode)
-        self.assertIsInstance(self.tomoyo_after.picture, unicode)
-        self.assertIsInstance(self.judos.picture, unicode)
+        self.assertIsInstance(self.holic.picture, string_types)
+        self.assertIsInstance(self.naruto.picture, string_types)
+        self.assertIsInstance(self.monster.picture, string_types)
+        self.assertIsInstance(self.tomoyo_after.picture, string_types)
+        self.assertIsInstance(self.judos.picture, string_types)
 
     def test_alternative_tit_greater(self):
         """test alternative_titles."""
@@ -326,23 +327,23 @@ class TestMangaClass(TestCase):
 
     def test_synopsis(self):
         """test synopsis."""
-        self.assertIsInstance(self.holic.synopsis, unicode)
+        self.assertIsInstance(self.holic.synopsis, string_types)
         self.assertGreater(len(self.holic.synopsis), 0)
         self.assertIn(u'Watanuki', self.holic.synopsis)
 
-        self.assertIsInstance(self.monster.synopsis, unicode)
+        self.assertIsInstance(self.monster.synopsis, string_types)
         self.assertGreater(len(self.monster.synopsis), 0)
         self.assertIn(u'Tenma', self.monster.synopsis)
 
-        self.assertIsInstance(self.naruto.synopsis, unicode)
+        self.assertIsInstance(self.naruto.synopsis, string_types)
         self.assertGreater(len(self.naruto.synopsis), 0)
         self.assertIn(u'Hokage', self.naruto.synopsis)
 
-        self.assertIsInstance(self.tomoyo_after.synopsis, unicode)
+        self.assertIsInstance(self.tomoyo_after.synopsis, string_types)
         self.assertGreater(len(self.tomoyo_after.synopsis), 0)
         self.assertIn(u'Clannad', self.tomoyo_after.synopsis)
 
-        self.assertIsInstance(self.judos.synopsis, unicode)
+        self.assertIsInstance(self.judos.synopsis, string_types)
         self.assertGreater(len(self.judos.synopsis), 0)
         self.assertIn(u'hardcore', self.judos.synopsis)
 

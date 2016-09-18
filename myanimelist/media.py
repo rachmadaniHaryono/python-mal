@@ -274,7 +274,9 @@ class Media(Base):
             utilities.extract_tags(rank_tag.find_all())
             # format rank
             rank = rank_tag.text.strip()[1:].replace(u',', '')
-            rank = rank.split('#')[1].split()[0]
+            if '#' in rank:
+                rank = rank.split('#')[1]
+            rank = rank.strip()
             # set formatted rank into media info
             media_info[u'rank'] = int(rank)
 
@@ -289,7 +291,8 @@ class Media(Base):
                 utilities.extract_tags(popularity_tag.find_all())
                 # format popularity
                 popularity = popularity_tag.text.strip()[1:].replace(u',', '')
-                popularity = popularity.split('#')[1].split()[0]
+                if '#' in popularity:
+                    popularity = popularity.split('#')[1].split()[0]
                 # set into media info
                 media_info[u'popularity'] = int(popularity)
             except AttributeError :
@@ -304,7 +307,10 @@ class Media(Base):
             try:
                 members_tag = info_panel_first.find(text=u'Members:').parent.parent
                 utilities.extract_tags(members_tag.find_all())
-                members = members_tag.text.split(':')[1].strip()[0].replace(u',', '')
+                members_tag_text = members_tag.text
+                if ':' in members_tag_text:
+                    members_tag_text.split(':')[1]
+                members = members_tag_text.strip()[0].replace(u',', '')
                 media_info[u'members'] = int(members)
             except AttributeError:
                 members_tag = filter(
@@ -319,20 +325,9 @@ class Media(Base):
                 raise
 
         try:
-            try:
-                # get html tag
-                favorites_tag = info_panel_first.find(text=u'Favorites:').parent.parent
-                utilities.extract_tags(favorites_tag.find_all())
-                # format favorites html-tag
-                favorites = favorites_tag.text.split(':').strip().replace(u',', '')
-                media_info[u'favorites'] = int(favorites)
-            except AttributeError:
-                favorites_tag = list(filter(
-                    lambda x: 'Favorites' in x.text,
-                    media_page_original.find_all('span', {'class': 'dark_text'})
-                ))[0].parent
-                favorites = favorites_tag.text.split(':')[-1].strip().replace(u',', '')
-                media_info[u'favorites'] = int(favorites)
+            fav_tag = [x for x in media_page.select('span.dark_text') if 'Favorites:' in x.text][0]
+            favorites = fav_tag.parent.text.split(':')[1].strip().replace(',', '')
+            media_info[u'favorites'] = int(favorites)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

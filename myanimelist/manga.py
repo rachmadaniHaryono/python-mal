@@ -89,12 +89,12 @@ class Manga(media.Media):
         info_panel_first = manga_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
 
         try:
-            volumes_tag = info_panel_first.find(text=u'Volumes:').parent.parent
-            utilities.extract_tags(volumes_tag.find_all(u'span', {'class': 'dark_text'}))
-            manga_volume = volumes_tag.text.split(':')[1].strip()
+            volumes_tag = [
+                x for x in manga_page.select('span.dark_text') if 'Volumes:' in x.text][0]
+            manga_volume = volumes_tag.parent.text.split(':')[1].strip().replace(',', '')
             manga_info[u'volumes'] = (
                 int(manga_volume)
-                if volumes_tag.text.strip() != 'Unknown'
+                if manga_volume != 'Unknown'
                 else None
             )
         except:
@@ -104,7 +104,10 @@ class Manga(media.Media):
         try:
             chapters_tag = info_panel_first.find(text=u'Chapters:').parent.parent
             utilities.extract_tags(chapters_tag.find_all(u'span', {'class': 'dark_text'}))
-            manga_chapters = chapters_tag.text.split(':')[1].strip()
+            chapters_tag_text = chapters_tag.text
+            if ':' in chapters_tag_text:
+                chapters_tag_text.split(':')[1]
+            manga_chapters = chapters_tag_text.strip()
             manga_info[u'chapters'] = (
                 int(manga_chapters)
                 if chapters_tag.text.strip() != 'Unknown'
