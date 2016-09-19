@@ -4,7 +4,6 @@
 
 from unittest import TestCase
 import datetime
-import warnings
 
 from six import string_types
 
@@ -326,11 +325,12 @@ class TestMangaClass(TestCase):
         self.assertGreaterEqual(self.judos.favorites, 0)
 
     def test_popular_tags(self):
-        """test popular tags."""
-        warnings.warn(
-            'Popular tags test is not available anymore.',
-            DeprecationWarning
-        )
+        """test popular tags.
+        
+        .. deprecated:: 0.1.8
+            Popular tags test is not available anymore.
+        """
+        pass
 
     def test_synopsis(self):
         """test synopsis."""

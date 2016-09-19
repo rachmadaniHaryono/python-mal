@@ -1155,7 +1155,7 @@ class User(Base):
     def anime_list_views(self):
         """The number of times this user's anime list has been viewed.
 
-        .. deprecated:: 0.1
+        .. deprecated:: 0.1.8
         """
         return self._anime_list_views
 
@@ -1164,7 +1164,7 @@ class User(Base):
     def manga_list_views(self):
         """The number of times this user's manga list has been viewed.
 
-        .. deprecated:: 0.1
+        .. deprecated:: 0.1.8
         """
         return self._manga_list_views
 

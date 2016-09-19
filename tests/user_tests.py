@@ -3,7 +3,6 @@
 
 from unittest import TestCase
 import datetime
-import warnings
 
 import myanimelist.session
 import myanimelist.user
@@ -165,16 +164,22 @@ class testUserClass(TestCase):
         self.assertEqual(self.naruleach.access_rank, 'Anime DB Moderator')
 
     def testAnimeListViews(self):
-        warnings.warn(
-            'Anime list test is not available anymore.',
-            DeprecationWarning
-        )
+        """
+        test anime list.
+
+        .. deprecated:: 0.1.8
+            Anime list test is not available anymore.
+        """
+        pass
 
     def testMangaListViews(self):
-        warnings.warn(
-            'Manga list test is not available anymore.',
-            DeprecationWarning
-        )
+        """
+        test manga list.
+
+        .. deprecated:: 0.1.8
+            Manga list test is not available anymore.
+        """
+        pass
 
     def testNumComments(self):
         self.assertIsInstance(self.shal.num_comments, int)

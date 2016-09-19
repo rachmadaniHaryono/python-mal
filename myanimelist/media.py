@@ -5,7 +5,6 @@ from decimal import InvalidOperation
 import abc
 import decimal
 import re
-import warnings
 
 import bs4
 
@@ -786,11 +785,10 @@ class Media(Base):
 
         Tags dict with :class:`myanimelist.tag.Tag` objects as keys,
         and the number of tags as values.
+
+        .. deprecated:: 0.1.8
+            Popular tags is not available anymore.
         """
-        warnings.warn(
-            'Popular tags is not available anymore',
-            DeprecationWarning
-        )
         return self._popular_tags
 
     @property
