@@ -11,7 +11,7 @@ package = __import__(NAME)
 # handle version
 # http://stackoverflow.com/a/7071358
 default_version = "0.1.7"
-VERSIONFILE="myniftyapp/_version.py"
+VERSIONFILE="myanimelist/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
