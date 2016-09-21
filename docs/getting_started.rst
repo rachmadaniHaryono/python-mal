@@ -78,3 +78,24 @@ Users on MAL are slightly different; their primary ID is their username, instead
 Anime and manga lists are similar, being primarily-identified through usernames instead of user IDs.
 
 Each resource has a slightly-different set of methods. You'll want to refer to the other guides and API references in this documentation to see what's available.
+
+
+Search for object
+-----------------
+
+To search anime, manga, character or people, user can do following::
+
+    >>> import myanimelist.session
+    >>> session = myanimelist.session.Session()
+    >>> session.search('beebop')
+    [<Character id: 14827>,
+    <Character id: 107617>,
+    # ...
+    <Anime id: 1>,
+    <Anime id: 1604>,
+    <Anime id: 24087>,
+    # ...
+    <Manga id: 47>,
+    # ...
+    <Person id: 37974>]
+

@@ -18,6 +18,7 @@ try:
     import producer
     import anime_list
     import manga_list
+    import utilities
     from base import Error
 except ImportError:
     from . import (
@@ -33,6 +34,7 @@ except ImportError:
         producer,
         anime_list,
         manga_list,
+        utilities
     )
     from .base import Error
 
@@ -288,3 +290,133 @@ class Session(object):
 
         """
         return user.User(self, username)
+
+    def search(self, keyword, mode='all'):
+        """search using given keyword and mode.
+
+        :param query: keyword to search.
+        :param mode: mode used to search.
+        :type query: str
+        :type mode: str
+        :return: list of found media/object.
+        :rtype: list
+        """
+        # check keyword
+        min_len_keyword = 2
+        max_len_keyword = 100
+        if len(keyword) <= min_len_keyword:
+            raise ValueError('Your keyword is too short')
+        if len(keyword) >= max_len_keyword:
+            raise ValueError('Your keyword is too long')
+
+        # the query have following format for each mode:
+        query_dict = {
+            'all': 'search/all?q={query}',
+        }
+        not_implemented_mode_dict = {
+            # not yet implemented.
+            'anime': 'anime.php?q={query}',
+            'manga': 'manga.php?q={query}',
+            'character': 'character.php?q={query}',
+            'people': 'people.php?q={query}',
+            'clubs': 'clubs.php?action=find&cn={query}',
+            'users': 'users.php?q={query}',
+
+            # no object/class created for this search.
+            'news': 'news/search?q={query}',
+            'featured': 'featured/search?q={query}',
+            'forum': 'forum/?action=search&u=&uloc=1&loc=-1&q={query}',
+        }
+        # check mode
+        if mode not in query_dict and mode not in not_implemented_mode_dict:
+            raise ValueError('Search mode is not available.')
+        elif mode in not_implemented_mode_dict:
+            raise NotImplementedError('"{}" category search is not yet implemented.'.format(mode))
+
+        url = 'https://myanimelist.net'
+        search_page_url = '/'.join([url, query_dict[mode]])
+        search_page_url = search_page_url.format(**{'query': keyword})
+        search_page = self.session.get(search_page_url).text
+        html_soup = utilities.get_clean_dom(search_page, fix_html=False)
+
+        result = []
+        categories = ['characters', 'anime', 'manga', 'people']
+        disallowed_url_part = [
+            'myanimelist.net/topanime.php',
+            'myanimelist.net/login',
+            '/login.php',
+        ]
+        for catg in categories:
+            article = html_soup.select_one('#{}'.format(catg)).find_next('article')
+            a_tags = article.select('.information a')
+            # find all link to correct object.
+            a_tags_result = []
+            for tag in a_tags:
+                link = tag.get('href')
+                # pass the login link
+                is_skipped_url = any(x in link for x in disallowed_url_part)
+                if is_skipped_url:
+                    continue
+                a_tags_result.append(self.load_from_url(link))
+
+            # fix the bug on when parsing manga on search page.
+            # it is caused by unclosed a tag on 'article > div > div.information > div'
+            if catg == 'manga' and len(a_tags_result) == 1:
+                a_tags_hrefs = [x.get('href') for x in html_soup.select('a') if x.get('href')]
+                manga_link = [x for x in a_tags_hrefs if 'myanimelist.net/manga/' in x]
+                a_tags_result = list(map(self.load_from_url, manga_link))
+
+            result.extend(a_tags_result)
+
+        return list(set(result))
+
+    def load_from_url(self, url):
+        """get media/object from url.
+
+        :param url: myanimelist url.
+        :type url: str
+        :return: object which match the url.
+
+        user can give the url with or without protocol, e.g.:
+
+         - myanimelist.net/character/15264/Maina
+         - http://myanimelist.net/character/15264/Maina
+        """
+        # check if url-form is valid.
+        unknown_url_error_msg = 'Unknown url.'
+        url_split = url.split('://', 1)
+        if len(url_split) == 2:
+            protocol, no_protocol_url = url_split
+            if protocol not in ['http', 'https']:
+                raise ValueError('Wrong protocol "{}".'.format(protocol))
+        elif len(url_split) == 1:
+            no_protocol_url = url_split[0]
+        else:
+            raise ValueError(unknown_url_error_msg)
+
+        # non-protocol url have following structure
+        # myanimelist.net/{obj_category}/{obj_id}/{obj_slug_name}
+        # myanimelist.net/character/15264/Maina
+        # it could also without slug name
+        no_protocol_url_parts = no_protocol_url.split('/', 3)
+        allowed_domain = ['myanimelist.net' or 'www.myanimelist.net']
+        is_domain_correct = no_protocol_url_parts[0] in allowed_domain
+
+        if not is_domain_correct:
+            raise ValueError('Url format is not recognized.')
+
+        if len(no_protocol_url_parts) in [3, 4]:
+            url_domain, obj_category, obj_id = no_protocol_url_parts[:3]
+        else:
+            raise ValueError(unknown_url_error_msg)
+
+        allowed_category = {
+            'character': character.Character,
+            'anime': anime.Anime,
+            'manga': manga.Manga,
+            'people': person.Person,
+        }
+        if obj_category not in allowed_category:
+            err_msg = 'The url category "{}" can\'t be loaded.'.format(obj_category)
+            raise NotImplementedError(err_msg)
+        return allowed_category[obj_category](self, int(obj_id))

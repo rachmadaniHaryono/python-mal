@@ -56,9 +56,21 @@ def fix_bad_html(html):
     return html
 
 
-def get_clean_dom(html):
-    """Given raw HTML from a MAL page, return a BeautifulSoup object with cleaned HTML."""
-    return bs4.BeautifulSoup(fix_bad_html(html), "html.parser")
+def get_clean_dom(html, fix_html=True):
+    """Given raw HTML from a MAL page, return a BeautifulSoup object with cleaned HTML.
+
+    :param html: html page.
+    :param fix_html: flag to fix the page.
+    :type html: str
+    :type fix_html: bool
+    :return: html soup.
+    :rtype: bs4.BeautifulSoup
+    """
+    bs4_parser = "html.parser"
+    if fix_html:
+        return bs4.BeautifulSoup(fix_bad_html(html), bs4_parser)
+    else:
+        return bs4.BeautifulSoup(html, bs4_parser)
 
 
 def urlencode(url):

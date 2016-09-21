@@ -7,6 +7,7 @@ from nose.plugins.attrib import attr
 
 import myanimelist.session
 import myanimelist.anime
+import myanimelist.character
 
 @attr('credentials')
 class testSessionClass(TestCase):
@@ -40,3 +41,36 @@ class testSessionClass(TestCase):
 
     def testAnime(self):
         self.assertIsInstance(self.session.anime(1), myanimelist.anime.Anime)
+
+
+class testLoadFromURLMethod(TestCase):
+    """test to check if load from url function properly."""
+
+    @classmethod
+    def setUpClass(self):
+        """set up class."""
+        self.session = myanimelist.session.Session()
+
+    def test_normal_input(self):
+        """test normal input."""
+        url = 'https://myanimelist.net/character/15264/Maina'
+        res = self.session.load_from_url(url)
+        self.assertIsInstance(res, myanimelist.character.Character)
+
+    def test_wrong_input(self):
+        """test wrong input."""
+        url = 'www.google.com'
+        with self.assertRaises(ValueError):
+            self.session.load_from_url(url)
+
+        url = 'ftp://myanimelist.net/character/15264/Maina'
+        with self.assertRaises(ValueError):
+            self.session.load_from_url(url)
+
+        url = 'https://youranimelist.net/character/15264/Maina'
+        with self.assertRaises(ValueError):
+            self.session.load_from_url(url)
+
+        url = 'https://myanimelist.net/blog.php'
+        with self.assertRaises(ValueError):
+            self.session.load_from_url(url)
