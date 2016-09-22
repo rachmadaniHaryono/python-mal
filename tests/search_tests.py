@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 import types
+import itertools
 
 import myanimelist.session
 from myanimelist.manga import Manga
@@ -96,3 +97,10 @@ class TestSearchMethod(TestCase):
             self.assertIsInstance(item1, Anime)
         except ValueError:
             self.fail('Search can\'t get single item.')
+
+    def test_relevance(self):
+        res1 = self.session.search_anime('beebop')
+        item_per_page = 50
+        first_page_items = list(itertools.islice(res1, item_per_page))
+        firstpage_anime = self.session.anime(1)
+        self.assertIn(firstpage_anime, first_page_items)

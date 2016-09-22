@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Module to handle myanimelist session."""
-
 try:  # py3
     from urllib.parse import urlparse, parse_qs
 except ImportError:  # py2
@@ -321,7 +320,7 @@ class Session(object):
         :rtype: `types.GeneratorType`
         """
         self._check_search_input(keyword)
-        page_num = 1
+        page_num = 0
         item_per_page = 50
         is_item_found = None
         while not is_item_found or is_item_found is None:
