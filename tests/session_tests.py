@@ -74,7 +74,7 @@ class testLoadFromURLMethod(TestCase):
         url = 'https://myanimelist.net/blog.php'
         with self.assertRaises(ValueError):
             self.session.load_from_url(url)
-    
+
     def test_club_input(self):
         """test club url."""
         url = 'https://myanimelist.net/clubs.php?cid=71268'

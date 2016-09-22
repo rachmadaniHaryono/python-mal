@@ -295,23 +295,72 @@ class Session(object):
         """
         return user.User(self, username)
 
-    def search(self, keyword, mode='all'):
+    def _check_search_input(self, keyword):
+        """check if input is valid for search.
+
+        function will raise error if input is invalid for search.
+
+        :param keyword: keyword to search.
+        :type keyword: str
+        """
+        # check keyword length
+        keyword = str(keyword)
+        max_len_keyword = 100
+        min_len_keyword = 2
+        if len(keyword) >= max_len_keyword:
+            raise ValueError('Your keyword is too long')
+        if len(keyword) <= min_len_keyword:
+            raise ValueError('Your keyword is too short')
+
+    def search_anime(self, keyword):
         """search using given keyword and mode.
 
         :param query: keyword to search.
-        :param mode: mode used to search.
         :type query: str
+        :return: Generator of the anime.
+        :rtype: `types.GeneratorType`
+        """
+        self._check_search_input(keyword)
+        page_num = 1
+        item_per_page = 50
+        is_item_found = None
+        while not is_item_found or is_item_found is None:
+            is_item_found = False
+
+            # prepare url
+            url_tmpl = 'https://myanimelist.net/anime.php?q={query}'
+            page_num += 1
+            item_idx = (page_num - 1) * item_per_page
+            if item_idx > 0:
+                url_tmpl += '&show={}'.format(item_idx)
+            page_url = url_tmpl.format(**{'query': keyword})
+
+            page = self.session.get(page_url).text
+            html_soup = utilities.get_clean_dom(page, fix_html=False)
+            a_tags = [x.select_one('a') for x in html_soup.select('tr') if x.select_one('a')]
+            a_tags = list(filter(lambda x: x.get('href'), a_tags))
+            links = list(filter(lambda x: '/anime/' in x, [x.get('href') for x in a_tags]))
+            is_item_found = bool(links)
+            if is_item_found:
+                objs = [self.load_from_url(x) for x in links]
+                for x in objs:
+                    yield x
+
+    def search(self, keyword, mode='all'):
+        """search using given keyword and mode.
+
+        :param keyword: keyword to search.
+        :param mode: mode used to search.
+        :type keyword: str
         :type mode: str
         :return: list of found media/object.
         :rtype: list
         """
-        # check keyword
-        min_len_keyword = 2
-        max_len_keyword = 100
-        if len(keyword) <= min_len_keyword:
-            raise ValueError('Your keyword is too short')
-        if len(keyword) >= max_len_keyword:
-            raise ValueError('Your keyword is too long')
+        self._check_search_input(keyword)
+        # anime search can received empty keyword but can't 1 or 2 characters.
+        # so use the min, max limit used by mode 'all'
+        if mode == 'anime':
+            return self.search_anime(keyword)
 
         # the query have following format for each mode:
         query_dict = {
