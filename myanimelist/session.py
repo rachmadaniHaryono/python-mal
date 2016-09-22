@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 """Module to handle myanimelist session."""
 
+try:  # py3
+    from urllib.parse import urlparse, parse_qs
+except ImportError:  # py2
+    from urlparse import urlparse, parse_qs
 
 import requests
 
@@ -401,21 +405,30 @@ class Session(object):
         no_protocol_url_parts = no_protocol_url.split('/', 3)
         allowed_domain = ['myanimelist.net' or 'www.myanimelist.net']
         is_domain_correct = no_protocol_url_parts[0] in allowed_domain
-
-        if not is_domain_correct:
-            raise ValueError('Url format is not recognized.')
-
-        if len(no_protocol_url_parts) in [3, 4]:
-            url_domain, obj_category, obj_id = no_protocol_url_parts[:3]
-        else:
-            raise ValueError(unknown_url_error_msg)
+        club_url_keyword = 'clubs.php'
 
         allowed_category = {
             'character': character.Character,
             'anime': anime.Anime,
             'manga': manga.Manga,
             'people': person.Person,
+            'club': club.Club,
         }
+        if not is_domain_correct:
+            raise ValueError('Url format is not recognized.')
+
+        if len(no_protocol_url_parts) in [3, 4] and 'club' in no_protocol_url_parts[1]:
+            raise ValueError(unknown_url_error_msg)
+        elif len(no_protocol_url_parts) in [3, 4]:
+            url_domain, obj_category, obj_id = no_protocol_url_parts[:3]
+        elif len(no_protocol_url_parts) == 2 and club_url_keyword in no_protocol_url_parts[1]:
+            obj_category = 'club'
+            url_query = parse_qs(urlparse(no_protocol_url).query)
+            club_id = url_query['cid'][0]
+            return allowed_category[obj_category](self, club_id)
+        else:
+            raise ValueError(unknown_url_error_msg)
+
         if obj_category not in allowed_category:
             err_msg = 'The url category "{}" can\'t be loaded.'.format(obj_category)
             raise NotImplementedError(err_msg)
