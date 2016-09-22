@@ -203,3 +203,21 @@ def parse_profile_date(text, suppress=False):
         if suppress:
             return None
         raise
+
+
+def index_containing_substring(the_list, substring):
+    """find index contain substring.
+
+    taken from http://stackoverflow.com/a/2170915
+
+    :param the_list: list contain multiple string
+    :param substring: substring which have to be found on the element of the_list
+    :type the_list: list
+    :type substring: str
+    :return: index of element where substring is found in that element other wise 0
+    :rtype: int
+    """
+    for i, s in enumerate(the_list):
+        if substring in s:
+            return i
+    return -1
