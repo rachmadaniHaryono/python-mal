@@ -344,7 +344,7 @@ class Session(object):
         html_soup = utilities.get_clean_dom(search_page, fix_html=False)
 
         result = []
-        categories = ['characters', 'anime', 'manga', 'people']
+        categories = ['characters', 'anime', 'manga', 'people', 'clubs']
         disallowed_url_part = [
             'myanimelist.net/topanime.php',
             'myanimelist.net/login',
@@ -352,25 +352,35 @@ class Session(object):
         ]
         for catg in categories:
             article = html_soup.select_one('#{}'.format(catg)).find_next('article')
-            a_tags = article.select('.information a')
-            # find all link to correct object.
-            a_tags_result = []
-            for tag in a_tags:
-                link = tag.get('href')
-                # pass the login link
-                is_skipped_url = any(x in link for x in disallowed_url_part)
-                if is_skipped_url:
-                    continue
-                a_tags_result.append(self.load_from_url(link))
+            if catg == 'clubs':
+                article_divs = [x for x in article.select('div') if x.select_one('a')]
+                a_tags = [
+                    x.select_one('a') for x in article_divs if x.select_one('a').get('href')]
+                links = [x.get('href') for x in a_tags]
+                a_tags_result = list(map(self.load_from_url, links))
+                result.extend(a_tags_result)
+            else:
+                a_tags = article.select('.information a')
+                # find all link to correct object.
+                a_tags_result = []
+                for tag in a_tags:
+                    link = tag.get('href')
+                    # pass the login link
+                    is_skipped_url = any(x in link for x in disallowed_url_part)
+                    if is_skipped_url:
+                        continue
+                    a_tags_result.append(self.load_from_url(link))
 
-            # fix the bug on when parsing manga on search page.
-            # it is caused by unclosed a tag on 'article > div > div.information > div'
-            if catg == 'manga' and len(a_tags_result) == 1:
-                a_tags_hrefs = [x.get('href') for x in html_soup.select('a') if x.get('href')]
-                manga_link = [x for x in a_tags_hrefs if 'myanimelist.net/manga/' in x]
-                a_tags_result = list(map(self.load_from_url, manga_link))
+                # fix the bug on when parsing manga on search page.
+                # it is caused by unclosed a tag on 'article > div > div.information > div'
+                if catg == 'manga' and len(a_tags_result) == 1:
+                    a_tags_hrefs = [x.get('href') for x in html_soup.select('a') if x.get('href')]
+                    manga_link = [x for x in a_tags_hrefs if 'myanimelist.net/manga/' in x]
+                    a_tags_result = list(map(self.load_from_url, manga_link))
 
-            result.extend(a_tags_result)
+                result.extend(a_tags_result)
+
+        # parse club for all mode search
 
         return list(set(result))
 

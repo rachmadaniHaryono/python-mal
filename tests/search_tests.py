@@ -5,6 +5,7 @@ from unittest import TestCase
 
 import myanimelist.session
 from myanimelist.manga import Manga
+from myanimelist.club import Club
 
 
 class TestSearchMethod(TestCase):
@@ -24,6 +25,11 @@ class TestSearchMethod(TestCase):
         """test normal input."""
         res = self.session.search('main')
         self.assertGreater(len(res), 0)
+
+        # test club search on all mode
+        self.assertTrue(any(isinstance(x, Club) for x in res))
+        res_clubs = [x for x in res if isinstance(x, Club)]
+        self.assertGreater(len(res_clubs), 1)
 
     def test_not_exist_mode(self):
         """test random mode."""
