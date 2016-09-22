@@ -117,14 +117,7 @@ class Anime(media.Media):
         # info_panel_first = anime_page.find(u'div', {'id': 'content'}).find(u'table').find(u'td')
 
         try:
-            episode_tag = [x for x in anime_page_original.find_all('span')
-                           if 'Episodes:' in x.text][0].parent
-            if episode_tag.text.strip() == 'Unknown' or \
-                    episode_tag.text.split(':')[1].strip() == 'Unknown':
-                anime_info['episodes'] = None
-            else:
-                anime_info['episodes'] = int(episode_tag.text.split(':')[1].strip())
-
+            anime_info['episodes'] = self._parse_episodes(anime_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -199,6 +192,24 @@ class Anime(media.Media):
                 raise
 
         return anime_info
+
+    @classmethod
+    def _parse_episodes(cls, anime_page):
+        """
+        Parse the DOM and returns anime's episodes.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: int
+        :return: media's rank
+        """
+        episode_tag = [x for x in anime_page.find_all('span') if 'Episodes:' in x.text][0].parent
+        if episode_tag.text.strip() == 'Unknown' or \
+                episode_tag.text.split(':')[1].strip() == 'Unknown':
+            return None
+        else:
+            return int(episode_tag.text.split(':')[1].strip())
 
     def parse_staff(self, character_page):
         """Parse the DOM and returns anime staff.

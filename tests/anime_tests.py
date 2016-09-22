@@ -6,18 +6,21 @@ from __future__ import unicode_literals
 
 from unittest import TestCase
 import datetime
+import os
 
 from six import string_types
+import bs4
 
 import myanimelist.session
 import myanimelist.anime
+from myanimelist.anime import Anime
+import myanimelist.media
+from myanimelist.media import Media
 
-try:
-    unicode
-    IS_PYTHON3 = False
-except NameError:
-    unicode = str
-    IS_PYTHON3 = True
+try:  # py3
+    from unittest import mock 
+except ImportError:  # py2
+    import mock
 
 class TestAnimeClass(TestCase):
     """test anime parser."""
@@ -441,9 +444,23 @@ class TestAnimeClass(TestCase):
         future_anime = self.session.anime(32995)
         title = future_anime.title
         self.assertIsInstance(title, string_types)
-        self.assertIsNone(future_anime.rank)
-        self.assertIsNone(future_anime.score)
-        self.assertIsNone(future_anime.episodes)
+
+        script_folder = os.path.dirname(os.path.realpath(__file__))
+        media_page_path = os.path.join(script_folder, 'files', 'future_anime.html')
+        with open(media_page_path) as f:
+            media_page = bs4.BeautifulSoup(f.read(), 'lxml')
+
+        future_anime_rank = future_anime.rank 
+        if future_anime_rank is not None and Media._parse_rank(media_page) is not None:
+            raise ValueError("Media rank parser failed.")
+
+        future_anime_score = future_anime.score
+        if future_anime_score is not None and Media._parse_score(media_page) is not None:
+            raise ValueError('Media score parser failed.')
+
+        future_anime_episodes = future_anime.episodes
+        if future_anime_score is not None and Anime._parse_episodes(media_page) is None:
+            raise ValueError('Anime episodes failed.')
 
     def test_popular_tags(self):
         """test popular tags.

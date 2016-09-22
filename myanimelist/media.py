@@ -243,46 +243,13 @@ class Media(Base):
                 raise
 
         try:
-            # grab statistics for this media.
-            score_tag = media_page.find('span', {'itemprop': 'aggregateRating'})
-            # there is difference between anime and manga page
-            # in manga page score_tag is in span-tag and anime in div-page
-            # test score tag by try to find span-tag
-            try:
-                score_tag.find('span')
-            except AttributeError:
-                score_tag = score_tag = media_page.find('div', {'itemprop': 'aggregateRating'})
-
-            # get score and number of users.
-            num_users_text = score_tag.find('span', {'itemprop': 'ratingCount'})
-            num_users_text = num_users_text.text.replace(',', '')
-            num_users = int(num_users_text)
-            # utilities.extract_tags(score_tag.find_all())
-            score_point = score_tag.find('span', {'itemprop': 'ratingValue'}).text
-            try:
-                media_info['score'] = (decimal.Decimal(score_point), num_users)
-            except (InvalidOperation, AttributeError):
-                score_tag = media_page_original.find('span', {'itemprop': 'ratingValue'})
-                try:
-                    media_info['score'] = (decimal.Decimal(score_tag.text), num_users)
-                except InvalidOperation as e:
-                    if score_tag.text == 'N/A':
-                        media_info['score'] = None
-                    else:
-                        raise e
+            media_info['score'] = self._parse_score(media_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
-            rank_tag = [x for x in media_page.select('span.dark_text') if 'Ranked:' in x.text][0]
-            rank_line = rank_tag.parent.text.split(':')[1].replace(',', '')
-            if rank_line.strip().split()[0].startswith('N/A'):
-                media_info['rank'] = None
-            else:
-                ranking = (
-                    rank_line.split('#')[1].split()[0].strip())
-                media_info[u'rank'] = int(ranking)
+            media_info['rank'] = self._parse_rank(media_page)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -298,7 +265,7 @@ class Media(Base):
                     popularity = popularity.split('#')[1].split()[0]
                 # set into media info
                 media_info[u'popularity'] = int(popularity)
-            except AttributeError :
+            except AttributeError:
                 rank_tag = filter(lambda x: 'Popularity' in x.text,
                                   media_page_original.find_all('span', {'class':'dark_text'}))[0].parent
                 media_info[u'popularity'] = int(rank_tag.text.split('#')[-1].strip())
@@ -326,6 +293,63 @@ class Media(Base):
                 raise
 
         return media_info
+
+    @classmethod
+    def _parse_rank(cls, media_page):
+        """Parse the DOM and returns media's rank.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: int
+        :return: media's rank
+        """
+        rank_tag = [x for x in media_page.select('span.dark_text') if 'Ranked:' in x.text][0]
+        rank_line = rank_tag.parent.text.split(':')[1].replace(',', '')
+        if rank_line.strip().split()[0].startswith('N/A'):
+            return None
+        else:
+            ranking = (
+                rank_line.split('#')[1].split()[0].strip())
+            return int(ranking)
+
+    @classmethod
+    def _parse_score(cls, media_page):
+        """Parse the DOM and returns media's score.
+
+        :type media_page: :class:`bs4.BeautifulSoup`
+        :param media_page: MAL media page's DOM
+
+        :rtype: int
+        :return: media's score
+        """
+        # grab statistics for this media.
+        score_tag = media_page.find('span', {'itemprop': 'aggregateRating'})
+        # there is difference between anime and manga page
+        # in manga page score_tag is in span-tag and anime in div-page
+        # test score tag by try to find span-tag
+        try:
+            score_tag.find('span')
+        except AttributeError:
+            score_tag = score_tag = media_page.find('div', {'itemprop': 'aggregateRating'})
+
+        # get score and number of users.
+        num_users_text = score_tag.find('span', {'itemprop': 'ratingCount'})
+        num_users_text = num_users_text.text.replace(',', '')
+        num_users = int(num_users_text)
+        # utilities.extract_tags(score_tag.find_all())
+        score_point = score_tag.find('span', {'itemprop': 'ratingValue'}).text
+        try:
+            return (decimal.Decimal(score_point), num_users)
+        except (InvalidOperation, AttributeError):
+            score_tag = media_page.find('span', {'itemprop': 'ratingValue'})
+            try:
+                return (decimal.Decimal(score_tag.text), num_users)
+            except InvalidOperation as e:
+                if score_tag.text == 'N/A':
+                    return None
+                else:
+                    raise e
 
     def parse_related_media(self, media_page):
         """Parse the DOM and returns related media.
