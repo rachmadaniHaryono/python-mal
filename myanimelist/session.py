@@ -388,25 +388,23 @@ class Session(object):
         """
         # check if url-form is valid.
         unknown_url_error_msg = 'Unknown url.'
-        url_split = url.split('://', 1)
-        if len(url_split) == 2:
-            protocol, no_protocol_url = url_split
-            if protocol not in ['http', 'https']:
-                raise ValueError('Wrong protocol "{}".'.format(protocol))
-        elif len(url_split) == 1:
-            no_protocol_url = url_split[0]
-        else:
-            raise ValueError(unknown_url_error_msg)
+        parsed_url = urlparse(url)
+        if parsed_url.scheme:
+            if parsed_url.scheme not in ['http', 'https']:
+                raise ValueError('Wrong protocol "{}".'.format(parsed_url.scheme))
 
         # non-protocol url have following structure
         # myanimelist.net/{obj_category}/{obj_id}/{obj_slug_name}
         # myanimelist.net/character/15264/Maina
         # it could also without slug name
-        no_protocol_url_parts = no_protocol_url.split('/', 3)
-        allowed_domain = ['myanimelist.net' or 'www.myanimelist.net']
-        is_domain_correct = no_protocol_url_parts[0] in allowed_domain
-        club_url_keyword = 'clubs.php'
+        # myanimelist.net/character/15264
+        # but that only for character, anime, manga, people
+        # club 'https://myanimelist.net/clubs.php?cid={club_id}'
+        allowed_netlocs = ['myanimelist.net' or 'www.myanimelist.net']
+        if parsed_url.netloc not in allowed_netlocs:
+            raise ValueError('Url format is not recognized.')
 
+        club_url_keyword = 'clubs.php'
         allowed_category = {
             'character': character.Character,
             'anime': anime.Anime,
@@ -414,16 +412,15 @@ class Session(object):
             'people': person.Person,
             'club': club.Club,
         }
-        if not is_domain_correct:
-            raise ValueError('Url format is not recognized.')
 
-        if len(no_protocol_url_parts) in [3, 4] and 'club' in no_protocol_url_parts[1]:
+        path_parts = parsed_url.path.split('/')
+        if len(path_parts) in [3, 4] and 'club' in path_parts[1]:
             raise ValueError(unknown_url_error_msg)
-        elif len(no_protocol_url_parts) in [3, 4]:
-            url_domain, obj_category, obj_id = no_protocol_url_parts[:3]
-        elif len(no_protocol_url_parts) == 2 and club_url_keyword in no_protocol_url_parts[1]:
+        elif len(path_parts) in [3, 4]:
+            url_domain, obj_category, obj_id = path_parts[:3]
+        elif len(path_parts) == 2 and club_url_keyword in path_parts[1]:
             obj_category = 'club'
-            url_query = parse_qs(urlparse(no_protocol_url).query)
+            url_query = parse_qs(parsed_url.query)
             club_id = url_query['cid'][0]
             return allowed_category[obj_category](self, club_id)
         else:
