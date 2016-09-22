@@ -84,3 +84,9 @@ class testLoadFromURLMethod(TestCase):
         url = 'https://myanimelist.net/club/71268'
         with self.assertRaises(ValueError):
             self.session.load_from_url(url)
+
+    def test_long_url(self):
+        """test if long valid url still can be recognized."""
+        url = 'https://myanimelist.net/anime/6116/Mainichi_Kaasan/video'
+        res = self.session.load_from_url(url)
+        self.assertIsInstance(res, myanimelist.anime.Anime)

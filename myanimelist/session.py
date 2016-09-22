@@ -414,9 +414,9 @@ class Session(object):
         }
 
         path_parts = parsed_url.path.split('/')
-        if len(path_parts) in [3, 4] and 'club' in path_parts[1]:
+        if len(path_parts) > 3 and 'club' in path_parts[1]:
             raise ValueError(unknown_url_error_msg)
-        elif len(path_parts) in [3, 4]:
+        elif len(path_parts) > 3:
             url_domain, obj_category, obj_id = path_parts[:3]
         elif len(path_parts) == 2 and club_url_keyword in path_parts[1]:
             obj_category = 'club'
