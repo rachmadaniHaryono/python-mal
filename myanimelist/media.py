@@ -263,17 +263,26 @@ class Media(Base):
                 media_info['score'] = (decimal.Decimal(score_point), num_users)
             except (InvalidOperation, AttributeError):
                 score_tag = media_page_original.find('span', {'itemprop': 'ratingValue'})
-                media_info['score'] = (decimal.Decimal(score_tag.text), num_users)
+                try:
+                    media_info['score'] = (decimal.Decimal(score_tag.text), num_users)
+                except InvalidOperation as e:
+                    if score_tag.text == 'N/A':
+                        media_info['score'] = None
+                    else:
+                        raise e
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
 
         try:
             rank_tag = [x for x in media_page.select('span.dark_text') if 'Ranked:' in x.text][0]
-            ranking = (
-                rank_tag.parent.text.split(':')[1].replace(',', '').split('#')[1].split()[0]
-                .strip())
-            media_info[u'rank'] = int(ranking)
+            rank_line = rank_tag.parent.text.split(':')[1].replace(',', '')
+            if rank_line.strip().split()[0].startswith('N/A'):
+                media_info['rank'] = None
+            else:
+                ranking = (
+                    rank_line.split('#')[1].split()[0].strip())
+                media_info[u'rank'] = int(ranking)
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

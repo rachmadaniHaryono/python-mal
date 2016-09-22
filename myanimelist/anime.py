@@ -119,10 +119,11 @@ class Anime(media.Media):
         try:
             episode_tag = [x for x in anime_page_original.find_all('span')
                            if 'Episodes:' in x.text][0].parent
-            if episode_tag.text.strip() != 'Unknown':
-                anime_info['episodes'] = int(episode_tag.text.split(':')[-1].strip())
+            if episode_tag.text.strip() == 'Unknown' or \
+                    episode_tag.text.split(':')[1].strip() == 'Unknown':
+                anime_info['episodes'] = None
             else:
-                anime_info['episodes'] = 0
+                anime_info['episodes'] = int(episode_tag.text.split(':')[1].strip())
 
         except:
             if not self.session.suppress_parse_exceptions:

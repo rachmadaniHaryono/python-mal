@@ -434,6 +434,17 @@ class TestAnimeClass(TestCase):
         self.assertIn(self.session.person(10617), self.prisma.staff)
         self.assertIn('ADR Director', self.prisma.staff[self.session.person(10617)])
 
+    def test_unrelease_anime(self):
+        """test for unreleased anime.
+
+        because it can't know which anime in the future, so use the local saved html for test."""
+        future_anime = self.session.anime(32995)
+        title = future_anime.title
+        self.assertIsInstance(title, string_types)
+        self.assertIsNone(future_anime.rank)
+        self.assertIsNone(future_anime.score)
+        self.assertIsNone(future_anime.episodes)
+
     def test_popular_tags(self):
         """test popular tags.
 
