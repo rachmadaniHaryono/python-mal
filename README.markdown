@@ -63,3 +63,18 @@ Testing requires `nose`. To run the tests that come with python-mal:
   3. Run `nosetests`.
 
 Make sure you don't spam the tests too quickly! One of the tests involves POSTing invalid credentials to MAL, so you're likely to be IP-banned if you do this too much in too short a span of time.
+
+Differences from the original repo
+===================================
+
+- Instead of beautiful soup this module uses lxml
+- There are scheduled tests every sunday.
+- I've removed some of the functionalities: popular tags parsing and favourite parsing on user profiles because they were unstable.
+
+Change log
+===========
+0.2.4 - Adapted to the new MAL ssl enforcement
+0.2.3.1 - upgraded to requests 2.11
+0.2.3.0 - performance improvements in xpath queries.
+0.2.2 - adapted to new SEO url rule changes and DOM changes on MAL.
+0.2.1 - replaced beautifulsoup with lxml.
