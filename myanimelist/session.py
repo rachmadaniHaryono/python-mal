@@ -311,6 +311,43 @@ class Session(object):
         if len(keyword) <= min_len_keyword:
             raise ValueError('Your keyword is too short')
 
+    def search_manga(self, keyword):
+        """search using given keyword and mode.
+
+        :param query: keyword to search.
+        :type query: str
+        :return: Generator of the anime.
+        :rtype: `types.GeneratorType`
+        """
+        self._check_search_input(keyword)
+        base_url_tmpl = 'https://myanimelist.net/manga.php?q={query}'
+        page_num = 0
+        item_per_page = 50
+        is_item_found = None
+        while not is_item_found or is_item_found is None:
+            is_item_found = False
+            # prepare url
+            page_num += 1
+            item_idx = (page_num - 1) * item_per_page
+            if item_idx > 0:
+                url_tmpl = base_url_tmpl + '&show={}'.format(item_idx)
+            else:
+                url_tmpl = base_url_tmpl
+
+            # prepare url
+            page_url = url_tmpl.format(**{'query': keyword})
+            page = self.session.get(page_url).text
+            html_soup = utilities.get_clean_dom(page, fix_html=False)
+            a_tags = [x.select_one('a') for x in html_soup.select('tr') if x.select_one('a')]
+            a_tags = list(filter(lambda x: x.get('href'), a_tags))
+            links = list(filter(lambda x: '/manga/' in x, [x.get('href') for x in a_tags]))
+
+            is_item_found = bool(links)
+            if is_item_found:
+                objs = [self.load_from_url(x) for x in links]
+                for x in objs:
+                    yield x
+
     def search_anime(self, keyword):
         """search using given keyword and mode.
 
@@ -360,15 +397,19 @@ class Session(object):
         # so use the min, max limit used by mode 'all'
         if mode == 'anime':
             return self.search_anime(keyword)
+        elif mode == 'manga':
+            return self.search_manga(keyword)
 
         # the query have following format for each mode:
         query_dict = {
             'all': 'search/all?q={query}',
         }
         not_implemented_mode_dict = {
+            # already implemented 
+            # 'anime': 'anime.php?q={query}',
+            # 'manga': 'manga.php?q={query}',
+
             # not yet implemented.
-            'anime': 'anime.php?q={query}',
-            'manga': 'manga.php?q={query}',
             'character': 'character.php?q={query}',
             'people': 'people.php?q={query}',
             'clubs': 'clubs.php?action=find&cn={query}',
