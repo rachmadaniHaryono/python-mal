@@ -311,21 +311,33 @@ class Session(object):
         if len(keyword) <= min_len_keyword:
             raise ValueError('Your keyword is too short')
 
-    def search_manga(self, keyword):
-        """search using given keyword and mode.
+    def _search_generic(self, keyword, base_url_tmpl, parse_func):
+        """generic function to parse search page.
 
-        :param query: keyword to search.
+        `base_url_tmpl` is url template for each search. As example for :func:`search_anime`:
+
+            :Example:
+
+            base_url_tmpl = 'https://myanimelist.net/manga.php?q={query}'
+
+        It require `{query}` to contain the `keyword`.
+
+        As for :func:`parse_func` it have to raise :class:`ValueError`to stop the function,
+        if not it will run forever.
+
+        :param base_url_tmpl: url template.
         :type query: str
-        :return: Generator of the anime.
+        :param parse_func: parser function that will run on each page.
+        :type query: func
+        :return: generator from list of parsed result
         :rtype: `types.GeneratorType`
         """
-        self._check_search_input(keyword)
-        base_url_tmpl = 'https://myanimelist.net/manga.php?q={query}'
         page_num = 0
         item_per_page = 50
         is_item_found = None
         while not is_item_found or is_item_found is None:
             is_item_found = False
+
             # prepare url
             page_num += 1
             item_idx = (page_num - 1) * item_per_page
@@ -338,6 +350,30 @@ class Session(object):
             page_url = url_tmpl.format(**{'query': keyword})
             page = self.session.get(page_url).text
             html_soup = utilities.get_clean_dom(page, fix_html=False)
+
+            try:
+                parsed_res = parse_func(html_soup)
+                is_item_found = True
+                return parsed_res
+            except ValueError: 
+                # it is expected the parse_func may raise Value error.
+                # it mean `is_item_found` will have `False` value and the loop will stop
+                pass
+
+
+    def search_manga(self, keyword):
+        """search using given keyword and mode.
+
+        :param query: keyword to search.
+        :type query: str
+        :return: Generator of the anime.
+        :rtype: `types.GeneratorType`
+        """
+        base_url_tmpl = 'https://myanimelist.net/manga.php?q={query}'
+        self._check_search_input(keyword)
+
+        def parse_func(html_soup):
+            """parse func for media."""
             a_tags = [x.select_one('a') for x in html_soup.select('tr') if x.select_one('a')]
             a_tags = list(filter(lambda x: x.get('href'), a_tags))
             links = list(filter(lambda x: '/manga/' in x, [x.get('href') for x in a_tags]))
@@ -347,6 +383,11 @@ class Session(object):
                 objs = [self.load_from_url(x) for x in links]
                 for x in objs:
                     yield x
+            else:
+                raise ValueError('No item Found')
+
+        return self._search_generic(
+            keyword=keyword, base_url_tmpl=base_url_tmpl, parse_func=parse_func)
 
     def search_anime(self, keyword):
         """search using given keyword and mode.
@@ -356,23 +397,11 @@ class Session(object):
         :return: Generator of the anime.
         :rtype: `types.GeneratorType`
         """
+        base_url_tmpl = 'https://myanimelist.net/anime.php?q={query}'
         self._check_search_input(keyword)
-        page_num = 0
-        item_per_page = 50
-        is_item_found = None
-        while not is_item_found or is_item_found is None:
-            is_item_found = False
 
-            # prepare url
-            url_tmpl = 'https://myanimelist.net/anime.php?q={query}'
-            page_num += 1
-            item_idx = (page_num - 1) * item_per_page
-            if item_idx > 0:
-                url_tmpl += '&show={}'.format(item_idx)
-            page_url = url_tmpl.format(**{'query': keyword})
-
-            page = self.session.get(page_url).text
-            html_soup = utilities.get_clean_dom(page, fix_html=False)
+        def parse_func(html_soup):
+            """parse func for media."""
             a_tags = [x.select_one('a') for x in html_soup.select('tr') if x.select_one('a')]
             a_tags = list(filter(lambda x: x.get('href'), a_tags))
             links = list(filter(lambda x: '/anime/' in x, [x.get('href') for x in a_tags]))
@@ -381,6 +410,12 @@ class Session(object):
                 objs = [self.load_from_url(x) for x in links]
                 for x in objs:
                     yield x
+            else:
+                raise ValueError('No item Found')
+
+        return self._search_generic(
+            keyword=keyword, base_url_tmpl=base_url_tmpl, parse_func=parse_func)
+
 
     def search(self, keyword, mode='all'):
         """search using given keyword and mode.
