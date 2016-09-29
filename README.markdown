@@ -73,8 +73,8 @@ Differences from the original repo
 
 Change log
 ===========
-0.2.4 - Adapted to the new MAL ssl enforcement
-0.2.3.1 - upgraded to requests 2.11
-0.2.3.0 - performance improvements in xpath queries.
-0.2.2 - adapted to new SEO url rule changes and DOM changes on MAL.
-0.2.1 - replaced beautifulsoup with lxml.
+0.2.4 - Adapted to the new MAL ssl enforcement     
+0.2.3.1 - upgraded to requests 2.11   
+0.2.3.0 - performance improvements in xpath queries.     
+0.2.2 - adapted to new SEO url rule changes and DOM changes on MAL.     
+0.2.1 - replaced beautifulsoup with lxml.      
