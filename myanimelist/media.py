@@ -402,7 +402,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
             return results[0]
 
-        def _get_clean_property_val(el): return int(xget_text(el.getparent())[1].stip().replace(',', ''))
+        def _get_clean_property_val(el): return int(xget_text(el.getparent())[1].strip().replace(',', ''))
 
         media_info = self.parse_sidebar(media_page)
         verb_progressive = self.consuming_verb + 'ing'
