@@ -462,6 +462,14 @@ class TestAnimeClass(TestCase):
         if future_anime_score is not None and Anime._parse_episodes(media_page) is None:
             raise ValueError('Anime episodes failed.')
 
+    def testPromotionVideos(self):
+        """test promotion video."""
+        assert isinstance(self.spicy_wolf.promotion_videos, list)
+        assert len(self.spicy_wolf.promotion_videos) == 1
+        assert isinstance(self.bebop.promotion_videos, list)
+        assert len(self.bebop.promotion_videos) > 0
+        assert self.spicy_wolf.promotion_videos[0]["title"] == "PV English dub version"
+
     def test_popular_tags(self):
         """test popular tags.
 

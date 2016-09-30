@@ -3,6 +3,10 @@
 """Module to anime."""
 import datetime
 import re
+try:
+    from urlparse import ParseResult
+except ImportError:
+    from urllib.parse import ParseResult
 
 try:  # python2
     from base import loadable
@@ -60,6 +64,7 @@ class Anime(media.Media):
         self._rating = None
         self._voice_actors = None
         self._staff = None
+        self._promotion_videos = None
 
     def parse_producers(self, anime_page):
         """Parse the DOM and returns anime producers.
@@ -83,6 +88,23 @@ class Anime(media.Media):
                           .session
                           .producer(int(producer_id))
                           .set({'name': producer_name}))
+        return result
+
+    def parse_promotion_videos(self, media_page):
+        """Parse the DOM and returns promotion videos.
+
+        :type anime_page: :class:`bs4.BeautifulSoup`
+        :param anime_page: MAL anime page's DOM
+        :rtype: dict
+        :return: anime attributes
+        """
+        result = []
+
+        div_tags = media_page.select('.video-promotion')
+        for tag in div_tags:
+            embed_link = tag.select_one('a').get('href')
+            title = tag.select_one('span.title').text
+            result.append({"embed_link": embed_link, "title": title})
         return result
 
     def parse_sidebar(self, anime_page, anime_page_original=None):
@@ -322,6 +344,30 @@ class Anime(media.Media):
 
         return anime_info
 
+    def load_videos(self):
+        """Fetch the MAL media videos page and sets the current media's promotion videos attr.
+
+        :rtype: :class:`.Anime`
+        :return: current media object.
+
+        """
+        url = ParseResult(
+            scheme='https',
+            netloc='myanimelist.net',
+            path='/'.join([
+                '',  # empty string to make path start with '/'
+                self.__class__.__name__.lower(),
+                str(self.id),
+                utilities.urlencode(self.title),
+                'videos'
+            ]),
+            params='', query='', fragment=''
+            ).geturl()
+        videos_page = self.session.session.get(url).text
+        promotion_videos = self.parse_promotion_videos(utilities.get_clean_dom(videos_page))
+        self.set({'promotion_videos': promotion_videos})
+        return self
+
     @property
     @loadable('load')
     def episodes(self):
@@ -358,6 +404,12 @@ class Anime(media.Media):
     def duration(self):
         """The duration of an episode of this anime as a :class:`datetime.timedelta`."""
         return self._duration
+
+    @property
+    @loadable('load_videos')
+    def promotion_videos(self):
+        """the promotion video of the anime."""
+        return self._promotion_videos
 
     @property
     @loadable('load')
