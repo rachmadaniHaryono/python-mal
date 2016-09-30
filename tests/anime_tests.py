@@ -315,6 +315,13 @@ class testAnimeClass(object):
         assert self.session.person(10617) in self.prisma.staff and u'ADR Director' in self.prisma.staff[
             self.session.person(10617)]
 
+    def testPromotionVideos(self):
+        assert isinstance(self.spicy_wolf.promotion_videos, list)
+        assert len(self.spicy_wolf.promotion_videos) == 1
+        assert isinstance(self.bebop.promotion_videos, list)
+        assert len(self.bebop.promotion_videos) > 0
+        assert self.spicy_wolf.promotion_videos[0]["title"] == "PV English dub version"
+
     # def testPopularTags(self):
     #     assert len(self.bebop.popular_tags) > 0 and self.space_tag in self.bebop.popular_tags
     #     assert len(self.spicy_wolf.popular_tags) > 0 and self.adventure_tag in self.spicy_wolf.popular_tags
