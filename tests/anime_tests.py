@@ -469,6 +469,10 @@ class TestAnimeClass(TestCase):
         assert isinstance(self.bebop.promotion_videos, list)
         assert self.spicy_wolf.promotion_videos[0]["title"] == "PV English dub version"
 
+        no_promo_vids_anime = self.session.anime(65)
+        assert isinstance(no_promo_vids_anime.promotion_videos, list)
+        assert len(no_promo_vids_anime.promotion_videos) == 0
+
     def test_multiple_promotion_videos(self):
         assert len(self.bebop.promotion_videos) > 1
         assert any('PV 2' in x['title'] for x in self.bebop.promotion_videos)
