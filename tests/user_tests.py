@@ -174,7 +174,7 @@ class testUserClass(object):
 
     def testAnimeStats(self):
         assert isinstance(self.shal.anime_stats, dict) and len(self.shal.anime_stats) > 0
-        assert self.shal.anime_stats[u'Days'] == 38.9 and self.shal.anime_stats[u'Total Entries'] == 146
+        assert self.shal.anime_stats[u'Days'] == 38.1 and self.shal.anime_stats[u'Total Entries'] == 146
         assert isinstance(self.mona.anime_stats, dict) and len(self.mona.anime_stats) > 0
         assert self.mona.anime_stats[u'Days'] >= 470 and self.mona.anime_stats[u'Total Entries'] >= 1822
 

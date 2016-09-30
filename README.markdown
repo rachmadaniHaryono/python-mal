@@ -72,7 +72,8 @@ Differences from the original repo
 - I've removed some of the functionalities: popular tags parsing and favourite parsing on user profiles because they were unstable.
 
 Change log
-===========
+==========
+0.2.5 - added promotion video parsing on anime datasheets     
 0.2.4 - Adapted to the new MAL ssl enforcement     
 0.2.3.1 - upgraded to requests 2.11   
 0.2.3.0 - performance improvements in xpath queries.     

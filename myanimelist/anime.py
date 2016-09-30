@@ -52,6 +52,27 @@ class Anime(media.Media):
         self._rating = None
         self._voice_actors = None
         self._staff = None
+        self._promotion_videos = None
+
+    def parse_promotion_videos(self, media_page):
+        container = utilities.css_select_first("#content", media_page)
+        if container is None:
+            return None
+
+        result = []
+        video_tags = utilities.css_select("a.iframe", media_page)
+
+        for tag in video_tags:
+            embed_link = tag.get('href')
+            title_tag = tag.xpath("//div[@class='info-container']/span")
+            title = ""
+            if title_tag is not None and len(title_tag) > 0:
+                title = title_tag[0].text
+
+            result.append({"embed_link": embed_link, "title": title})
+
+        self._promotion_videos = result
+        return result
 
     def parse_sidebar(self, anime_page):
         """Parses the DOM and returns anime attributes in the sidebar.
@@ -275,6 +296,19 @@ class Anime(media.Media):
 
         return anime_info
 
+    def load_videos(self):
+        """Fetches the MAL media videos page and sets the current media's promotion videos attribute.
+
+        :rtype: :class:`.Anime`
+        :return: current media object.
+
+        """
+        videos_page = self.session.session.get(
+                'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
+                        self.id) + '/' + utilities.urlencode(self.title) + '/videos').text
+        self.set({'promotion_videos': self.parse_promotion_videos(utilities.get_clean_dom(videos_page))})
+        return self
+
     @property
     @loadable('load')
     def episodes(self):
@@ -311,6 +345,11 @@ class Anime(media.Media):
         """The duration of an episode of this anime as a :class:`datetime.timedelta`.
         """
         return self._duration
+
+    @property
+    @loadable('load_videos')
+    def promotion_videos(self):
+        return self._promotion_videos
 
     @property
     @loadable('load')
