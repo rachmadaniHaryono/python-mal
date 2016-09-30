@@ -100,7 +100,7 @@ class Anime(media.Media):
         """
         result = []
 
-        div_tags = media_page.select('.video-promotion')
+        div_tags = media_page.select('.promotional-video .video-list-outer')
         for tag in div_tags:
             embed_link = tag.select_one('a').get('href')
             title = tag.select_one('span.title').text
@@ -359,7 +359,7 @@ class Anime(media.Media):
                 self.__class__.__name__.lower(),
                 str(self.id),
                 utilities.urlencode(self.title),
-                'videos'
+                'video'
             ]),
             params='', query='', fragment=''
             ).geturl()
