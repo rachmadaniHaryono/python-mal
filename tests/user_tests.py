@@ -12,7 +12,7 @@ from nose.plugins.attrib import attr
 from six import string_types
 
 
-class testUserClass(TestCase):
+class TestUserClass(TestCase):
     """class to test user module."""
 
     @classmethod
@@ -281,11 +281,11 @@ class testUserClass(TestCase):
         self.assertIsInstance(self.mona.last_list_updates, dict)
         self.assertGreater(len(self.mona.last_list_updates), 0)
 
-    def testAnimeStats(self):
+    def test_anime_stats(self):
         self.assertIsInstance(self.shal.anime_stats, dict)
         self.assertGreater(len(self.shal.anime_stats), 0)
-        self.assertEqual(self.shal.anime_stats[u'Days'], 38.9)
         self.assertEqual(self.shal.anime_stats[u'Total Entries'], 146)
+        assert self.shal.anime_stats[u'Days'] > 38
 
         self.assertIsInstance(self.mona.anime_stats, dict)
         self.assertGreater(len(self.mona.anime_stats), 0)
