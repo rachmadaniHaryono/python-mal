@@ -178,3 +178,13 @@ def css_select_first(selector_str, element):
     selector = CSSSelector(selector_str)
     results = selector(element)
     return results[0] if len(results) >= 1 else None
+
+
+def check_if_mal_response_is_empty(xmlel):
+    if xmlel is None:
+        raise Exception("xmlel argument cannot be None.")
+
+    if len(xmlel) == 0:
+        return True
+
+    return False
