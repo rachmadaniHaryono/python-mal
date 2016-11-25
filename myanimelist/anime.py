@@ -53,6 +53,7 @@ class Anime(media.Media):
         self._voice_actors = None
         self._staff = None
         self._promotion_videos = None
+        self._broadcast = None
 
     def parse_promotion_videos(self, media_page):
         container = utilities.css_select_first("#content", media_page)
@@ -196,6 +197,29 @@ class Anime(media.Media):
                 raise Exception("Couldn't find duration tag.")
             rating_tag = temp[0].xpath("../text()")[-1]
             anime_info['rating'] = rating_tag.strip()
+        except:
+            if not self.session.suppress_parse_exceptions:
+                raise
+
+        # parse broadcasting times - note: the tests doesnt cover this bit, because its a dynamic data
+        # todo: figure out a way to cover this bit in the unit tests
+        try:
+            temp = info_panel_first.xpath(".//div/span[text()[contains(.,'Broadcast:')]]")
+            anime_info['broadcast'] = None
+            if len(temp) > 0:
+                broadcast_tag = temp[0].xpath("../text()")[-1].strip()
+                rex = re.compile("[a-zA-Z]+.[a-z]+.[0-9]{1,2}:[0-9]{1,2}.\([A-Z]+\)")
+                if broadcast_tag != "Unknown" and rex.match(broadcast_tag) is not None:
+                    anime_info['broadcast'] = {}
+
+                    parts = broadcast_tag.split(" at ")
+                    time_parts = parts[-1].split(" ")
+                    subtime_parts = time_parts[0].split(':')
+
+                    anime_info['broadcast']['weekday'] = parts[0].rstrip('s')
+                    anime_info['broadcast']['hour'] = int(subtime_parts[0])
+                    anime_info['broadcast']['minute'] = int(subtime_parts[1])
+                    anime_info['broadcast']['timezone'] = time_parts[-1].replace('(', '').replace(')', '')
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -345,6 +369,13 @@ class Anime(media.Media):
         """The duration of an episode of this anime as a :class:`datetime.timedelta`.
         """
         return self._duration
+
+    @property
+    @loadable('load')
+    def broadcast(self):
+        """The broadcast time of this anime as a :class:`dict` if it is being aired currently.
+        """
+        return self._broadcast
 
     @property
     @loadable('load_videos')

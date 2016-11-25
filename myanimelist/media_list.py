@@ -239,9 +239,12 @@ class MediaList(Base, collections.Mapping, metaclass=abc.ABCMeta):
             raise InvalidMediaListError(self.username, message="Invalid username when fetching " + self.type + " list")
 
         stats_elt = list_page.find('.//myinfo')
-        if stats_elt is None:
+        if stats_elt is None and not utilities.check_if_mal_response_is_empty(list_page):
             raise MalformedMediaListPageError(self.username, xml,
                                               message="Could not find stats element in " + self.type + " list")
+
+        if utilities.check_if_mal_response_is_empty(list_page):
+            raise InvalidMediaListError(self.username, message="Empty result set when fetching " + self.type + " list")
 
         list_info['stats'] = self.parse_stats(stats_elt)
 

@@ -393,7 +393,7 @@ class User(Base):
                         list_update["total"] = None
                     else:
                         list_update["total"] = int(total_match["total"].replace("/", ""))
-                    status = temp.get("class").split(" ")[1]
+                    status = temp.get("class").split(" ")[-1]
                     status = status[0].upper() + status[1:]
                     list_update["status"] = status
                     list_update["progress"] = progress
