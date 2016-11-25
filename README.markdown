@@ -73,6 +73,7 @@ Differences from the original repo
 
 Change log
 ==========
+0.2.6 - added broadcast time parsing for currently aired anime shows and added some minor fixes.
 0.2.5 - added promotion video parsing on anime datasheets     
 0.2.4 - Adapted to the new MAL ssl enforcement     
 0.2.3.1 - upgraded to requests 2.11   
