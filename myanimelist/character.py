@@ -144,7 +144,7 @@ class Character(Base):
             temp = info_panel_first.xpath("./text()")
             if len(temp) > 0:
                 num_favorites_node = temp[-1]
-                character_info['num_favorites'] = int(num_favorites_node.strip().split(': ')[1])
+                character_info['num_favorites'] = int(num_favorites_node.strip().split(': ')[1].replace(',', ''))
             else:
                 character_info['num_favorites'] = 0
         except:

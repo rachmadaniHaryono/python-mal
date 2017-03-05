@@ -31,7 +31,7 @@ class testMangaClass(object):
         self.supernatural = self.session.genre(37)
         self.supernatural_tag = self.session.tag(u'supernatural')
         self.clamp = self.session.person(1877)
-        self.bessatsu = self.session.publication(450)
+        self.young_magazine = self.session.publication(10)
         self.doumeki = self.session.character(567)
         self.holic_sequel = self.session.manga(46010)
 
@@ -184,7 +184,7 @@ class testMangaClass(object):
 
     def testSerialization(self):
         assert isinstance(self.holic.serialization,
-                          myanimelist.publication.Publication) and self.bessatsu == self.holic.serialization
+                          myanimelist.publication.Publication) and self.young_magazine == self.holic.serialization
         assert isinstance(self.tomoyo_after.serialization,
                           myanimelist.publication.Publication) and self.dragon_age == self.tomoyo_after.serialization
         assert isinstance(self.naruto.serialization,

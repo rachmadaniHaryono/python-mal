@@ -127,7 +127,7 @@ class Media(Base, metaclass=abc.ABCMeta):
         try:
             result_list = utilities.css_select("#contentWrapper", media_page)
             if len(result_list) == 0:
-                raise MalformedMediaPageError(self.id, media_page, message="Could not find title div")
+                raise MalformedMediaPageError(self.id, media_page, message="Could not find content wrapper")
 
             title_tag = result_list[0].find('.//h1')
             if title_tag.find('.//span') is None:
@@ -193,7 +193,8 @@ class Media(Base, metaclass=abc.ABCMeta):
             type_tag_results = info_panel_first.xpath(".//span[text()[contains(.,'Type:')]]")
             if len(type_tag_results) == 0:
                 raise Exception("Couldnt find type tag.")
-            type_tag = "".join(type_tag_results[0].getparent().xpath(".//text()")).split(": ")[-1].rstrip()
+            type_tag = "".join(type_tag_results[0].getparent().xpath(".//text()")).strip().replace('\n', '') \
+                .split(": ")[-1].rstrip()
             media_info['type'] = type_tag.strip()
         except:
             if not self.session.suppress_parse_exceptions:
@@ -234,7 +235,8 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         try:
             # grab statistics for this media.
-            score_tag_results = info_panel_first.xpath(".//div[contains(@class,'js-statistics-info')]//span[text()[contains(.,'Score:')]]")
+            score_tag_results = info_panel_first.xpath(
+                ".//div[contains(@class,'js-statistics-info')]//span[text()[contains(.,'Score:')]]")
             if len(score_tag_results) == 0:
                 raise Exception("Couldn't find score tag.")
             score = float(utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text)
@@ -402,7 +404,8 @@ class Media(Base, metaclass=abc.ABCMeta):
 
             return results[0]
 
-        def _get_clean_property_val(el): return int(xget_text(el.getparent())[1].strip().replace(',', ''))
+        def _get_clean_property_val(el):
+            return int(xget_text(el.getparent())[1].strip().replace(',', ''))
 
         media_info = self.parse_sidebar(media_page)
         verb_progressive = self.consuming_verb + 'ing'
@@ -480,7 +483,7 @@ class Media(Base, metaclass=abc.ABCMeta):
                     for i in range(len(score_rows)):
                         score_value = int(score_rows[i].find('td').text)
                         score_stats[score_value] = int(
-                                score_rows[i].find('.//span/small').text.replace('(', '').replace(' votes)', ''))
+                            score_rows[i].find('.//span/small').text.replace('(', '').replace(' votes)', ''))
 
         except:
             if not self.session.suppress_parse_exceptions:
@@ -537,7 +540,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         """
         media_page = self.session.session.get(
-                'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(self.id)).text
+            'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(self.id)).text
         self.set(self.parse(utilities.get_clean_dom(media_page)))
         return self
 
@@ -549,7 +552,7 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         """
         stats_page = self.session.session.get('https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
-                self.id) + '/' + utilities.urlencode(self.title) + '/stats').text
+            self.id) + '/' + utilities.urlencode(self.title) + '/stats').text
         self.set(self.parse_stats(utilities.get_clean_dom(stats_page)))
         return self
 
@@ -561,8 +564,8 @@ class Media(Base, metaclass=abc.ABCMeta):
 
         """
         characters_page = self.session.session.get(
-                'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
-                        self.id) + '/' + utilities.urlencode(self.title) + '/characters').text
+            'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
+                self.id) + '/' + utilities.urlencode(self.title) + '/characters').text
         self.set(self.parse_characters(utilities.get_clean_dom(characters_page)))
         return self
 
