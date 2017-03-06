@@ -115,6 +115,7 @@ class Session(object):
         if 'Logout' in panel.content.decode("utf-8") or len(html.xpath(".//*[text()[contains(.,'Logout')]]")) > 0:
             return True
 
+        # //*[@id="header-menu"]/div[7]/div/ul/li[8]/form/a
         if html.find("./body/div[1]/div[3]/div[1]/div/div[2]/ul/li[3]/form/a[1]") is not None:
             return True
 

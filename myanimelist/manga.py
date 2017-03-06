@@ -63,7 +63,7 @@ class Manga(media.Media):
         if not self._validate_page(manga_page):
             raise InvalidMangaError(self.id)
 
-        title_tag = manga_page.xpath(".//div[@id='contentWrapper']//h1//span")
+        title_tag = manga_page.xpath(".//div[@id='contentWrapper']//h1")
         if len(title_tag) == 0:
             raise MalformedMangaPageError(self.id, manga_page, message="Could not find title div")
 

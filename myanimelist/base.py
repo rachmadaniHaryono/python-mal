@@ -44,10 +44,11 @@ class MalformedPageError(Error):
                 self.html = str(html)
 
     def __str__(self):
+        none_str_const = "<none>"
         return "\n".join([
             super(MalformedPageError, self).__str__(),
-            "ID: " + self.id,
-            "HTML: " + self.html
+            "ID: " + self.id if self.id is not None else none_str_const,
+            "HTML: " + self.html if self.html is not None else none_str_const
         ])
 
 
@@ -132,7 +133,8 @@ class Base(object, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _validate_page(media_page):
-        error_tag = media_page.xpath(".//p[@class='error_code'] | .//div[@class='badresult']")
+        error_tag = media_page.xpath(".//p[@class='error_code'] | .//div[@class='badresult'] | .//div["
+                                     "@class='error404']")
         return len(error_tag) is 0
 
     @abc.abstractmethod

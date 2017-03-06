@@ -90,7 +90,7 @@ class Anime(media.Media):
         if not self._validate_page(anime_page):
             raise InvalidAnimeError(self.id)
 
-        title_tag = anime_page.xpath(".//div[@id='contentWrapper']//h1//span")
+        title_tag = anime_page.xpath(".//div[@id='contentWrapper']//h1")
         if len(title_tag) == 0:
             raise MalformedAnimePageError(self.id, anime_page.text, message="Could not find title div")
 
