@@ -138,7 +138,7 @@ class Media(Base, metaclass=abc.ABCMeta):
                 raise
 
         try:
-            media_info['title'] = title_tag.find(".//span").text.strip()
+            media_info['title'] = title_tag.text.strip()
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
