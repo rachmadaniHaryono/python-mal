@@ -133,7 +133,8 @@ class Base(object, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _validate_page(media_page):
-        error_tag = media_page.xpath(".//p[@class='error_code'] | .//div[@class='badresult']")
+        error_tag = media_page.xpath(".//p[@class='error_code'] | .//div[@class='badresult'] | .//div["
+                                     "@class='error404']")
         return len(error_tag) is 0
 
     @abc.abstractmethod

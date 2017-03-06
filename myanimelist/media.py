@@ -124,13 +124,15 @@ class Media(Base, metaclass=abc.ABCMeta):
         if not self._validate_page(media_page):
             raise InvalidMediaError(self.id)
 
+        title_tag = None
+
         try:
             result_list = utilities.css_select("#contentWrapper", media_page)
             if len(result_list) == 0:
                 raise MalformedMediaPageError(self.id, media_page, message="Could not find content wrapper")
 
             title_tag = result_list[0].find('.//h1')
-            if title_tag is None:
+            if title_tag is None and title_tag.find("span") is None:
                 # otherwise, raise a MalformedMediaPageError.
                 raise MalformedMediaPageError(self.id, media_page, message="Could not find title div")
         except:
@@ -138,7 +140,17 @@ class Media(Base, metaclass=abc.ABCMeta):
                 raise
 
         try:
-            media_info['title'] = title_tag.text.strip()
+            if title_tag is None:
+                raise MalformedMediaPageError(self.id, media_page,
+                                              message="Could not find h1 element to find the title")
+
+            title_tag_span = title_tag.find("span")
+            if title_tag_span is None and title_tag.text is not None:
+                media_info['title'] = title_tag.text.strip()
+            elif title_tag_span is not None and title_tag_span.text is not None:
+                media_info['title'] = title_tag_span.text.strip()
+            else:
+                raise MalformedMediaPageError(self.id, media_page, message="Could not find title in h1")
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -147,9 +159,11 @@ class Media(Base, metaclass=abc.ABCMeta):
         try:
             container = utilities.css_select_first("#content", media_page)
             if container is None:
-                raise MalformedMediaPageError(self.id, media_page, message="Could not find the info table")
+                raise MalformedMediaPageError(self.id, media_page, message="Could not find the info table. (Ph1)")
 
             info_panel_first = container.find(".//table/tr/td")
+            if info_panel_first is None:
+                raise MalformedMediaPageError(self.id, media_page, message="Could not find the info table. (Ph2)")
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
