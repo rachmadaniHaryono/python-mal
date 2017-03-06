@@ -130,7 +130,7 @@ class Media(Base, metaclass=abc.ABCMeta):
                 raise MalformedMediaPageError(self.id, media_page, message="Could not find content wrapper")
 
             title_tag = result_list[0].find('.//h1')
-            if title_tag.find('.//span') is None:
+            if title_tag is None:
                 # otherwise, raise a MalformedMediaPageError.
                 raise MalformedMediaPageError(self.id, media_page, message="Could not find title div")
         except:
