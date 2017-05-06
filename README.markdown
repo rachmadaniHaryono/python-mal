@@ -1,5 +1,7 @@
-Travis Builds: [![Build Status](https://travis-ci.org/pushrbx/python3-mal.svg)](https://travis-ci.org/pushrbx/python3-mal)  
-Jenkins Builds: [![Build Status](http://ci.pushrbx.net/jenkins/buildStatus/icon?job=Mal Crawler)](http://ci.pushrbx.net/jenkins/job/Mal Crawler)    
+| Build Status |                                                                              |
+|--------------|------------------------------------------------------------------------------|
+| Travis       | [![Travis Build Status][travis-build-svg]][travis-build-link]                |
+| Jenkins      | [![Jenkins Build Status][jenkins-build-svg]][jenkins-build-link]             |
 
 
 python3-mal
@@ -80,3 +82,9 @@ Change log
 0.2.3.0 - performance improvements in xpath queries.     
 0.2.2 - adapted to new SEO url rule changes and DOM changes on MAL.     
 0.2.1 - replaced beautifulsoup with lxml.      
+
+<!-- Badges -->
+[travis-build-svg]: https://travis-ci.org/pushrbx/python3-mal.svg
+[jenkins-build-svg]: http://ci.pushrbx.net/jenkins/buildStatus/icon?job=Mal%20Crawler
+[travis-build-link]: https://travis-ci.org/pushrbx/python3-mal
+[jenkins-build-link]: http://ci.pushrbx.net/jenkins/job/Mal%20Crawler
