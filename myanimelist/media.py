@@ -532,7 +532,13 @@ class Media(Base, metaclass=abc.ABCMeta):
                     character_name = ' '.join(reversed(character_link.text.split(', ')))
                     link_parts = character_link.get('href').split('/')
                     # of the form /character/7373/Holo
-                    character = self.session.character(int(link_parts[2])).set({'name': character_name})
+                    if "myanimelist.net" not in link_parts:
+                        character_id = int(link_parts[2])
+                    # or of the form https://myanimelist.net/character/7373/Holo
+                    else:
+                        character_id = int(link_parts[4])
+
+                    character = self.session.character(character_id).set({'name': character_name})
                     role = character_col.find('.//small').text
                     media_info['characters'][character] = {'role': role}
                     temp = curr_elt.xpath("./following-sibling::table[1]")

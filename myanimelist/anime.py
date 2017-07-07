@@ -262,7 +262,12 @@ class Anime(media.Media):
                     character_name = ' '.join(reversed(character_link.text.split(', ')))
                     link_parts = character_link.get('href').split('/')
                     # of the form /character/7373/Holo
-                    character = self.session.character(int(link_parts[2])).set({'name': character_name})
+                    if "myanimelist.net" not in link_parts:
+                        character_id = int(link_parts[2])
+                    # or of the form https://myanimelist.net/character/7373/Holo
+                    else:
+                        character_id = int(link_parts[4])
+                    character = self.session.character(character_id).set({'name': character_name})
                     role = character_col.find('.//small').text
                     character_entry = {'role': role, 'voice_actors': {}}
 
@@ -280,7 +285,12 @@ class Anime(media.Media):
                                 va_name = ' '.join(reversed(va_link.text.split(', ')))
                                 link_parts = va_link.get('href').split('/')
                                 # of the form /people/70/Ami_Koshimizu
-                                person = self.session.person(int(link_parts[2])).set({'name': va_name})
+                                if "myanimelist.net" not in link_parts:
+                                    person_id = int(link_parts[2])
+                                # or of the form https://myanimelist.net/people/70/Ami_Koshimizu
+                                else:
+                                    person_id = int(link_parts[4])
+                                person = self.session.person(person_id).set({'name': va_name})
                                 language = va_info_col.find('.//small').text
                                 anime_info['voice_actors'][person] = {'role': role, 'character': character,
                                                                       'language': language}
@@ -297,23 +307,23 @@ class Anime(media.Media):
                 raise
 
         try:
-            temp = character_page.xpath(".//h2[text()[contains(.,'Staff')]]/following-sibling::table[1]")
+            item_tables = character_page.xpath(".//h2[text()[contains(.,'Staff')]]/following-sibling::table")
             anime_info['staff'] = {}
-            if len(temp) != 0:
-                staff_table = temp[0]
-                for row in staff_table.findall('.//tr'):
-                    # staff info in second col.
-                    info = row.find('./td[2]')
-                    staff_link = info.find('.//a')
-                    if staff_link is not None:
-                        staff_name = ' '.join(reversed(staff_link.text.split(', ')))
-                        link_parts = staff_link.get('href').split('/')
-                        # of the form /people/1870/Miyazaki_Hayao
-                        person = self.session.person(int(link_parts[-2])).set({'name': staff_name})
-                        # staff role(s).
-                        smallTag = info.find('.//small')
-                        if smallTag is not None:
-                            anime_info['staff'][person] = set(smallTag.text.split(', '))
+            if len(item_tables) != 0:
+                for staff_table in item_tables:
+                    for row in staff_table.findall('.//tr'):
+                        # staff info in second col.
+                        info = row.find('./td[2]')
+                        staff_link = info.find('.//a')
+                        if staff_link is not None:
+                            staff_name = ' '.join(reversed(staff_link.text.split(', ')))
+                            link_parts = staff_link.get('href').split('/')
+                            # of the form /people/1870/Miyazaki_Hayao
+                            person = self.session.person(int(link_parts[-2])).set({'name': staff_name})
+                            # staff role(s).
+                            smallTag = info.find('.//small')
+                            if smallTag is not None:
+                                anime_info['staff'][person] = set(smallTag.text.split(', '))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
