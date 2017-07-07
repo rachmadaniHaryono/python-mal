@@ -1,7 +1,7 @@
 | Build Status |                                                                              |
 |--------------|------------------------------------------------------------------------------|
 | Travis       | [![Travis Build Status][travis-build-svg]][travis-build-link]                |
-| Jenkins      | [![Jenkins Build Status][jenkins-build-svg]][jenkins-build-link]             |
+| TeamCity     | [![TeamCityBuild Status][teamcity-build-svg]][teamcity-build-link]           |
 
 
 python3-mal
@@ -85,6 +85,6 @@ Change log
 
 <!-- Badges -->
 [travis-build-svg]: https://travis-ci.org/pushrbx/python3-mal.svg
-[jenkins-build-svg]: http://ci.pushrbx.net/jenkins/buildStatus/icon?job=Mal%20Crawler
+[jenkins-build-svg]: https://ci.pushrbx.net/app/rest/builds/buildType:(id:Python3mal_Build)/statusIcon
 [travis-build-link]: https://travis-ci.org/pushrbx/python3-mal
-[jenkins-build-link]: http://ci.pushrbx.net/jenkins/job/Mal%20Crawler
+[jenkins-build-link]: https://ci.pushrbx.net/viewType.html?buildTypeId=Python3mal_Build&guest=1
