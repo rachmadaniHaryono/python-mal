@@ -12,7 +12,7 @@ config = {
   'download_url': 'https://github.com/pushrbx/python3-mal_crawler/archive/master.zip',
   'author_email': 'contact@pushrbx.net',
   'version': '0.2.6',
-  'install_requires': ['urllib3==1.21.1', 'requests', 'pytz', 'lxml', 'pyreadline', 'cssselect'],
+  'install_requires': ['urllib3==1.21.1', 'requests', 'pytz', 'lxml', 'cssselect'],
   'tests_require': ['nose'],
   'packages': ['myanimelist']
 }
