@@ -86,16 +86,16 @@ class testAnimeListClass(object):
 
         assert isinstance(self.mona.list, dict) and len(self.mona) >= 1822
         assert self.zombie in self.mona and self.lollipop in self.mona and self.musume in self.mona
-        assert self.mona[self.zombie][u'status'] == u'Completed' and self.mona[self.lollipop][u'status'] == u'On-Hold' and self.mona[self.musume][u'status'] == u'Completed'
-        assert self.mona[self.zombie][u'score'] == 7 and self.mona[self.lollipop][u'score'] is None and \
+        assert self.mona[self.zombie][u'status'] == u'Completed' and self.mona[self.lollipop][u'status'] == u'Completed' and self.mona[self.musume][u'status'] == u'Completed'
+        assert self.mona[self.zombie][u'score'] == 7 and self.mona[self.lollipop][u'score'] is not None and \
                self.mona[self.musume][u'score'] is not None
         assert self.mona[self.zombie][u'episodes_watched'] == 2 and self.mona[self.lollipop][
-                                                                        u'episodes_watched'] == 12 and \
-               self.mona[self.musume][u'episodes_watched'] is not 0
-        assert self.mona[self.zombie][u'started'] == None and self.mona[self.lollipop][u'started'] == datetime.date(
-            year=2013, month=4, day=14) and self.mona[self.musume][u'started'] == None
-        assert self.mona[self.zombie][u'finished'] == None and self.mona[self.lollipop][u'finished'] == None and \
-               self.mona[self.musume][u'finished'] == None
+                                                                        u'episodes_watched'] == 13 and \
+               self.mona[self.musume][u'episodes_watched'] > 0
+        assert self.mona[self.zombie][u'started'] is None and self.mona[self.lollipop][u'started'] == datetime.date(
+            year=2013, month=4, day=14) and self.mona[self.musume][u'started'] is None
+        assert self.mona[self.zombie][u'finished'] is None and self.mona[self.lollipop][u'finished'] is not None and \
+               self.mona[self.musume][u'finished'] is None
 
         assert isinstance(self.threger.list, dict) and len(self.threger) == 0
 
