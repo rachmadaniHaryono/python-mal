@@ -85,6 +85,6 @@ Change log
 
 <!-- Badges -->
 [travis-build-svg]: https://travis-ci.org/pushrbx/python3-mal.svg
-[teamcity-build-svg]: https://ci.pushrbx.net/app/rest/builds/buildType:(id:Python3mal_Build)/statusIcon
+[teamcity-build-svg]: https://ci.pushrbx.net/app/rest/builds/buildType:(id:Python3mal_Build)/statusIcon.svg
 [travis-build-link]: https://travis-ci.org/pushrbx/python3-mal
 [teamcity-build-link]: https://ci.pushrbx.net/viewType.html?buildTypeId=Python3mal_Build&guest=1
