@@ -1,7 +1,7 @@
 | Build Status |                                                                              |
 |--------------|------------------------------------------------------------------------------|
 | Travis       | [![Travis Build Status][travis-build-svg]][travis-build-link]                |
-| TeamCity     | <a href="https://ci.pushrbx.net/viewType.html?buildTypeId=Python3mal_Build&guest=1"><img alt="TeamCity Build Status" src="https://ci.pushrbx.net/app/rest/builds/buildType:Python3mal_Build/statusIcon.svg?1" /></a>           |
+| TeamCity     | <a href="https://ci.pushrbx.net/viewType.html?buildTypeId=py3mal&guest=1"><img alt="TeamCity Build Status" src="https://img.shields.io/teamcity/http/celestia.pushrbx.net:8111/s/py3mal.svg?label=tc%20build&style=flat" /></a>           |
 
 
 python3-mal
