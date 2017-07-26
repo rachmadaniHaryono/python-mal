@@ -4,7 +4,7 @@
 | TeamCity     | <a href="https://ci.pushrbx.net/viewType.html?buildTypeId=py3mal&guest=1"><img alt="TeamCity Build Status" src="https://img.shields.io/teamcity/http/celestia.pushrbx.net:8111/s/py3mal.svg?label=tc%20build&style=flat" /></a>           |
 
 
-python3-mal
+python3-mal [![pypi download][pypi-version-svg]][pypi-link] [![pypi download][pypi-format-svg]][pypi-link]
 ==========
 
 Provides programmatic access to MyAnimeList data.
@@ -87,5 +87,8 @@ Change log
 <!-- Badges -->
 [travis-build-svg]: https://travis-ci.org/pushrbx/python3-mal.svg
 [teamcity-build-svg]: https://ci.pushrbx.net/app/rest/builds/buildType:(id:Python3mal_Build)/statusIcon.svg
+[pypi-format-svg]: https://img.shields.io/pypi/format/python3-mal.svg
+[pypi-version-svg]: https://img.shields.io/pypi/v/python3-mal.svg
+[pypi-link]: https://pypi.python.org/pypi/python3-mal
 [travis-build-link]: https://travis-ci.org/pushrbx/python3-mal
 [teamcity-build-link]: https://ci.pushrbx.net/viewType.html?buildTypeId=Python3mal_Build&guest=1
