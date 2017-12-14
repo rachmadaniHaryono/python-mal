@@ -10,3 +10,4 @@ convert_readme.bat
 docs/_build
 docs/_static
 docs/_templates
+.idea

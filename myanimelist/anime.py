@@ -339,7 +339,7 @@ class Anime(media.Media):
         """
         videos_page = self.session.session.get(
                 'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
-                        self.id) + '/' + utilities.urlencode(self.title) + '/videos').text
+                        self.id) + '/' + utilities.urlencode(self.title) + '/video').text
         self.set({'promotion_videos': self.parse_promotion_videos(utilities.get_clean_dom(videos_page))})
         return self
 
