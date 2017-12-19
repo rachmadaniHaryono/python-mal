@@ -159,12 +159,12 @@ class Anime(media.Media):
                 # of the form: /anime.php?p=14
                 if len(link_parts) > 1:
                     anime_info['producers'].append(
-                            self.session.producer(int(link_parts[1])).set({'name': producer_link.text}))
+                        self.session.producer(int(link_parts[1])).set({'name': producer_link.text}))
                 else:
                     # of the form: /anime/producer/65
                     link_parts = producer_link.get('href').split('/')
                     anime_info['producers'].append(
-                            self.session.producer(int(link_parts[-2])).set({"name": producer_link.text}))
+                        self.session.producer(int(link_parts[-2])).set({"name": producer_link.text}))
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
@@ -292,8 +292,11 @@ class Anime(media.Media):
                                     person_id = int(link_parts[4])
                                 person = self.session.person(person_id).set({'name': va_name})
                                 language = va_info_col.find('.//small').text
-                                anime_info['voice_actors'][person] = {'role': role, 'character': character,
-                                                                      'language': language}
+                                # one person can be voice actor for many characters
+                                if person not in anime_info['voice_actors'].keys():
+                                    anime_info['voice_actors'][person] = []
+                                anime_info['voice_actors'][person].append({'role': role, 'character': character,
+                                                                           'language': language})
                                 character_entry['voice_actors'][person] = language
 
                     anime_info['characters'][character] = character_entry
@@ -338,8 +341,8 @@ class Anime(media.Media):
 
         """
         videos_page = self.session.session.get(
-                'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
-                        self.id) + '/' + utilities.urlencode(self.title) + '/video').text
+            'https://myanimelist.net/' + self.__class__.__name__.lower() + '/' + str(
+                self.id) + '/' + utilities.urlencode(self.title) + '/video').text
         self.set({'promotion_videos': self.parse_promotion_videos(utilities.get_clean_dom(videos_page))})
         return self
 
