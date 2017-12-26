@@ -386,21 +386,23 @@ class User(Base):
                     temp = data_container.find("./span[1]")
                 if temp is not None:
                     progress = int(temp.text)
-                    total_match = re.match(r'/(?P<total>[0-9]+)', temp.xpath("./following-sibling::text()")[0])
-                    if total_match is not None:
-                        total_match = total_match.groupdict()
-                    if total_match is None:
-                        list_update["total"] = None
-                    else:
-                        list_update["total"] = int(total_match["total"].replace("/", ""))
-                    status = temp.get("class").split(" ")[-1]
-                    status = status[0].upper() + status[1:]
-                    list_update["status"] = status
-                    list_update["progress"] = progress
-                    time_tag = elem.getnext().find("./div[1]/span[1]")
-                    list_update["time"] = utilities.parse_profile_date(time_tag.text)
-                    user_info['last_list_updates'][media] = list_update
-                    media = None
+                    el_text_matches = temp.xpath("./following-sibling::text()")
+                    if len(el_text_matches) > 0:
+                        total_match = re.match(r'/(?P<total>[0-9]+)', el_text_matches[0])
+                        if total_match is not None:
+                            total_match = total_match.groupdict()
+                        if total_match is None:
+                            list_update["total"] = None
+                        else:
+                            list_update["total"] = int(total_match["total"].replace("/", ""))
+                        status = temp.get("class").split(" ")[-1]
+                        status = status[0].upper() + status[1:]
+                        list_update["status"] = status
+                        list_update["progress"] = progress
+                        time_tag = elem.getnext().find("./div[1]/span[1]")
+                        list_update["time"] = utilities.parse_profile_date(time_tag.text)
+                        user_info['last_list_updates'][media] = list_update
+                        media = None
         except:
             if not self.session.suppress_parse_exceptions:
                 raise

@@ -4,6 +4,7 @@
 from nose.tools import *
 import datetime
 import os
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import manga
@@ -99,24 +100,24 @@ class testMangaClass(object):
 
     def testAlternativeTitles(self):
         assert u'Japanese' in self.monster.alternative_titles and isinstance(
-                self.monster.alternative_titles[u'Japanese'], list) and u'MONSTER' in \
-                                                                        self.monster.alternative_titles[u'Japanese']
+            self.monster.alternative_titles[u'Japanese'], list) and u'MONSTER' in \
+               self.monster.alternative_titles[u'Japanese']
         assert u'Synonyms' in self.holic.alternative_titles and isinstance(self.holic.alternative_titles[u'Synonyms'],
                                                                            list) and u'xxxHolic Cage' in \
-                                                                                     self.holic.alternative_titles[
-                                                                                         u'Synonyms']
+               self.holic.alternative_titles[
+                   u'Synonyms']
         assert u'Japanese' in self.naruto.alternative_titles and isinstance(self.naruto.alternative_titles[u'Japanese'],
                                                                             list) and 'NARUTO―ナルト―' in \
-                                                                                      self.naruto.alternative_titles[
-                                                                                          u'Japanese']
+               self.naruto.alternative_titles[
+                   u'Japanese']
         assert u'English' in self.tomoyo_after.alternative_titles and isinstance(
-                self.tomoyo_after.alternative_titles[u'English'], list) and u'Tomoyo After ~Dear Shining Memories~' in \
-                                                                            self.tomoyo_after.alternative_titles[
-                                                                                u'English']
+            self.tomoyo_after.alternative_titles[u'English'], list) and u'Tomoyo After ~Dear Shining Memories~' in \
+               self.tomoyo_after.alternative_titles[
+                   u'English']
         assert u'Synonyms' in self.judos.alternative_titles and isinstance(self.judos.alternative_titles[u'Synonyms'],
                                                                            list) and u'Juudouzu' in \
-                                                                                     self.judos.alternative_titles[
-                                                                                         u'Synonyms']
+               self.judos.alternative_titles[
+                   u'Synonyms']
 
     def testTypes(self):
         assert self.monster.type == u'Manga'
@@ -155,32 +156,32 @@ class testMangaClass(object):
 
     def testGenres(self):
         assert isinstance(self.holic.genres, list) and len(
-                self.holic.genres) > 0 and self.mystery in self.holic.genres and self.supernatural in self.holic.genres
+            self.holic.genres) > 0 and self.mystery in self.holic.genres and self.supernatural in self.holic.genres
         assert isinstance(self.tomoyo_after.genres, list) and len(
-                self.tomoyo_after.genres) > 0 and self.drama in self.tomoyo_after.genres
+            self.tomoyo_after.genres) > 0 and self.drama in self.tomoyo_after.genres
         assert isinstance(self.naruto.genres, list) and len(
-                self.naruto.genres) > 0 and self.shounen in self.naruto.genres
+            self.naruto.genres) > 0 and self.shounen in self.naruto.genres
         assert isinstance(self.monster.genres, list) and len(
-                self.monster.genres) > 0 and self.mystery in self.monster.genres
+            self.monster.genres) > 0 and self.mystery in self.monster.genres
         assert isinstance(self.judos.genres, list) and len(
-                self.judos.genres) > 0 and self.shounen in self.judos.genres and self.action in self.judos.genres
+            self.judos.genres) > 0 and self.shounen in self.judos.genres and self.action in self.judos.genres
 
     def testAuthors(self):
         assert isinstance(self.holic.authors, dict) and len(
-                self.holic.authors) > 0 and self.clamp in self.holic.authors and self.holic.authors[
-                                                                                     self.clamp] == u'Story & Art'
+            self.holic.authors) > 0 and self.clamp in self.holic.authors and self.holic.authors[
+                   self.clamp] == u'Story & Art'
         assert isinstance(self.tomoyo_after.authors, dict) and len(
-                self.tomoyo_after.authors) > 0 and self.sumiyoshi in self.tomoyo_after.authors and \
+            self.tomoyo_after.authors) > 0 and self.sumiyoshi in self.tomoyo_after.authors and \
                self.tomoyo_after.authors[self.sumiyoshi] == u'Art'
         assert isinstance(self.naruto.authors, dict) and len(
-                self.naruto.authors) > 0 and self.kishimoto in self.naruto.authors and self.naruto.authors[
-                                                                                           self.kishimoto] == u'Story & Art'
+            self.naruto.authors) > 0 and self.kishimoto in self.naruto.authors and self.naruto.authors[
+                   self.kishimoto] == u'Story & Art'
         assert isinstance(self.monster.authors, dict) and len(
-                self.monster.authors) > 0 and self.urasawa in self.monster.authors and self.monster.authors[
-                                                                                           self.urasawa] == u'Story & Art'
+            self.monster.authors) > 0 and self.urasawa in self.monster.authors and self.monster.authors[
+                   self.urasawa] == u'Story & Art'
         assert isinstance(self.judos.authors, dict) and len(
-                self.judos.authors) > 0 and self.kondou in self.judos.authors and self.judos.authors[
-                                                                                      self.kondou] == u'Story & Art'
+            self.judos.authors) > 0 and self.kondou in self.judos.authors and self.judos.authors[
+                   self.kondou] == u'Story & Art'
 
     def testSerialization(self):
         assert isinstance(self.holic.serialization,
@@ -256,33 +257,34 @@ class testMangaClass(object):
 
     def testSynopsis(self):
         assert isinstance(self.holic.synopsis, str) and len(
-                self.holic.synopsis) > 0 and u'Watanuki' in self.holic.synopsis
+            self.holic.synopsis) > 0 and u'Watanuki' in self.holic.synopsis
         assert isinstance(self.monster.synopsis, str) and len(
-                self.monster.synopsis) > 0 and u'Tenma' in self.monster.synopsis
+            self.monster.synopsis) > 0 and u'Tenma' in self.monster.synopsis
         assert isinstance(self.naruto.synopsis, str) and len(
-                self.naruto.synopsis) > 0 and u'Hokage' in self.naruto.synopsis
+            self.naruto.synopsis) > 0 and u'Hokage' in self.naruto.synopsis
         assert isinstance(self.tomoyo_after.synopsis, str) and len(
-                self.tomoyo_after.synopsis) > 0 and u'Clannad' in self.tomoyo_after.synopsis
+            self.tomoyo_after.synopsis) > 0 and u'Clannad' in self.tomoyo_after.synopsis
         assert isinstance(self.judos.synopsis, str) and len(
-                self.judos.synopsis) > 0 and u'hardcore' in self.judos.synopsis
+            self.judos.synopsis) > 0 and u'hardcore' in self.judos.synopsis
 
     def testRelated(self):
         assert isinstance(self.holic.related, dict) and 'Sequel' in self.holic.related and self.holic_sequel in \
-                                                                                           self.holic.related[u'Sequel']
+               self.holic.related[u'Sequel']
         assert isinstance(self.monster.related,
                           dict) and 'Side story' in self.monster.related and self.monster_side_story in \
-                                                                             self.monster.related[u'Side story']
+               self.monster.related[u'Side story']
 
     def testCharacters(self):
         assert isinstance(self.holic.characters, dict) and len(self.holic.characters) > 0
         assert self.doumeki in self.holic.characters and self.holic.characters[self.doumeki]['role'] == 'Main'
 
         assert isinstance(self.monster.characters, dict) and len(self.monster.characters) > 0
-        assert self.heinemann in self.monster.characters and self.monster.characters[self.heinemann]['role'] == 'Main'
+        assert self.heinemann in self.monster.characters \
+            and self.monster.characters[self.heinemann]['role'] == 'Supporting'
 
         assert isinstance(self.naruto.characters, dict) and len(self.naruto.characters) > 0
         assert self.ebizou in self.naruto.characters and self.naruto.characters[self.ebizou]['role'] == 'Supporting'
 
         assert isinstance(self.tomoyo_after.characters, dict) and len(self.tomoyo_after.characters) > 0
         assert self.kanako in self.tomoyo_after.characters and self.tomoyo_after.characters[self.kanako][
-                                                                   'role'] == 'Supporting'
+            'role'] == 'Supporting'
