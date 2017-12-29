@@ -270,11 +270,14 @@ class Media(Base, metaclass=abc.ABCMeta):
             if len(rank_tag_results) == 0:
                 raise Exception("Couldn't find rank tag.")
             # rank_tag is a lxml.etree._ElementUnicodeResult here:
-            try:
-                rank_tag = rank_tag_results[0].getparent().xpath(".//text()[contains(.,'#')]")[0]
+
+            contains = rank_tag_results[0].getparent().xpath(".//text()[contains(.,'#')]")
+            if contains:
+                rank_tag = contains[0]
                 media_info['rank'] = int(rank_tag.strip()[1:].replace(',', ''))
-            except IndexError: # It may happen
+            else:
                 media_info['rank'] = "N/A"
+
         except:
             if not self.session.suppress_parse_exceptions:
                 raise
