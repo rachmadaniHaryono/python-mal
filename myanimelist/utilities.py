@@ -156,7 +156,10 @@ def parse_profile_date(text, suppress=False):
         try:
             parsed_date = datetime.datetime.strptime(text, '%b %d, %I:%M %p')
         except ValueError:
-            parsed_date = datetime.datetime.strptime(text, '%b %d, %Y %I:%M %p')
+            try:
+                parsed_date = datetime.datetime.strptime(text, '%b %d, %Y %I:%M %p')
+            except ValueError: # if the user don't display his birthday year, it never work.
+                parsed_date = None
         # see if it's a month/year pairing.
         return parsed_date if parsed_date is not None else None
     except:
