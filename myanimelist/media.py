@@ -253,10 +253,11 @@ class Media(Base, metaclass=abc.ABCMeta):
                 ".//div[contains(@class,'js-statistics-info')]//span[text()[contains(.,'Score:')]]")
             if len(score_tag_results) == 0:
                 raise Exception("Couldn't find score tag.")
-            try:
-                score = float(utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text)
-            except ValueError:
+            score_text = utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text
+            if isinstance(score_text, str): # Happen when score == 'N/A'
                 score = None
+            else:
+                score = float(score_text)
             score_tag = utilities.css_select('span.dark_text + span', score_tag_results[0])[0]
             num_users = int(score_tag.getparent().xpath(".//span[@itemprop='ratingCount']")[0].text.replace(',', ''))
             stripped_score = score
