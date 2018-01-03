@@ -261,7 +261,7 @@ class Media(Base, metaclass=abc.ABCMeta):
             score_tag = utilities.css_select('span.dark_text + span', score_tag_results[0])[0]
             num_users = int(score_tag.getparent().xpath(".//span[@itemprop='ratingCount']")[0].text.replace(',', ''))
             stripped_score = score
-            if stripped_score:
+            if stripped_score is not None:
                 media_info['score'] = (decimal.Decimal(stripped_score), num_users)
             else:
                 media_info['score'] = (0, 0)
