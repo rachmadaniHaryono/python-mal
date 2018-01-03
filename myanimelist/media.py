@@ -254,7 +254,7 @@ class Media(Base, metaclass=abc.ABCMeta):
             if len(score_tag_results) == 0:
                 raise Exception("Couldn't find score tag.")
             score_text = utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text
-            if isinstance(score_text, str): # Happen when score == 'N/A'
+            if score_text == "N/A":
                 score = None
             else:
                 score = float(score_text)
