@@ -3,6 +3,7 @@
 from lxml.cssselect import CSSSelector
 from lxml import html as ht
 from lxml import etree as et
+from lxml.html import HtmlElement
 import datetime
 import re
 import urllib.parse as urllib
@@ -191,3 +192,7 @@ def check_if_mal_response_is_empty(xmlel):
         return True
 
     return False
+
+
+def is_open_graph_style_stat_element(element):
+    return element is not None and type(element) is HtmlElement and ((element.tail is not None and element.tail.strip() == "") or element.tail is None)

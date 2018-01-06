@@ -253,13 +253,29 @@ class Media(Base, metaclass=abc.ABCMeta):
                 ".//div[contains(@class,'js-statistics-info')]//span[text()[contains(.,'Score:')]]")
             if len(score_tag_results) == 0:
                 raise Exception("Couldn't find score tag.")
-            score_text = utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text
+
+            # there two types of layout for scores: the ones with span elements with open graph / html5 attributes
+            # and the ones without these special attributes
+            if utilities.is_open_graph_style_stat_element(score_tag_results[0]):
+                score_text = utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text
+                score_tag = utilities.css_select('span.dark_text + span', score_tag_results[0])[0]
+                num_users = int(
+                    score_tag.getparent().xpath(".//span[@itemprop='ratingCount']")[0].text.replace(',', ''))
+            else:
+                score_text = score_tag_results[0].tail.strip()
+                small_tags = score_tag_results[0].xpath("./following-sibling::small")
+                if len(small_tags) > 0:
+                    small_tag = small_tags[0]
+                    m = re.match("\(scored by ([0-9]+)", small_tag.text)
+                    num_users = int(m.group(1))
+                else:
+                    num_users = 0
+
             if score_text == "N/A":
                 score = None
             else:
                 score = float(score_text)
-            score_tag = utilities.css_select('span.dark_text + span', score_tag_results[0])[0]
-            num_users = int(score_tag.getparent().xpath(".//span[@itemprop='ratingCount']")[0].text.replace(',', ''))
+
             stripped_score = score
             if stripped_score is not None:
                 media_info['score'] = (decimal.Decimal(stripped_score), num_users)
@@ -718,3 +734,4 @@ class Media(Base, metaclass=abc.ABCMeta):
         """Score statistics dict, with int scores from 1-10 as keys, and an int number of users as values.
         """
         return self._score_stats
+
