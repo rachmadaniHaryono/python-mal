@@ -5,6 +5,8 @@ from nose.tools import *
 import datetime
 import os
 
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import media_list
@@ -18,7 +20,7 @@ else:
 class testAnimeListClass(object):
     @classmethod
     def setUpClass(self):
-        self.session = session.Session()
+        self.session = session.Session(proxy_settings=get_proxy_settings())
 
         self.shal = self.session.anime_list(u'shaldengeki')
         self.fz = self.session.anime(10087)

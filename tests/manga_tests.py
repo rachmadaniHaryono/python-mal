@@ -5,6 +5,8 @@ from nose.tools import *
 import datetime
 import os
 
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import manga
@@ -18,7 +20,7 @@ else:
 class testMangaClass(object):
     @classmethod
     def setUpClass(self):
-        self.session = myanimelist.session.Session()
+        self.session = myanimelist.session.Session(proxy_settings=get_proxy_settings())
 
         self.monster = self.session.manga(1)
         self.mystery = self.session.genre(7)

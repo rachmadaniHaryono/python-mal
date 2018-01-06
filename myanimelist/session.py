@@ -63,7 +63,7 @@ class Session(object):
     """Class to handle requests to MAL. Handles login, setting HTTP headers, etc.
     """
 
-    def __init__(self, username=None, password=None, user_agent="iMAL-iOS"):
+    def __init__(self, username=None, password=None, user_agent="iMAL-iOS", proxy_settings=None):
         """Creates a new instance of Session.
 
         :type username: str
@@ -90,6 +90,8 @@ class Session(object):
             'Accept-Language': 'en-US,en;q=0.7,ja;q=0.3',
             'Connection': 'keep-alive',
         })
+        if proxy_settings is not None and type(proxy_settings) is dict:
+            self.session.proxies.update(proxy_settings)
 
         """Suppresses any Malformed*PageError exceptions raised during parsing.
 

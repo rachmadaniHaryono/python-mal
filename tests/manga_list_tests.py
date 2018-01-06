@@ -6,6 +6,8 @@ import datetime
 
 import os
 
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import media_list
@@ -21,7 +23,7 @@ else:
 class testMangaListClass(object):
     @classmethod
     def setUpClass(self):
-        self.session = myanimelist.session.Session()
+        self.session = myanimelist.session.Session(proxy_settings=get_proxy_settings())
 
         self.shal = self.session.manga_list(u'shaldengeki')
         self.tomoyo_after = self.session.manga(3941)

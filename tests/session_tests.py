@@ -4,6 +4,8 @@
 from nose.tools import *
 import os
 
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import anime
@@ -26,7 +28,7 @@ class testSessionClass(object):
                 line = cred_file.read().strip().split(u'\n')[0]
                 self.username, self.password = line.strip().split(u',')
 
-        self.session = myanimelist.session.Session(self.username, self.password)
+        self.session = myanimelist.session.Session(self.username, self.password, proxy_settings=get_proxy_settings())
         self.logged_in_session = myanimelist.session.Session(self.username, self.password).login()
         self.fake_session = myanimelist.session.Session(u'no-username', 'no-password')
 

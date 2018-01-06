@@ -5,6 +5,8 @@ from nose.tools import *
 import datetime
 import os
 
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import user
@@ -18,7 +20,7 @@ else:
 class testUserClass(object):
     @classmethod
     def setUpClass(self):
-        self.session = myanimelist.session.Session()
+        self.session = myanimelist.session.Session(proxy_settings=get_proxy_settings())
         self.shal = self.session.user(u'shaldengeki')
         self.gits = self.session.anime(467)
         self.clannad_as = self.session.anime(4181)

@@ -3,6 +3,9 @@
 
 from nose.tools import *
 import os
+
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import character
@@ -18,7 +21,7 @@ else:
 class testCharacterClass(object):
     @classmethod
     def setUpClass(self):
-        self.session = myanimelist.session.Session()
+        self.session = myanimelist.session.Session(proxy_settings=get_proxy_settings())
         self.spike = self.session.character(1)
         self.ed = self.session.character(11)
         self.maria = self.session.character(112693)

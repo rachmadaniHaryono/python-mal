@@ -4,6 +4,9 @@
 from nose.tools import *
 import datetime
 import os
+
+from tests import get_proxy_settings
+
 if "RUNENV" in os.environ and os.environ["RUNENV"] == "travis":
     from myanimelist import session
     from myanimelist import anime
@@ -20,7 +23,7 @@ class testAnimeClass(object):
     @classmethod
     def setUpClass(self):
 
-        self.session = session.Session()
+        self.session = session.Session(proxy_settings=get_proxy_settings())
         self.bebop = self.session.anime(1)
         self.sunrise = self.session.producer(14)
         self.bandai = self.session.producer(23)
