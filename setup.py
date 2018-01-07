@@ -20,7 +20,7 @@ config = {
   'url': 'https://github.com/pushrbx/python3-mal',
   'download_url': 'https://github.com/pushrbx/python3-mal/archive/master.zip',
   'author_email': 'contact@pushrbx.net',
-  'version': '0.2.11',
+  'version': '0.2.12',
   'install_requires': ['urllib3', 'requests', 'pytz', 'lxml', 'cssselect'],
   'tests_require': ['nose'],
   'packages': ['myanimelist']
