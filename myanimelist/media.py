@@ -259,8 +259,18 @@ class Media(Base, metaclass=abc.ABCMeta):
             if utilities.is_open_graph_style_stat_element(score_tag_results[0]):
                 score_text = utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text
                 score_tag = utilities.css_select('span.dark_text + span', score_tag_results[0])[0]
-                num_users = int(
-                    score_tag.getparent().xpath(".//span[3]")[0].text.replace(',', ''))
+
+                rating_count_els = score_tag.getparent().xpath(".//span[3]|.//small/span[1]")
+                if len(rating_count_els) > 0:
+                    num_users = int(rating_count_els[0].text.replace(',', ''))
+                else:
+                    small_tags = score_tag.getparent().xpath("./small[1]")
+                    if len(small_tags) > 0:
+                        small_tag = small_tags[0]
+                        m = re.match("\(scored by ([0-9]+)", small_tag.text)
+                        num_users = int(m.group(1))
+                    else:
+                        num_users = 0
             else:
                 score_text = score_tag_results[0].tail.strip()
                 small_tags = score_tag_results[0].xpath("./following-sibling::small")
