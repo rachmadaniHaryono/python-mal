@@ -254,13 +254,13 @@ class Media(Base, metaclass=abc.ABCMeta):
             if len(score_tag_results) == 0:
                 raise Exception("Couldn't find score tag.")
 
-            # there two types of layout for scores: the ones with span elements with open graph / html5 attributes
+            # there are two types of layout for scores: the ones with span elements with open graph / html5 attributes
             # and the ones without these special attributes
             if utilities.is_open_graph_style_stat_element(score_tag_results[0]):
                 score_text = utilities.css_select('span.dark_text + span', score_tag_results[0])[0].text
                 score_tag = utilities.css_select('span.dark_text + span', score_tag_results[0])[0]
                 num_users = int(
-                    score_tag.getparent().xpath(".//span[@itemprop='ratingCount']")[0].text.replace(',', ''))
+                    score_tag.getparent().xpath(".//span[3]")[0].text.replace(',', ''))
             else:
                 score_text = score_tag_results[0].tail.strip()
                 small_tags = score_tag_results[0].xpath("./following-sibling::small")
