@@ -112,7 +112,7 @@ class Character(Base):
                 anime_link = info_col.find('a')
                 link_parts = anime_link.get('href').split('/')
                 # of the form: /anime/1/Cowboy_Bebop
-                anime = self.session.anime(int(link_parts[2])).set({'title': anime_link.text})
+                anime = self.session.anime(int(link_parts[4])).set({'title': anime_link.text})
                 role = info_col.find('.//small').text
                 character_info['animeography'][anime] = role
         except:
@@ -133,7 +133,7 @@ class Character(Base):
                 manga_link = info_col.find('a')
                 link_parts = manga_link.get('href').split('/')
                 # of the form: /manga/1/Cowboy_Bebop
-                manga = self.session.manga(int(link_parts[2])).set({'title': manga_link.text})
+                manga = self.session.manga(int(link_parts[4])).set({'title': manga_link.text})
                 role = info_col.find('.//small').text
                 character_info['mangaography'][manga] = role
         except:
@@ -206,7 +206,7 @@ class Character(Base):
                         if "myanimelist.net" in voice_actor_link.get('href'):
                             person = self.session.person(int(link_parts[4])).set({'name': name})
                         else:
-                            person = self.session.person(int(link_parts[2])).set({'name': name})
+                            person = self.session.person(int(link_parts[4])).set({'name': name})
                         language = info_col.find('.//small').text
                         character_info['voice_actors'][person] = language
         except:
