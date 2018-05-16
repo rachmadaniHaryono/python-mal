@@ -287,9 +287,12 @@ class User(Base):
 
                             media_link = cols[1].find('.//span').find('a')
                             link_parts = media_link.get('href').split('/')
-                            # of the form /anime|manga/467
-                            anime = getattr(self.session, link_parts[1])(int(link_parts[2])).set(
-                                    {'title': media_link.text})
+                            # of the form /anime|manga/467 or None when link is missing. E.g. for https://myanimelist.net/character/8841/Miriya_Sterling
+                            if link_parts[2] == '':
+                                anime = None
+                            else:
+                                anime = getattr(self.session, link_parts[1])(int(link_parts[2])).set(
+                                        {'title': media_link.text})
 
                             user_info['favorite_characters'][character] = anime
             except:
