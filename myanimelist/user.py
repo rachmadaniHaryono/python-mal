@@ -421,7 +421,7 @@ class User(Base):
 
                 # mean score and days
                 for val_name_tag in elem.findall("./div[1]/div/span[1]"):
-                    value = float(val_name_tag.xpath("./following-sibling::text()")[0].strip())
+                    value = float(val_name_tag.xpath("./following-sibling::text()")[0].strip().replace(",", ""))
                     user_info['%s_stats' % media][val_name_tag.text.strip().replace(":", "")] = value
 
                 # the rest
