@@ -111,6 +111,9 @@ class User(Base):
         if general_detail_ul is None:
             general_detail_ul = user_page.find("./body/div[1]/div[3]/div[3]/div[2]/table//tr/td[1]/div/ul[1]")
 
+        if general_detail_ul is None:
+            general_detail_ul = user_page.find("./body/div[1]/div[1]/div[3]/div[2]/div/div[1]/div/ul[1]")
+
         last_online_elt = general_detail_ul.xpath(".//span[text()[contains(.,'Last Online')]]")[0]
         if last_online_elt is not None:
             try:
