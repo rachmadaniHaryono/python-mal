@@ -111,6 +111,9 @@ class User(Base):
         if general_detail_ul is None:
             general_detail_ul = user_page.find("./body/div[1]/div[3]/div[3]/div[2]/table//tr/td[1]/div/ul[1]")
 
+        if general_detail_ul is None:
+            general_detail_ul = user_page.find("./body/div[1]/div[1]/div[3]/div[2]/div/div[1]/div/ul[1]")
+
         last_online_elt = general_detail_ul.xpath(".//span[text()[contains(.,'Last Online')]]")[0]
         if last_online_elt is not None:
             try:
@@ -287,9 +290,12 @@ class User(Base):
 
                             media_link = cols[1].find('.//span').find('a')
                             link_parts = media_link.get('href').split('/')
-                            # of the form /anime|manga/467
-                            anime = getattr(self.session, link_parts[1])(int(link_parts[2])).set(
-                                    {'title': media_link.text})
+                            # of the form /anime|manga/467 or None when link is missing. E.g. for https://myanimelist.net/character/8841/Miriya_Sterling
+                            if link_parts[2] == '':
+                                anime = None
+                            else:
+                                anime = getattr(self.session, link_parts[1])(int(link_parts[2])).set(
+                                        {'title': media_link.text})
 
                             user_info['favorite_characters'][character] = anime
             except:
@@ -418,7 +424,7 @@ class User(Base):
 
                 # mean score and days
                 for val_name_tag in elem.findall("./div[1]/div/span[1]"):
-                    value = float(val_name_tag.xpath("./following-sibling::text()")[0].strip())
+                    value = float(val_name_tag.xpath("./following-sibling::text()")[0].strip().replace(",", ""))
                     user_info['%s_stats' % media][val_name_tag.text.strip().replace(":", "")] = value
 
                 # the rest
